@@ -177,14 +177,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onBack, onVi
         fetchQuests();
     }, [user, isCreating]);
 
-    const handleAddQuestion = () => {
-        if (!user?.isSubscribed && questions.length >= 1) {
-            alert("Free accounts are limited to 1 question per quest. Upgrade to Pro for unlimited questions!");
-            onViewPricing();
-            return;
-        }
-
-        if (!currentQText || !option1 || !option2 || !option3 || !option4 || !explanation) {
+    const handleAddQuestion = () => {        if (!currentQText || !option1 || !option2 || !option3 || !option4 || !explanation) {
             alert("Please fill in all fields for the question.");
             return;
         }
@@ -516,15 +509,11 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onBack, onVi
                                 <Button
                                     fullWidth
                                     size="lg"
-                                    variant={(!user?.isSubscribed && questions.length >= 1) ? "primary" : "secondary"}
-                                    onClick={(!user?.isSubscribed && questions.length >= 1) ? onViewPricing : handleAddQuestion}
-                                    className={`py-6 text-lg font-bold shadow-lg transition-all ${(!user?.isSubscribed && questions.length >= 1) ? "bg-brand-orange hover:bg-orange-400 shadow-brand-orange/20" : "bg-brand-blue hover:bg-blue-600 shadow-brand-blue/20"}`}
+                                    variant="secondary"
+                                    onClick={handleAddQuestion}
+                                    className="py-6 text-lg font-bold shadow-lg transition-all bg-brand-blue hover:bg-blue-600 shadow-brand-blue/20"
                                 >
-                                    {(!user?.isSubscribed && questions.length >= 1) ? (
-                                        <><Sparkles className="mr-2" /> Upgrade for Unlimited Questions</>
-                                    ) : (
-                                        <><Plus className="mr-2" /> Add Question to Homework</>
-                                    )}
+                                    <><Plus className="mr-2" /> Add Question to Homework</>
                                 </Button>
                             </div>
                         </Card>
@@ -560,8 +549,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onBack, onVi
     }
 
 
-    const creationLimit = !user?.isSubscribed ? 1 : Infinity;
-    const canCreate = quests.length < creationLimit;
+    const canCreate = true;
     const [dashTab, setDashTab] = useState<'homework' | 'rewards'>('homework');
 
     return (
@@ -592,25 +580,9 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onBack, onVi
                     </div>
                 </div>
                 <div className="flex flex-col items-end gap-2">
-                    {canCreate ? (
-                        <Button
-                            onClick={() => setIsCreating(true)}
-                        >
-                            <Plus className="mr-2" /> Create Homework
-                        </Button>
-                    ) : (
-                        <Button
-                            onClick={onViewPricing}
-                            className="bg-brand-orange hover:bg-orange-400 shadow-lg shadow-brand-orange/20"
-                        >
-                            <Sparkles className="mr-2" /> Upgrade for Unlimited
-                        </Button>
-                    )}
-                    {!user?.isSubscribed && (
-                        <span className="text-[10px] font-bold text-brand-orange uppercase">
-                            Free Limit: {quests.length} / 1 Homework
-                        </span>
-                    )}
+                    <Button onClick={() => setIsCreating(true)}>
+                        <Plus className="mr-2" /> Create Homework
+                    </Button>
                 </div>
             </div>
 
