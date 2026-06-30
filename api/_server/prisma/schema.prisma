@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -15,12 +15,12 @@ model Quest {
   grade     String
   syllabus  String
   creatorId String
-  questions String   @db.Text
+  questions String   
   createdAt DateTime @default(now())
-  creator   User     @relation(fields: [creatorId], references: [id], map: "Quest_creatorId_fkey")
+  creator   User     @relation(fields: [creatorId], references: [id])
   results   Result[]
 
-  @@index([creatorId], map: "Quest_creatorId_idx")
+  @@index([creatorId])
 }
 
 model Result {
@@ -34,11 +34,11 @@ model Result {
   subject         String?
   topic           String?
   date            DateTime @default(now())
-  quest           Quest?   @relation(fields: [questId], references: [id], map: "Result_questId_fkey")
-  user            User     @relation(fields: [userId], references: [id], map: "Result_userId_fkey")
+  quest           Quest?   @relation(fields: [questId], references: [id])
+  user            User     @relation(fields: [userId], references: [id])
 
-  @@index([questId], map: "Result_questId_idx")
-  @@index([userId], map: "Result_userId_idx")
+  @@index([questId])
+  @@index([userId])
 }
 
 model User {
@@ -77,10 +77,10 @@ model User {
 model Reward {
   id          String       @id @default(uuid())
   title       String
-  description String?      @db.Text
+  description String?      
   coinCost    Int
   icon        String?      // Lucide icon name or emoji
-  imageUrl    String?      @db.Text  // base64 data URL for reward image
+  imageUrl    String?        // base64 data URL for reward image
   stock       Int?         // Null means unlimited
   isActive    Boolean      @default(true)
   createdAt   DateTime     @default(now())
@@ -124,10 +124,10 @@ model QuestionBank {
   topic         String
   subtopic      String?
   year          Int      // e.g., 2023
-  question      String   @db.Text
-  options       String   @db.Text // JSON string: ["A", "B", "C", "D"]
+  question      String   
+  options       String    // JSON string: ["A", "B", "C", "D"]
   correctAnswer String
-  explanation   String   @db.Text
+  explanation   String   
   difficulty    String   // Easy, Medium, Hard
   source        String?  // e.g., "SPM 2023 Paper 1"
   createdAt     DateTime @default(now())
@@ -140,7 +140,7 @@ model CourseSyllabus {
   subject   String
   grade     String
   syllabus  String   // e.g., "KSSM", "IGCSE", "Singapore Math"
-  topics    String   @db.Text // JSON: ["Algebra", "Geometry"] or nested objects
+  topics    String    // JSON: ["Algebra", "Geometry"] or nested objects
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -154,7 +154,7 @@ model PaperFile {
   subject   String
   year      Int
   label     String   // e.g. "SPM 2023 — Paper 1"
-  fileData  String   @db.Text  // base64-encoded PDF
+  fileData  String     // base64-encoded PDF
   fileSize  Int      // original size in bytes
   createdAt DateTime @default(now())
 
@@ -165,7 +165,7 @@ model StudyPlan {
   id          String      @id @default(uuid())
   userId      String
   title       String
-  overview    String?     @db.Text
+  overview    String?     
   subject     String
   grade       String
   syllabus    String
@@ -222,7 +222,7 @@ model AssignmentSubmission {
   studentId    String
   status       String   @default("pending") // pending, submitted, completed
   score        Int?
-  proofUrl     String?  @db.Text
+  proofUrl     String?  
   completedAt  DateTime?
 
   assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)

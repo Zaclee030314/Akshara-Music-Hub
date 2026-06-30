@@ -29,6 +29,7 @@ import { FeaturedPapers } from './components/FeaturedPapers';
 import { DataAnalysis } from './components/DataAnalysis';
 import { StudentClassrooms } from './components/StudentClassrooms';
 import { ClassroomManager } from './components/ClassroomManager';
+import { Leaderboard } from './components/Leaderboard';
 
 const INITIAL_STATS: UserStats = {
   xp: 0,
@@ -2047,6 +2048,7 @@ export default function App() {
             <button onClick={() => { setShowMobileMenu(false); navigate('/'); setTimeout(() => document.getElementById('courses')?.scrollIntoView({ behavior: 'smooth' }), 200); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">📚 Courses</button>
             <button onClick={() => { setShowMobileMenu(false); if (!user) setShowLoginModal(true); else navigate(user?.isAdmin ? '/admin' : user?.role === 'teacher' ? '/teacher' : '/dashboard'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">📊 Dashboard</button>
             <button onClick={() => { setShowMobileMenu(false); if (!user) setShowLoginModal(true); else navigate('/classrooms'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">🏫 Classrooms</button>
+            <button onClick={() => { setShowMobileMenu(false); navigate('/leaderboard'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">🏆 Leaderboard</button>
             {user?.isSubscribed && (
               <button onClick={() => { setShowMobileMenu(false); navigate('/rewards'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-orange hover:bg-brand-orange/5 transition-all text-sm">🛍️ Rewards</button>
             )}
@@ -2065,6 +2067,7 @@ export default function App() {
           <button onClick={() => { navigate('/'); setTimeout(() => document.getElementById('courses')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">Courses</button>
           <button onClick={() => { if (!user) setShowLoginModal(true); else navigate(user?.isAdmin ? '/admin' : user?.role === 'teacher' ? '/teacher' : '/dashboard'); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">Dashboard</button>
           <button onClick={() => { if (!user) setShowLoginModal(true); else navigate('/classrooms'); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">Classrooms</button>
+          <button onClick={() => { navigate('/leaderboard'); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">Leaderboard</button>
         </div>
 
         <div className="flex items-center gap-2 md:gap-4">
@@ -2167,6 +2170,7 @@ export default function App() {
             </ProtectedRoute>
           } />
 
+          <Route path="/leaderboard" element={<div className="pt-8"><Leaderboard /></div>} />
           <Route path="/rewards" element={
             <ProtectedRoute>
               {renderRewards()}

@@ -174,7 +174,7 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
 
     // ── EMAIL VERIFICATION ──────────────────────────────────────────────────
     if (view === 'verify') return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
             <Card className="max-w-md w-full p-8 relative animate-float">
                 <button onClick={() => setView('login')} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
                     <ArrowLeft size={20} />
@@ -207,7 +207,7 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
 
     // ── FORGOT PASSWORD: STEP 1 – Email ─────────────────────────────────────
     if (view === 'forgot_email') return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
             <Card className="max-w-md w-full p-8 relative animate-float">
                 <button onClick={() => { setView('login'); setFpError(''); }} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
                     <ArrowLeft size={20} />
@@ -239,7 +239,7 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
 
     // ── FORGOT PASSWORD: STEP 2 – OTP ───────────────────────────────────────
     if (view === 'forgot_otp') return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
             <Card className="max-w-md w-full p-8 relative animate-float">
                 <button onClick={() => { setView('forgot_email'); setFpError(''); setFpOtp(''); }} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
                     <ArrowLeft size={20} />
@@ -271,7 +271,7 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
 
     // ── FORGOT PASSWORD: STEP 3 – New Password ──────────────────────────────
     if (view === 'forgot_newpass') return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
             <Card className="max-w-md w-full p-8 relative animate-float">
                 <div className="text-center mb-6">
                     <div className="w-16 h-16 bg-brand-green/10 rounded-full flex items-center justify-center mx-auto mb-4 text-brand-green">
@@ -307,7 +307,7 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
 
     // ── MAIN LOGIN / SIGNUP ─────────────────────────────────────────────────
     return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
             <Card className="max-w-md w-full p-8 relative animate-float">
                 <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
                     <ArrowLeft size={20} />

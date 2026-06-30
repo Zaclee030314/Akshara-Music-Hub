@@ -38,15 +38,15 @@ export const Hero: React.FC<HeroProps> = ({ onStart, onViewPricing, isLoggedIn, 
             {/* Headline */}
             <div className="space-y-4 max-w-4xl mx-auto animate-reveal-up delay-200">
                 <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold text-white tracking-tight leading-[1.15] drop-shadow-lg">
-                    Master Your{' '}
+                    Akshara Music Hub
                     <br className="hidden sm:block" />
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue via-brand-orange to-brand-green filter drop-shadow-md">
-                        Revision Journey
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue via-brand-orange to-brand-green filter drop-shadow-md text-3xl sm:text-4xl mt-2 inline-block">
+                        Where Music, Education & Smart Practice Meet
                     </span>
                 </h1>
 
                 <p className="text-sm sm:text-base lg:text-lg text-white/90 max-w-xl mx-auto leading-relaxed font-medium px-2 animate-reveal-up delay-300 drop-shadow-md">
-                    Master Every Subject. Unlimited Questions for your students.
+                    by Akshara Fine Arts
                 </p>
             </div>
 
@@ -57,7 +57,7 @@ export const Hero: React.FC<HeroProps> = ({ onStart, onViewPricing, isLoggedIn, 
                     onClick={onStart}
                     className="px-16 py-6 text-xl shadow-xl hover:scale-105 transition-transform"
                 >
-                    {isLoggedIn ? 'Continue Learning' : 'Get Started for Free'}
+                    {isLoggedIn ? 'Continue Practising' : 'Start Practising Today'}
                     <Rocket className="w-5 h-5 ml-2" />
                 </Button>
             </div>

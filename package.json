@@ -10,7 +10,7 @@
     "build": "prisma generate --schema=api/_server/prisma/schema.prisma && vite build",
     "preview": "vite preview",
     "vercel-build": "prisma generate --schema=api/_server/prisma/schema.prisma && vite build",
-    "start:all": "concurrently \"npm run dev\" \"cd server && npm run dev\"",
+    "start:all": "concurrently \"npm run dev\" \"npm run dev:server\"",
     "postinstall": "prisma generate --schema=api/_server/prisma/schema.prisma"
   },
   "dependencies": {

@@ -133,4 +133,4 @@ export interface ResultEntry {
   };
 }
 
-export type ViewState = 'HOME' | 'PRICING' | 'GAME_SETUP' | 'GAME_SESSION' | 'DASHBOARD' | 'TEACHER_DASHBOARD' | 'REWARDS' | 'ADMIN';
+export type ViewState = 'HOME' | 'PRICING' | 'GAME_SETUP' | 'GAME_SESSION' | 'DASHBOARD' | 'TEACHER_DASHBOARD' | 'REWARDS' | 'ADMIN' | 'LEADERBOARD';

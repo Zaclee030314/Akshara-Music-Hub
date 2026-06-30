@@ -6,6 +6,7 @@ const router = express.Router();
 
 // GET /api/rewards — list all active rewards (authenticated users)
 router.get('/', authenticateToken, async (req: AuthRequest, res) => {
+    try {
         const userId = req.user?.id;
         if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
