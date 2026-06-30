@@ -6,7 +6,7 @@ const REVIEWS = [
     {
         name: 'Sarah Tan',
         role: 'Form 5 Student',
-        text: 'RevisionLab made Sejarah fun! The AI explanations actually help me understand the causes of historical events, not just memorize dates.',
+        text: 'Akshara Music Hub made Sejarah fun! The AI explanations actually help me understand the causes of historical events, not just memorize dates.',
         rating: 5,
         avatar: '👩‍🎓'
     },

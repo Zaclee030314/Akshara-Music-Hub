@@ -3,7 +3,7 @@ import { ChevronDown, HelpCircle } from 'lucide-react';
 
 const FAQS = [
     {
-        q: 'Is RevisionLab aligned with the Malaysian syllabus?',
+        q: 'Is Akshara Music Hub aligned with the Malaysian syllabus?',
         a: 'Yes! We cover the national curriculum (KSSR/KSSM), MOE Singapore, and IGCSE for most major subjects.'
     },
     {
@@ -30,7 +30,7 @@ export const FAQ: React.FC = () => {
                     <HelpCircle size={32} />
                 </div>
                 <h2 className="text-4xl font-display font-bold text-brand-dark">Frequently Asked Questions</h2>
-                <p className="text-lg text-brand-dark/60">Everything you need to know about RevisionLab.</p>
+                <p className="text-lg text-brand-dark/60">Everything you need to know about Akshara Music Hub.</p>
             </div>
 
             <div className="space-y-4">

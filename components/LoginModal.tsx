@@ -317,7 +317,7 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
                         <LogIn size={32} />
                     </div>
                     <h3 className="text-2xl font-bold font-display">{isSignUp ? 'Create Account' : 'Welcome Back!'}</h3>
-                    <p className="text-gray-500">{isSignUp ? 'Join RevisionLab today!' : 'Log in to continue your quest.'}</p>
+                    <p className="text-gray-500">{isSignUp ? 'Join Akshara Music Hub today!' : 'Log in to continue your quest.'}</p>
                 </div>
 
                 <div className="space-y-4">

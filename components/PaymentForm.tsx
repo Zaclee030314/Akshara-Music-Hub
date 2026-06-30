@@ -174,7 +174,7 @@ export const PaymentForm = ({ amount, interval, planLevel, syllabus, clientSecre
         <Card className="max-w-md w-full p-8 shadow-2xl border-2 border-brand-orange/20 animate-pop-in">
             <div className="text-center mb-8">
                 <h3 className="text-2xl font-bold font-display mb-2">Secure Payment</h3>
-                <p className="text-gray-500 text-sm">{isMock ? 'Simulating RevisionLab Pro Upgrade' : 'Complete your upgrade to RevisionLab Pro'}</p>
+                <p className="text-gray-500 text-sm">{isMock ? 'Simulating Akshara Music Hub Pro Upgrade' : 'Complete your upgrade to Akshara Music Hub Pro'}</p>
             </div>
 
             {isMock ? (

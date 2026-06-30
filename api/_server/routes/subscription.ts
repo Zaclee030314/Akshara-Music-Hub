@@ -145,7 +145,7 @@ router.post('/checkout', authenticateToken, async (req: any, res: any) => {
                     price_data: {
                         currency: finalCurrency,
                         product_data: {
-                            name: `RevisionLab Pro - ${finalInterval === 'year' ? '1 Year' : '1 Month'} Access`,
+                            name: `Akshara Music Hub Pro - ${finalInterval === 'year' ? '1 Year' : '1 Month'} Access`,
                             description: `Unlimited Quizzes and Quest Creation for ${finalInterval === 'year' ? '1 year' : '1 month'}. No auto-renewal.`,
                         },
                         unit_amount: finalAmount,

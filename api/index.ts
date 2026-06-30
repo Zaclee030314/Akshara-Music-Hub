@@ -67,7 +67,7 @@ app.use('/api/assignments', assignmentRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 
 app.get('/api', (req, res) => {
-    res.send('RevisionLab API is running on Vercel');
+    res.send('Akshara Music Hub API is running on Vercel');
 });
 
 export default app;

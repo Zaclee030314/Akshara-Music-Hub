@@ -1114,7 +1114,7 @@ export default function App() {
             </Button>
 
             <p className="text-xs text-brand-dark/30 font-medium">
-              Daily limits help keep RevisionLab free for everyone.
+              Daily limits help keep Akshara Music Hub free for everyone.
             </p>
           </div>
         </div>
@@ -2060,7 +2060,7 @@ export default function App() {
       <nav className="p-3 md:p-4 lg:p-5 flex justify-between items-center max-w-6xl mx-auto z-50 relative">
         <div className="flex items-center gap-2 cursor-pointer flex-shrink-0" onClick={() => navigate('/')}>
           <BookOpen className="text-brand-orange w-5 h-5 md:w-6 md:h-6" />
-          <span className="font-display font-bold text-base md:text-lg tracking-tight">RevisionLab</span>
+          <span className="font-display font-bold text-base md:text-lg tracking-tight">Akshara Music Hub</span>
         </div>
 
         <div className="hidden md:flex items-center gap-4 lg:gap-8 flex-1 justify-center px-4">

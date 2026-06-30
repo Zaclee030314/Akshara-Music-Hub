@@ -35,7 +35,7 @@ export const Benefits: React.FC = () => {
             <div className="max-w-7xl mx-auto px-4">
                 <div className="text-center mb-16 space-y-4">
                     <h2 className="text-4xl md:text-6xl font-display font-bold text-brand-dark tracking-tight leading-none text-brand-dark">
-                        The ultimate <span className="text-brand-orange">RevisionLab</span> results
+                        The ultimate <span className="text-brand-orange">Akshara Music Hub</span> results
                     </h2>
                     <p className="text-xl text-brand-dark/60 max-w-2xl mx-auto font-medium">
                         We turn hours of boring study into an engaging adventure that gets results.

@@ -8,7 +8,7 @@ export const Footer: React.FC = () => {
                 <div className="space-y-4 flex flex-col items-center sm:items-start col-span-1 sm:col-span-2 lg:col-span-1">
                     <div className="flex items-center gap-2">
                         <BookOpen className="text-brand-orange w-6 h-6 md:w-7 md:h-7" />
-                        <span className="font-display font-bold text-lg md:text-xl tracking-tight">RevisionLab</span>
+                        <span className="font-display font-bold text-lg md:text-xl tracking-tight">Akshara Music Hub</span>
                     </div>
                     <p className="text-white/50 leading-relaxed text-xs md:text-sm max-w-xs">
                         The ultimate companion for your academic journey. Revision made fun, gamified, and AI-powered.
@@ -58,7 +58,7 @@ export const Footer: React.FC = () => {
             </div>
 
             <div className="w-full pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-white/30 text-[10px] md:text-xs font-medium">
-                <p>© 2026 RevisionLab. All rights reserved.</p>
+                <p>© 2026 Akshara Music Hub. All rights reserved.</p>
                 <p>Your Global Learning Partner 🌍</p>
             </div>
         </footer>

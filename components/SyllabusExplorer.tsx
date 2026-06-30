@@ -142,7 +142,7 @@ export const SyllabusExplorer: React.FC<SyllabusExplorerProps> = ({ onSelectSubj
             <div className="bg-brand-blue/5 p-6 rounded-3xl border border-brand-blue/10 flex flex-col md:flex-row items-center gap-6">
                 <div className="flex-1 space-y-2 text-center md:text-left">
                     <h4 className="text-xl font-bold">New subjects every week</h4>
-                    <p className="text-sm text-brand-dark/60">RevisionLab is updated daily with MOE and IGCSE trends.</p>
+                    <p className="text-sm text-brand-dark/60">Akshara Music Hub is updated daily with MOE and IGCSE trends.</p>
                 </div>
             </div>
         </section>
