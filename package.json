@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "prisma": {
+    "schema": "api/_server/prisma/schema.prisma"
+  },
   "scripts": {
     "dev": "vite",
     "dev:server": "npx tsx api/server-local.ts",
