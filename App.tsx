@@ -221,14 +221,20 @@ export default function App() {
   // Sync stats from Server User
   useEffect(() => {
     if (user) {
-      setStats(prev => ({
-        ...prev,
-        xp: (user as any).xp !== undefined ? (user as any).xp : prev.xp,
-        coins: (user as any).coins !== undefined ? (user as any).coins : prev.coins,
-        completedQuizzes: user.completedQuizzes !== undefined ? user.completedQuizzes : prev.completedQuizzes,
-        questsPlayed: user.questsPlayed !== undefined ? user.questsPlayed : prev.questsPlayed,
-        level: (user as any).level !== undefined ? (user as any).level : prev.level
-      }));
+      setStats(prev => {
+        const syncedXp = (user as any).xp !== undefined ? (user as any).xp : prev.xp;
+        // Level is derived from XP (1000 XP per level); the DB has no level column,
+        // so recompute it here to avoid showing a stale localStorage level.
+        const derivedLevel = Math.floor(Math.max(0, syncedXp) / 1000) + 1;
+        return {
+          ...prev,
+          xp: syncedXp,
+          coins: (user as any).coins !== undefined ? (user as any).coins : prev.coins,
+          completedQuizzes: user.completedQuizzes !== undefined ? user.completedQuizzes : prev.completedQuizzes,
+          questsPlayed: user.questsPlayed !== undefined ? user.questsPlayed : prev.questsPlayed,
+          level: derivedLevel
+        };
+      });
     }
   }, [user]);
 
@@ -2045,7 +2051,7 @@ export default function App() {
       {showMobileMenu && (
         <div className="md:hidden fixed top-14 left-0 right-0 z-[60] bg-white/95 backdrop-blur-xl border-b border-brand-dark/10 shadow-xl animate-menu-slide-down">
           <div className="flex flex-col p-4 gap-1">
-            <button onClick={() => { setShowMobileMenu(false); navigate('/'); setTimeout(() => document.getElementById('courses')?.scrollIntoView({ behavior: 'smooth' }), 200); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">📚 Courses</button>
+            <button onClick={() => { setShowMobileMenu(false); if (user && user.role === 'student' && !user.isAdmin) { handleNewQuest(); } else { navigate('/'); setTimeout(() => document.getElementById('courses')?.scrollIntoView({ behavior: 'smooth' }), 200); } }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">{user && user.role === 'student' && !user.isAdmin ? '🚀 New Quest' : '📚 Courses'}</button>
             <button onClick={() => { setShowMobileMenu(false); if (!user) setShowLoginModal(true); else navigate(user?.isAdmin ? '/admin' : user?.role === 'teacher' ? '/teacher' : '/dashboard'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">📊 Dashboard</button>
             <button onClick={() => { setShowMobileMenu(false); if (!user) setShowLoginModal(true); else navigate('/classrooms'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">🏫 Classrooms</button>
             <button onClick={() => { setShowMobileMenu(false); navigate('/leaderboard'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">🏆 Leaderboard</button>
@@ -2064,7 +2070,7 @@ export default function App() {
         </div>
 
         <div className="hidden md:flex items-center gap-4 lg:gap-8 flex-1 justify-center px-4">
-          <button onClick={() => { navigate('/'); setTimeout(() => document.getElementById('courses')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">Courses</button>
+          <button onClick={() => { if (user && user.role === 'student' && !user.isAdmin) { handleNewQuest(); } else { navigate('/'); setTimeout(() => document.getElementById('courses')?.scrollIntoView({ behavior: 'smooth' }), 100); } }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">{user && user.role === 'student' && !user.isAdmin ? 'New Quest' : 'Courses'}</button>
           <button onClick={() => { if (!user) setShowLoginModal(true); else navigate(user?.isAdmin ? '/admin' : user?.role === 'teacher' ? '/teacher' : '/dashboard'); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">Dashboard</button>
           <button onClick={() => { if (!user) setShowLoginModal(true); else navigate('/classrooms'); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">Classrooms</button>
           <button onClick={() => { navigate('/leaderboard'); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">Leaderboard</button>

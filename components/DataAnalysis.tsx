@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ResultEntry } from '../types';
-import { BarChart3, TrendingUp, BookOpen, Target, Loader2 } from 'lucide-react';
+import { BarChart3, TrendingUp, BookOpen, Target, Loader2, History, Sparkles, ScrollText, FileClock, ChevronDown, ChevronUp } from 'lucide-react';
 import { Card } from './Card';
 
 interface DataAnalysisProps {
@@ -13,9 +13,32 @@ interface SubjectStat {
     correctAnswers: number;
 }
 
+// Friendly label + styling for each quiz mode
+const MODE_META: Record<string, { label: string; className: string; icon: React.ReactNode }> = {
+    AI: { label: 'AI Quest', className: 'bg-brand-blue/10 text-brand-blue', icon: <Sparkles size={11} /> },
+    CUSTOM: { label: 'Custom', className: 'bg-purple-100 text-purple-600', icon: <ScrollText size={11} /> },
+    PAST_YEAR: { label: 'Past Year', className: 'bg-amber-100 text-amber-600', icon: <FileClock size={11} /> },
+};
+
+const getModeMeta = (mode: string) =>
+    MODE_META[mode] || { label: mode || 'Quiz', className: 'bg-brand-dark/5 text-brand-dark/50', icon: <BookOpen size={11} /> };
+
+// Format an ISO date string as e.g. "6 Jul 2026"
+const formatDate = (value: string): string => {
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return '';
+    return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+};
+
+const accuracyColor = (accuracy: number): string =>
+    accuracy >= 80 ? 'text-brand-green' : accuracy >= 50 ? 'text-brand-orange' : 'text-red-500';
+
+const HISTORY_PREVIEW_COUNT = 5;
+
 export const DataAnalysis: React.FC<DataAnalysisProps> = ({ token }) => {
     const [results, setResults] = useState<ResultEntry[]>([]);
     const [loading, setLoading] = useState(true);
+    const [showAllHistory, setShowAllHistory] = useState(false);
 
     useEffect(() => {
         const fetchResults = async () => {
@@ -147,6 +170,56 @@ export const DataAnalysis: React.FC<DataAnalysisProps> = ({ token }) => {
                         </div>
                     );
                 })}
+            </div>
+
+            {/* Quiz History — individual completed quizzes, most recent first */}
+            <div className="mt-8 pt-6 border-t border-brand-dark/5">
+                <div className="flex items-center justify-between mb-4 px-1">
+                    <h4 className="font-bold text-brand-dark flex items-center gap-2">
+                        <History size={18} className="text-brand-blue" /> Quiz History
+                    </h4>
+                    <span className="text-xs font-bold text-brand-dark/40">{results.length} completed</span>
+                </div>
+
+                <div className="space-y-2.5">
+                    {(showAllHistory ? results : results.slice(0, HISTORY_PREVIEW_COUNT)).map((result) => {
+                        const total = result.totalQuestions || 0;
+                        const correct = result.correctAnswers || 0;
+                        const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
+                        const mode = getModeMeta(result.mode);
+                        const title = result.quest?.title || result.subject || (result.mode === 'CUSTOM' ? 'Custom Quest' : 'General Practice');
+
+                        return (
+                            <div key={result.id} className="bg-white p-4 rounded-xl shadow-sm border border-brand-dark/5 flex items-center gap-4 hover:border-brand-blue/30 transition-colors">
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                        <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full ${mode.className}`}>
+                                            {mode.icon} {mode.label}
+                                        </span>
+                                        <span className="text-xs text-brand-dark/40 font-medium">{formatDate(result.date)}</span>
+                                    </div>
+                                    <h5 className="font-bold text-brand-dark truncate">{title}</h5>
+                                    <p className="text-xs text-brand-dark/50 font-medium">{correct} / {total} correct · +{result.score} XP</p>
+                                </div>
+                                <div className="text-right shrink-0">
+                                    <span className={`text-2xl font-display font-bold ${accuracyColor(accuracy)}`}>{accuracy}%</span>
+                                    <p className="text-[10px] font-bold text-brand-dark/30 uppercase tracking-wider">Accuracy</p>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+
+                {results.length > HISTORY_PREVIEW_COUNT && (
+                    <button
+                        onClick={() => setShowAllHistory(v => !v)}
+                        className="mt-4 w-full flex items-center justify-center gap-1.5 py-3 rounded-xl bg-white border border-brand-dark/5 text-sm font-bold text-brand-blue hover:bg-brand-blue/5 transition-colors"
+                    >
+                        {showAllHistory
+                            ? <>Show less <ChevronUp size={16} /></>
+                            : <>Show all {results.length} quizzes <ChevronDown size={16} /></>}
+                    </button>
+                )}
             </div>
         </Card>
     );
