@@ -5,7 +5,7 @@ import {
     FileText, Eye, ClipboardList, Trash2, CheckCircle,
     AlertCircle, MoreHorizontal, Sparkles, ArrowLeft,
     Save, Info, Settings, List, HelpCircle, RefreshCw, Brain,
-    TrendingUp, BarChart3, Target
+    TrendingUp, BarChart3, Target, Search, Image as ImageIcon
 } from 'lucide-react';
 import { CustomQuest, Question, Subject, GradeLevel, Syllabus } from '../types';
 import { Button } from './Button';
