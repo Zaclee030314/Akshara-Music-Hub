@@ -901,7 +901,7 @@ export const ClassroomManager: React.FC = () => {
                                                                     ) : (
                                                                         <div className="divide-y divide-slate-100">
                                                                             {a.submissions
-                                                                                .filter((sub:any) => sub.student?.name?.toLowerCase().includes(studentSearchQuery.toLowerCase()))
+                                                                                .filter((sub:any) => (sub.student?.name || '').toLowerCase().includes(studentSearchQuery.toLowerCase()))
                                                                                 .map((sub:any) => {
                                                                                 const key = `${a.id}-${sub.studentId}`;
                                                                                 const cur = grading[key] ?? (sub.score!=null ? String(sub.score) : '');
