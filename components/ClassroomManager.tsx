@@ -597,6 +597,7 @@ export const ClassroomManager: React.FC = () => {
     const [aDesc,      setADesc]              = useState('');
     const [copiedCode, setCopiedCode]         = useState<string|null>(null);
     const [expandedId, setExpandedId]         = useState<string|null>(null);
+    const [selectedAssignmentId, setSelectedAssignmentId] = useState<string|null>(null);
     const [submissions,setSubmissions]        = useState<any[]>([]);
     const [grading,    setGrading]            = useState<Record<string,string>>({});
     const [proofModal, setProofModal]         = useState<string|null>(null);
@@ -823,92 +824,129 @@ export const ClassroomManager: React.FC = () => {
                                 )}
 
                                 {/* ── Submissions panel ── */}
-                                {isExp && (
-                                    <div className="border-t border-slate-100 bg-slate-50 p-4 space-y-4">
-                                        {submissions.length===0 ? (
-                                            <div className="text-center py-8 text-slate-400">
-                                                <FileText size={24} className="mx-auto mb-2 opacity-30"/>
-                                                <p className="text-sm font-semibold">No assignments yet.</p>
-                                            </div>
-                                        ) : (
-                                            submissions.map(a => {
-                                                const total  = a.submissions?.length||0;
-                                                const graded = a.submissions?.filter((s:any)=>s.status==='completed').length||0;
-                                                const hasPending = a.submissions?.some((s:any)=>s.status==='submitted');
-                                                return (
-                                                    <div key={a.id} className="bg-white rounded-xl border border-slate-200 overflow-hidden mb-3">
-                                                        {/* assignment header */}
-                                                        <div className={`px-4 py-2.5 flex items-center justify-between ${hasPending?'bg-amber-50 border-b border-amber-100':'bg-slate-50 border-b border-slate-100'}`}>
-                                                            <div className="flex items-center gap-2 min-w-0">
-                                                                <BookOpen size={13} className="text-indigo-400 shrink-0"/>
-                                                                <span className="font-bold text-sm text-slate-800 truncate">{a.title}</span>
-                                                                {!a.questId && <span className="text-[9px] bg-slate-200 text-slate-500 px-1.5 rounded font-bold shrink-0">Text</span>}
-                                                            </div>
-                                                            <span className="text-[10px] text-slate-400 font-bold shrink-0 ml-2">{graded}/{total} graded</span>
-                                                        </div>
+                                {isExp && (() => {
+                                    const activeId = selectedAssignmentId || submissions[0]?.id;
+                                    const activeAssignment = submissions.find(a => a.id === activeId);
 
-                                                        {/* student rows */}
-                                                        {total===0 ? (
-                                                            <p className="text-xs text-slate-400 italic px-4 py-3">No submissions yet.</p>
-                                                        ) : (
-                                                            <div className="divide-y divide-slate-50">
-                                                                {a.submissions.map((sub:any) => {
-                                                                    const key = `${a.id}-${sub.studentId}`;
-                                                                    const cur = grading[key] ?? (sub.score!=null ? String(sub.score) : '');
-                                                                    const isDeleting = deletingSubId===sub.id;
-                                                                    return (
-                                                                        <div key={sub.id} className="grid grid-cols-12 px-4 py-2.5 items-center gap-2 hover:bg-slate-50 transition-colors">
-                                                                            {/* student */}
-                                                                            <div className="col-span-4 flex items-center gap-2 min-w-0">
-                                                                                <div className="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
-                                                                                    <span className="text-[10px] font-extrabold text-indigo-600">
-                                                                                        {(sub.student?.name||'S').charAt(0).toUpperCase()}
-                                                                                    </span>
-                                                                                </div>
-                                                                                <span className="text-sm font-bold text-slate-700 truncate">{sub.student?.name||'Student'}</span>
+                                    return (
+                                        <div className="border-t border-slate-100 bg-slate-50 p-6">
+                                            {submissions.length===0 ? (
+                                                <div className="text-center py-12 text-slate-400 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                                                    <FileText size={32} className="mx-auto mb-3 opacity-30"/>
+                                                    <p className="text-base font-semibold">No assignments yet.</p>
+                                                </div>
+                                            ) : (
+                                                <div className="flex flex-col md:flex-row gap-6">
+                                                    {/* Tabs Sidebar */}
+                                                    <div className="w-full md:w-1/3 flex flex-col gap-3">
+                                                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider px-1">Assignments</h4>
+                                                        <div className="space-y-2 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin">
+                                                            {submissions.map(a => {
+                                                                const isSelected = a.id === activeId;
+                                                                const total  = a.submissions?.length||0;
+                                                                const graded = a.submissions?.filter((s:any)=>s.status==='completed').length||0;
+                                                                const hasPending = a.submissions?.some((s:any)=>s.status==='submitted');
+
+                                                                return (
+                                                                    <button
+                                                                        key={a.id}
+                                                                        onClick={() => setSelectedAssignmentId(a.id)}
+                                                                        className={`flex items-start flex-col gap-2 w-full text-left p-4 rounded-2xl transition-all border ${
+                                                                            isSelected ? 'bg-indigo-600 border-indigo-600 text-white shadow-md' 
+                                                                            : 'bg-white border-slate-200 text-slate-700 hover:border-indigo-300 hover:bg-indigo-50 shadow-sm'
+                                                                        }`}
+                                                                    >
+                                                                        <div className="flex items-center justify-between w-full">
+                                                                            <div className="flex items-center gap-3 min-w-0">
+                                                                                <BookOpen size={18} className={`shrink-0 ${isSelected?'text-indigo-200':'text-indigo-400'}`}/>
+                                                                                <span className={`font-bold text-base truncate ${isSelected?'text-white':'text-slate-800'}`}>{a.title}</span>
                                                                             </div>
-                                                                            {/* status */}
-                                                                            <div className="col-span-2"><StatusBadge status={sub.status||'pending'}/></div>
-                                                                            {/* proof */}
-                                                                            <div className="col-span-2">
-                                                                                {sub.proofUrl ? (
-                                                                                    <button onClick={()=>setProofModal(sub.proofUrl)} className="group relative">
-                                                                                        <img src={sub.proofUrl} alt="Proof"
-                                                                                            className="w-8 h-8 object-cover rounded-lg border-2 border-indigo-200 group-hover:border-indigo-400 transition-all"/>
-                                                                                    </button>
-                                                                                ) : <span className="text-[10px] text-slate-300">—</span>}
-                                                                            </div>
-                                                                            {/* score */}
-                                                                            <div className="col-span-3 flex items-center gap-1.5">
-                                                                                <input type="number" placeholder="0-100" value={cur} min="0" max="100"
-                                                                                    onChange={e=>setGrading({...grading,[key]:e.target.value})}
-                                                                                    className="w-16 px-2 py-1.5 text-center text-xs font-bold rounded-lg border-2 border-slate-200 focus:border-indigo-400 focus:outline-none"/>
-                                                                                <button onClick={()=>handleGrade(a.id,sub.studentId)}
-                                                                                    className="px-2 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold rounded-lg transition-all">
-                                                                                    Save
-                                                                                </button>
-                                                                            </div>
-                                                                            {/* dismiss */}
-                                                                            <div className="col-span-1 flex justify-end">
-                                                                                <button
-                                                                                    onClick={()=>handleDeleteSub(sub.id)}
-                                                                                    disabled={isDeleting}
-                                                                                    title="Remove submission"
-                                                                                    className="p-1.5 text-slate-300 hover:text-red-400 hover:bg-red-50 rounded-lg transition-all disabled:opacity-40">
-                                                                                    {isDeleting ? <Loader2 size={12} className="animate-spin"/> : <Trash2 size={12}/>}
-                                                                                </button>
-                                                                            </div>
+                                                                            {hasPending && <div className="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0 shadow-sm" />}
                                                                         </div>
-                                                                    );
-                                                                })}
-                                                            </div>
-                                                        )}
+                                                                        <div className={`text-xs font-bold ${isSelected?'text-indigo-200':'text-slate-400'}`}>
+                                                                            {graded}/{total} Graded
+                                                                        </div>
+                                                                    </button>
+                                                                );
+                                                            })}
+                                                        </div>
                                                     </div>
-                                                );
-                                            })
-                                        )}
-                                    </div>
-                                )}
+
+                                                    {/* Active Assignment Submissions */}
+                                                    <div className="w-full md:w-2/3">
+                                                        {activeAssignment && (() => {
+                                                            const a = activeAssignment;
+                                                            const total = a.submissions?.length || 0;
+                                                            return (
+                                                                <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-md">
+                                                                    <div className="px-6 py-5 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+                                                                        <h3 className="font-display font-bold text-xl text-slate-800">Student Submissions</h3>
+                                                                        <span className="text-xs font-bold text-slate-400 bg-white px-3 py-1 rounded-full border border-slate-200 shadow-sm">{total} total</span>
+                                                                    </div>
+                                                                    {total === 0 ? (
+                                                                        <p className="text-base text-slate-400 italic px-6 py-12 text-center">No submissions yet for this assignment.</p>
+                                                                    ) : (
+                                                                        <div className="divide-y divide-slate-100">
+                                                                            {a.submissions.map((sub:any) => {
+                                                                                const key = `${a.id}-${sub.studentId}`;
+                                                                                const cur = grading[key] ?? (sub.score!=null ? String(sub.score) : '');
+                                                                                const isDeleting = deletingSubId===sub.id;
+                                                                                return (
+                                                                                    <div key={sub.id} className="grid grid-cols-12 px-6 py-4 items-center gap-4 hover:bg-slate-50 transition-colors">
+                                                                                        {/* student */}
+                                                                                        <div className="col-span-4 flex items-center gap-3 min-w-0">
+                                                                                            <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center shrink-0 shadow-inner">
+                                                                                                <span className="text-sm font-extrabold text-indigo-600">
+                                                                                                    {(sub.student?.name||'S').charAt(0).toUpperCase()}
+                                                                                                </span>
+                                                                                            </div>
+                                                                                            <span className="text-base font-bold text-slate-700 truncate">{sub.student?.name||'Student'}</span>
+                                                                                        </div>
+                                                                                        {/* status */}
+                                                                                        <div className="col-span-2"><StatusBadge status={sub.status||'pending'}/></div>
+                                                                                        {/* proof */}
+                                                                                        <div className="col-span-2">
+                                                                                            {sub.proofUrl ? (
+                                                                                                <button onClick={()=>setProofModal(sub.proofUrl)} className="group relative">
+                                                                                                    <img src={sub.proofUrl} alt="Proof"
+                                                                                                        className="w-10 h-10 object-cover rounded-xl border-2 border-indigo-200 group-hover:border-indigo-400 transition-all shadow-sm"/>
+                                                                                                </button>
+                                                                                            ) : <span className="text-xs text-slate-300 font-medium">—</span>}
+                                                                                        </div>
+                                                                                        {/* score */}
+                                                                                        <div className="col-span-3 flex items-center gap-2">
+                                                                                            <input type="number" placeholder="0-100" value={cur} min="0" max="100"
+                                                                                                onChange={e=>setGrading({...grading,[key]:e.target.value})}
+                                                                                                className="w-20 px-3 py-2 text-center text-sm font-bold rounded-xl border-2 border-slate-200 focus:border-indigo-400 focus:outline-none transition-colors shadow-sm"/>
+                                                                                            <button onClick={()=>handleGrade(a.id,sub.studentId)}
+                                                                                                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all shadow-sm hover:shadow-md">
+                                                                                                Save
+                                                                                            </button>
+                                                                                        </div>
+                                                                                        {/* dismiss */}
+                                                                                        <div className="col-span-1 flex justify-end">
+                                                                                            <button
+                                                                                                onClick={()=>handleDeleteSub(sub.id)}
+                                                                                                disabled={isDeleting}
+                                                                                                title="Remove submission"
+                                                                                                className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all disabled:opacity-40">
+                                                                                                {isDeleting ? <Loader2 size={16} className="animate-spin"/> : <Trash2 size={16}/>}
+                                                                                            </button>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                );
+                                                                            })}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            );
+                                                        })()}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })()}
                             </div>
                         );
                     })}
