@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Question, CustomQuest, Subject, GradeLevel, Syllabus } from '../types';
 import { Button } from './Button';
 import { Card } from './Card';
-import { Plus, Trash2, Save, ArrowLeft, BookOpen, CheckCircle, HelpCircle, Loader2, Sparkles, Layout, List, Settings, Info, CheckCircle2, Users, Gift, GraduationCap, ArrowRight } from 'lucide-react';
+import { Plus, Trash2, Save, ArrowLeft, BookOpen, CheckCircle, HelpCircle, Loader2, Sparkles, Layout, List, Settings, Info, CheckCircle2, Users, Gift, GraduationCap, ArrowRight, BarChart3 } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
 import { useNavigate } from 'react-router-dom';
 import TeacherRewardsManager from './TeacherRewardsManager';
+import { TeacherAnalytics } from './TeacherAnalytics';
 
 interface TeacherDashboardProps {
     onBack: () => void;
@@ -552,7 +553,8 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onBack, onVi
 
 
     const canCreate = true;
-    const [dashTab, setDashTab] = useState<'homework' | 'rewards'>('homework');
+    const [dashTab, setDashTab] = useState<'homework' | 'rewards' | 'analytics'>('homework');
+    const token = localStorage.getItem('quest_token') || '';
 
     return (
         <div className="max-w-4xl mx-auto space-y-8 animate-float">
@@ -615,10 +617,10 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onBack, onVi
             </Card>
 
             {/* Tab Switcher */}
-            <div className="flex gap-1 bg-brand-dark/5 p-1 rounded-2xl w-fit">
+            <div className="flex gap-1 bg-brand-dark/5 p-1 rounded-2xl w-fit overflow-x-auto">
                 <button
                     onClick={() => setDashTab('homework')}
-                    className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${
                         dashTab === 'homework' ? 'bg-white shadow text-brand-dark' : 'text-brand-dark/50 hover:text-brand-dark'
                     }`}
                 >
@@ -626,15 +628,25 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onBack, onVi
                 </button>
                 <button
                     onClick={() => setDashTab('rewards')}
-                    className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${
                         dashTab === 'rewards' ? 'bg-white shadow text-amber-600' : 'text-brand-dark/50 hover:text-brand-dark'
                     }`}
                 >
                     <Gift size={15} /> Rewards
                 </button>
+                <button
+                    onClick={() => setDashTab('analytics')}
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${
+                        dashTab === 'analytics' ? 'bg-white shadow text-indigo-600' : 'text-brand-dark/50 hover:text-brand-dark'
+                    }`}
+                >
+                    <BarChart3 size={15} /> Analytics
+                </button>
             </div>
 
-            {dashTab === 'rewards' ? (
+            {dashTab === 'analytics' ? (
+                <TeacherAnalytics token={token} />
+            ) : dashTab === 'rewards' ? (
                 <TeacherRewardsManager />
             ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
