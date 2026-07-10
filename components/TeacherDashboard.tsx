@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Question, CustomQuest, Subject, GradeLevel, Syllabus } from '../types';
 import { Button } from './Button';
 import { Card } from './Card';
-import { Plus, Trash2, Save, ArrowLeft, BookOpen, CheckCircle, HelpCircle, Loader2, Sparkles, Layout, List, Settings, Info, CheckCircle2, Users, Gift } from 'lucide-react';
+import { Plus, Trash2, Save, ArrowLeft, BookOpen, CheckCircle, HelpCircle, Loader2, Sparkles, Layout, List, Settings, Info, CheckCircle2, Users, Gift, GraduationCap, ArrowRight } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
+import { useNavigate } from 'react-router-dom';
 import TeacherRewardsManager from './TeacherRewardsManager';
 
 interface TeacherDashboardProps {
@@ -13,6 +14,7 @@ interface TeacherDashboardProps {
 
 export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onBack, onViewPricing }) => {
     const { user, refreshUser } = useAuth();
+    const navigate = useNavigate();
 
     useEffect(() => {
         refreshUser();
@@ -585,6 +587,32 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onBack, onVi
                     </Button>
                 </div>
             </div>
+
+            {/* Classroom CTA */}
+            <Card className="p-5 border-2 border-indigo-100 bg-gradient-to-r from-indigo-50 via-purple-50/50 to-white relative overflow-hidden group">
+                <div className="absolute -right-6 -bottom-6 opacity-5 pointer-events-none transition-transform group-hover:scale-110">
+                    <GraduationCap size={120} />
+                </div>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-200">
+                            <GraduationCap size={24} />
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-brand-dark text-lg">Create Homework in Classrooms</h3>
+                            <p className="text-xs text-brand-dark/50 font-medium mt-0.5">Create questions manually or use AI to generate them — directly inside each classroom.</p>
+                        </div>
+                    </div>
+                    <Button
+                        variant="primary"
+                        size="sm"
+                        className="bg-indigo-600 hover:bg-indigo-700 shadow-md shadow-indigo-200 shrink-0"
+                        onClick={() => navigate('/classrooms')}
+                    >
+                        Go to Classrooms <ArrowRight size={16} className="ml-1" />
+                    </Button>
+                </div>
+            </Card>
 
             {/* Tab Switcher */}
             <div className="flex gap-1 bg-brand-dark/5 p-1 rounded-2xl w-fit">

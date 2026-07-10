@@ -3,9 +3,13 @@ import {
     Plus, Users, BookOpen, Loader2, Copy, CheckCircle2,
     ChevronDown, ChevronUp, Award, X, GraduationCap,
     FileText, Eye, ClipboardList, Trash2, CheckCircle,
-    AlertCircle, MoreHorizontal
+    AlertCircle, MoreHorizontal, Sparkles, ArrowLeft,
+    Save, Info, Settings, List, HelpCircle, RefreshCw, Brain
 } from 'lucide-react';
-import { CustomQuest } from '../types';
+import { CustomQuest, Question, Subject, GradeLevel, Syllabus } from '../types';
+import { Button } from './Button';
+import { Card } from './Card';
+import { useAuth } from '../contexts/useAuth';
 
 /* ─── tiny helpers ────────────────────────────────────────────── */
 const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
@@ -18,7 +22,568 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
     return <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${c.cls}`}>{c.label}</span>;
 };
 
-/* ─── main component ──────────────────────────────────────────── */
+/* ─── Subject/Grade helpers (mirrors TeacherDashboard) ─────── */
+const getSubjectsByGrade = (grade: GradeLevel | '', syllabus: Syllabus | ''): Subject[] => {
+    const allSubjects = Object.values(Subject);
+    if (!grade) return allSubjects;
+
+    if (syllabus === 'Unified Examination Certificate (UEC)') {
+        if ([GradeLevel.FORM_1, GradeLevel.FORM_2, GradeLevel.FORM_3].includes(grade as GradeLevel)) {
+            return [Subject.BAHASA_MELAYU, Subject.ENGLISH, Subject.MATH, Subject.SCIENCE,
+            Subject.SEJARAH, Subject.GEOGRAPHY, Subject.PENDIDIKAN_MORAL, Subject.COMPUTER_SCIENCE];
+        }
+        if ([GradeLevel.FORM_4, GradeLevel.FORM_5].includes(grade as GradeLevel)) {
+            return [Subject.BAHASA_MELAYU, Subject.ENGLISH, Subject.MATH, Subject.ADD_MATH,
+            Subject.PHYSICS, Subject.CHEMISTRY, Subject.BIOLOGY, Subject.GEOGRAPHY,
+            Subject.SEJARAH, Subject.ECONOMICS, Subject.BUSINESS,
+            Subject.PENDIDIKAN_MORAL, Subject.COMPUTER_SCIENCE];
+        }
+        if (grade === GradeLevel.FORM_6) {
+            return [Subject.MATH, Subject.ADD_MATH, Subject.PHYSICS, Subject.CHEMISTRY,
+            Subject.BIOLOGY, Subject.ECONOMICS, Subject.BUSINESS,
+            Subject.ENGLISH, Subject.BAHASA_MELAYU];
+        }
+    }
+
+    if (syllabus === 'International Baccalaureate (IB)') {
+        if ([GradeLevel.YEAR_1, GradeLevel.YEAR_2, GradeLevel.YEAR_3,
+        GradeLevel.YEAR_4, GradeLevel.YEAR_5, GradeLevel.YEAR_6].includes(grade as GradeLevel)) {
+            return [Subject.ENGLISH, Subject.MATH, Subject.SCIENCE];
+        }
+        if ([GradeLevel.YEAR_7, GradeLevel.YEAR_8, GradeLevel.YEAR_9,
+        GradeLevel.YEAR_10, GradeLevel.YEAR_11].includes(grade as GradeLevel)) {
+            return [Subject.ENGLISH, Subject.MATH, Subject.ADD_MATH, Subject.SCIENCE,
+            Subject.PHYSICS, Subject.CHEMISTRY, Subject.BIOLOGY,
+            Subject.GEOGRAPHY, Subject.SEJARAH, Subject.ECONOMICS, Subject.COMPUTER_SCIENCE];
+        }
+        if ([GradeLevel.YEAR_12, GradeLevel.YEAR_13].includes(grade as GradeLevel)) {
+            return [Subject.ENGLISH, Subject.MATH, Subject.ADD_MATH, Subject.PHYSICS,
+            Subject.CHEMISTRY, Subject.BIOLOGY, Subject.GEOGRAPHY,
+            Subject.ECONOMICS, Subject.BUSINESS, Subject.COMPUTER_SCIENCE];
+        }
+    }
+
+    if ([GradeLevel.STD_1, GradeLevel.STD_2, GradeLevel.STD_3].includes(grade as GradeLevel)) {
+        return [Subject.BAHASA_MELAYU, Subject.ENGLISH, Subject.MATH, Subject.SCIENCE,
+        Subject.PENDIDIKAN_ISLAM, Subject.PENDIDIKAN_MORAL];
+    }
+    if ([GradeLevel.STD_4, GradeLevel.STD_5, GradeLevel.STD_6].includes(grade as GradeLevel)) {
+        return [Subject.BAHASA_MELAYU, Subject.ENGLISH, Subject.MATH, Subject.SCIENCE,
+        Subject.SEJARAH, Subject.RBT, Subject.PENDIDIKAN_ISLAM, Subject.PENDIDIKAN_MORAL];
+    }
+    if ([GradeLevel.FORM_1, GradeLevel.FORM_2, GradeLevel.FORM_3].includes(grade as GradeLevel)) {
+        return [Subject.BAHASA_MELAYU, Subject.ENGLISH, Subject.MATH, Subject.SCIENCE,
+        Subject.SEJARAH, Subject.GEOGRAPHY, Subject.RBT,
+        Subject.PENDIDIKAN_ISLAM, Subject.PENDIDIKAN_MORAL, Subject.COMPUTER_SCIENCE];
+    }
+    if ([GradeLevel.FORM_4, GradeLevel.FORM_5].includes(grade as GradeLevel)) {
+        return [Subject.BAHASA_MELAYU, Subject.ENGLISH, Subject.MATH, Subject.ADD_MATH,
+        Subject.PHYSICS, Subject.CHEMISTRY, Subject.BIOLOGY, Subject.SEJARAH,
+        Subject.GEOGRAPHY, Subject.PENDIDIKAN_ISLAM, Subject.PENDIDIKAN_MORAL,
+        Subject.ECONOMICS, Subject.BUSINESS, Subject.COMPUTER_SCIENCE];
+    }
+    if (grade === GradeLevel.FORM_6) {
+        return [Subject.MATH, Subject.ADD_MATH, Subject.PHYSICS, Subject.CHEMISTRY,
+        Subject.BIOLOGY, Subject.ECONOMICS, Subject.BUSINESS,
+        Subject.BAHASA_MELAYU, Subject.ENGLISH];
+    }
+    if ([GradeLevel.SEC_1, GradeLevel.SEC_2, GradeLevel.SEC_3,
+    GradeLevel.SEC_4, GradeLevel.SEC_5].includes(grade as GradeLevel)) {
+        return [Subject.ENGLISH, Subject.MATH, Subject.ADD_MATH, Subject.SCIENCE,
+        Subject.PHYSICS, Subject.CHEMISTRY, Subject.BIOLOGY,
+        Subject.GEOGRAPHY, Subject.SEJARAH, Subject.ECONOMICS,
+        Subject.BUSINESS, Subject.COMPUTER_SCIENCE];
+    }
+    if ([GradeLevel.YEAR_1, GradeLevel.YEAR_2, GradeLevel.YEAR_3,
+    GradeLevel.YEAR_4, GradeLevel.YEAR_5, GradeLevel.YEAR_6].includes(grade as GradeLevel)) {
+        return [Subject.ENGLISH, Subject.MATH, Subject.SCIENCE];
+    }
+    if ([GradeLevel.YEAR_7, GradeLevel.YEAR_8, GradeLevel.YEAR_9,
+    GradeLevel.YEAR_10, GradeLevel.YEAR_11].includes(grade as GradeLevel)) {
+        return [Subject.ENGLISH, Subject.MATH, Subject.ADD_MATH, Subject.PHYSICS,
+        Subject.CHEMISTRY, Subject.BIOLOGY, Subject.GEOGRAPHY,
+        Subject.ECONOMICS, Subject.BUSINESS, Subject.COMPUTER_SCIENCE];
+    }
+    if ([GradeLevel.YEAR_12, GradeLevel.YEAR_13].includes(grade as GradeLevel)) {
+        return [Subject.MATH, Subject.ADD_MATH, Subject.PHYSICS, Subject.CHEMISTRY,
+        Subject.BIOLOGY, Subject.ECONOMICS, Subject.BUSINESS,
+        Subject.COMPUTER_SCIENCE, Subject.ENGLISH];
+    }
+    return allSubjects;
+};
+
+const getGradesBySyllabus = (syll: Syllabus | ''): GradeLevel[] => {
+    if (!syll) return Object.values(GradeLevel);
+    switch (syll) {
+        case Syllabus.IGCSE:
+        case Syllabus.IB:
+            return [GradeLevel.YEAR_1, GradeLevel.YEAR_2, GradeLevel.YEAR_3,
+            GradeLevel.YEAR_4, GradeLevel.YEAR_5, GradeLevel.YEAR_6,
+            GradeLevel.YEAR_7, GradeLevel.YEAR_8, GradeLevel.YEAR_9,
+            GradeLevel.YEAR_10, GradeLevel.YEAR_11, GradeLevel.YEAR_12, GradeLevel.YEAR_13];
+        case Syllabus.MOE_SINGAPORE:
+            return [GradeLevel.STD_1, GradeLevel.STD_2, GradeLevel.STD_3,
+            GradeLevel.STD_4, GradeLevel.STD_5, GradeLevel.STD_6,
+            GradeLevel.SEC_1, GradeLevel.SEC_2, GradeLevel.SEC_3,
+            GradeLevel.SEC_4, GradeLevel.SEC_5];
+        case Syllabus.UEC:
+            return [GradeLevel.FORM_1, GradeLevel.FORM_2, GradeLevel.FORM_3,
+            GradeLevel.FORM_4, GradeLevel.FORM_5, GradeLevel.FORM_6];
+        case Syllabus.KSSR_KSSM:
+        default:
+            return [GradeLevel.STD_1, GradeLevel.STD_2, GradeLevel.STD_3,
+            GradeLevel.STD_4, GradeLevel.STD_5, GradeLevel.STD_6,
+            GradeLevel.FORM_1, GradeLevel.FORM_2, GradeLevel.FORM_3,
+            GradeLevel.FORM_4, GradeLevel.FORM_5, GradeLevel.FORM_6];
+    }
+};
+
+
+/* ═══════════════════════════════════════════════════════════════
+   ██  HOMEWORK CREATOR SUB-COMPONENT  (used inside classrooms)
+   ═══════════════════════════════════════════════════════════════ */
+interface HomeworkCreatorProps {
+    classroomId: string;
+    classroomName: string;
+    onClose: () => void;
+    onCreated: () => void;
+}
+
+const HomeworkCreator: React.FC<HomeworkCreatorProps> = ({ classroomId, classroomName, onClose, onCreated }) => {
+    const { user } = useAuth();
+    const [mode, setMode] = useState<'manual' | 'ai'>('manual');
+    const [isLoading, setIsLoading] = useState(false);
+
+    // Quest metadata
+    const [questTitle, setQuestTitle] = useState('');
+    const [questSubject, setQuestSubject] = useState<Subject | ''>('');
+    const [questGrade, setQuestGrade] = useState<GradeLevel | ''>('');
+    const [questSyllabus, setQuestSyllabus] = useState<Syllabus | ''>(() => {
+        const subLevel = (user as any)?.subscriptionLevel;
+        const subSyllabus = (user as any)?.subscribedSyllabus;
+        return (user?.isSubscribed && subLevel === 'single' && subSyllabus) ? subSyllabus as Syllabus : '';
+    });
+
+    // Manual question form
+    const [questions, setQuestions] = useState<Question[]>([]);
+    const [currentQText, setCurrentQText] = useState('');
+    const [option1, setOption1] = useState('');
+    const [option2, setOption2] = useState('');
+    const [option3, setOption3] = useState('');
+    const [option4, setOption4] = useState('');
+    const [correctIndex, setCorrectIndex] = useState(0);
+    const [explanation, setExplanation] = useState('');
+
+    // AI generation
+    const [aiTopics, setAiTopics] = useState<string[]>([]);
+    const [selectedTopic, setSelectedTopic] = useState('');
+    const [loadingTopics, setLoadingTopics] = useState(false);
+    const [generatingQuestions, setGeneratingQuestions] = useState(false);
+
+    const token = () => localStorage.getItem('quest_token');
+    const authHeaders = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` });
+
+    // Fetch topics when subject/grade/syllabus are selected in AI mode
+    useEffect(() => {
+        if (mode === 'ai' && questSubject && questGrade && questSyllabus) {
+            const fetchTopics = async () => {
+                setLoadingTopics(true);
+                setAiTopics([]);
+                setSelectedTopic('');
+                try {
+                    const res = await fetch('/api/generate/syllabus', {
+                        method: 'POST',
+                        headers: authHeaders(),
+                        body: JSON.stringify({ subject: questSubject, grade: questGrade, syllabus: questSyllabus })
+                    });
+                    if (res.ok) {
+                        const topics = await res.json();
+                        setAiTopics(topics);
+                    }
+                } catch (e) {
+                    console.error('Failed to fetch topics', e);
+                }
+                setLoadingTopics(false);
+            };
+            fetchTopics();
+        }
+    }, [mode, questSubject, questGrade, questSyllabus]);
+
+    const handleAddQuestion = () => {
+        if (!currentQText || !option1 || !option2 || !option3 || !option4 || !explanation) {
+            alert("Please fill in all fields for the question.");
+            return;
+        }
+        const newQ: Question = {
+            id: `q-${Date.now()}`,
+            text: currentQText,
+            options: [option1, option2, option3, option4],
+            correctAnswerIndex: correctIndex,
+            explanation
+        };
+        setQuestions([...questions, newQ]);
+        setCurrentQText(''); setOption1(''); setOption2(''); setOption3(''); setOption4('');
+        setCorrectIndex(0); setExplanation('');
+    };
+
+    const handleRemoveQuestion = (idx: number) => {
+        setQuestions(prev => prev.filter((_, i) => i !== idx));
+    };
+
+    const handleAiGenerate = async () => {
+        if (!questSubject || !questGrade || !questSyllabus || !selectedTopic) {
+            alert('Please select syllabus, grade, subject, and topic first.');
+            return;
+        }
+        setGeneratingQuestions(true);
+        try {
+            const res = await fetch('/api/generate/quest', {
+                method: 'POST',
+                headers: authHeaders(),
+                body: JSON.stringify({
+                    subject: questSubject,
+                    grade: questGrade,
+                    topic: selectedTopic,
+                    syllabus: questSyllabus
+                })
+            });
+            if (!res.ok) {
+                if (res.status === 403) {
+                    const err = await res.json();
+                    alert(err.error || 'You have reached the generation limit. Upgrade to Pro for unlimited.');
+                } else {
+                    alert('Failed to generate questions. Please try again.');
+                }
+                setGeneratingQuestions(false);
+                return;
+            }
+            const data = await res.json();
+            const generated: Question[] = Array.isArray(data) ? data : (data.questions || []);
+            if (generated.length > 0) {
+                setQuestions(prev => [...prev, ...generated]);
+            } else {
+                alert('AI returned no questions. Try a different topic.');
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Error generating questions.');
+        }
+        setGeneratingQuestions(false);
+    };
+
+    const handleSaveAndAssign = async () => {
+        if (!questTitle) { alert('Please enter a homework title.'); return; }
+        if (!questSubject || !questGrade || !questSyllabus) { alert('Please select syllabus, grade, and subject.'); return; }
+        if (questions.length === 0) { alert('Please add at least one question.'); return; }
+
+        setIsLoading(true);
+        try {
+            // Step 1: Save the quest
+            const questRes = await fetch('/api/quests', {
+                method: 'POST',
+                headers: authHeaders(),
+                body: JSON.stringify({
+                    title: questTitle,
+                    subject: questSubject,
+                    grade: questGrade,
+                    syllabus: questSyllabus,
+                    questions
+                })
+            });
+            if (!questRes.ok) {
+                const err = await questRes.json();
+                alert(`Error saving homework: ${err.error}`);
+                setIsLoading(false);
+                return;
+            }
+            const savedQuest = await questRes.json();
+
+            // Step 2: Create assignment in classroom linking to this quest
+            const assignRes = await fetch('/api/assignments', {
+                method: 'POST',
+                headers: authHeaders(),
+                body: JSON.stringify({
+                    classroomId,
+                    title: questTitle,
+                    description: `${questSubject} • ${questGrade} • ${questions.length} questions`,
+                    questId: savedQuest.id
+                })
+            });
+            if (assignRes.ok) {
+                onCreated();
+            } else {
+                alert('Homework saved but failed to assign to classroom. You can assign it manually.');
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Failed to save homework.');
+        }
+        setIsLoading(false);
+    };
+
+    return (
+        <div className="border-t border-indigo-100 bg-gradient-to-b from-indigo-50/80 to-white p-5 space-y-5 animate-in fade-in slide-in-from-top-2 duration-300">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white">
+                        <BookOpen size={18} />
+                    </div>
+                    <div>
+                        <h4 className="font-extrabold text-slate-800 text-sm">Create Homework</h4>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">For: {classroomName}</p>
+                    </div>
+                </div>
+                <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-all">
+                    <X size={18} />
+                </button>
+            </div>
+
+            {/* Mode Toggle */}
+            <div className="flex gap-1 bg-slate-200/60 p-1 rounded-xl w-fit">
+                <button
+                    onClick={() => setMode('manual')}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${mode === 'manual' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                    <HelpCircle size={14} /> Manual Questions
+                </button>
+                <button
+                    onClick={() => setMode('ai')}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${mode === 'ai' ? 'bg-white text-purple-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                    <Sparkles size={14} /> AI Generate
+                </button>
+            </div>
+
+            {/* ── Homework Configuration ── */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-0.5">Homework Title *</label>
+                    <input
+                        type="text"
+                        value={questTitle}
+                        onChange={e => setQuestTitle(e.target.value)}
+                        placeholder="e.g., Chapter 5 Review"
+                        className="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 focus:border-indigo-400 focus:outline-none font-bold text-sm bg-white"
+                    />
+                </div>
+                <div>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-0.5">Syllabus *</label>
+                    <select
+                        value={questSyllabus}
+                        onChange={e => { setQuestSyllabus(e.target.value as Syllabus); setQuestGrade(''); setQuestSubject(''); }}
+                        disabled={(user as any)?.subscriptionLevel === 'single'}
+                        className={`w-full px-3 py-2.5 rounded-xl border-2 border-slate-200 font-bold text-sm ${(user as any)?.subscriptionLevel === 'single' ? 'bg-gray-100 opacity-60' : 'bg-white'}`}
+                    >
+                        <option value="">Select Syllabus</option>
+                        {Object.values(Syllabus).map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                </div>
+                <div>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-0.5">Grade *</label>
+                    <select
+                        value={questGrade}
+                        onChange={e => { setQuestGrade(e.target.value as GradeLevel); setQuestSubject(''); }}
+                        disabled={!questSyllabus}
+                        className={`w-full px-3 py-2.5 rounded-xl border-2 border-slate-200 font-bold text-sm ${!questSyllabus ? 'opacity-50 bg-gray-50' : 'bg-white'}`}
+                    >
+                        <option value="">Select Grade</option>
+                        {getGradesBySyllabus(questSyllabus).map(g => <option key={g} value={g}>{g}</option>)}
+                    </select>
+                </div>
+                <div>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-0.5">Subject *</label>
+                    <select
+                        value={questSubject}
+                        onChange={e => setQuestSubject(e.target.value as Subject)}
+                        disabled={!questGrade}
+                        className={`w-full px-3 py-2.5 rounded-xl border-2 border-slate-200 font-bold text-sm ${!questGrade ? 'opacity-50 bg-gray-50' : 'bg-white'}`}
+                    >
+                        <option value="">Select Subject</option>
+                        {getSubjectsByGrade(questGrade, questSyllabus).map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                </div>
+            </div>
+
+            {/* ── AI Topic Selection + Generate ── */}
+            {mode === 'ai' && (
+                <div className="bg-purple-50 border border-purple-200 rounded-2xl p-4 space-y-3">
+                    <div className="flex items-center gap-2 mb-1">
+                        <Brain size={16} className="text-purple-600" />
+                        <span className="text-xs font-bold text-purple-700 uppercase tracking-wider">AI Question Generator</span>
+                    </div>
+
+                    {!questSubject || !questGrade || !questSyllabus ? (
+                        <p className="text-xs text-purple-400 italic">Select syllabus, grade, and subject above to load topics.</p>
+                    ) : loadingTopics ? (
+                        <div className="flex items-center gap-2 py-4 justify-center">
+                            <Loader2 size={16} className="animate-spin text-purple-500" />
+                            <span className="text-xs font-bold text-purple-500 animate-pulse">Scanning syllabus topics...</span>
+                        </div>
+                    ) : aiTopics.length > 0 ? (
+                        <>
+                            <label className="block text-[10px] font-bold text-purple-500 uppercase tracking-wider mb-1.5">Select Topic</label>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[200px] overflow-y-auto pr-1">
+                                {aiTopics.map((topic, idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => setSelectedTopic(topic)}
+                                        className={`p-2.5 text-left rounded-xl border-2 font-bold text-xs transition-all leading-snug ${selectedTopic === topic
+                                            ? 'border-purple-400 bg-purple-100 text-purple-700 shadow-sm'
+                                            : 'border-purple-100 bg-white hover:border-purple-300 text-slate-700'
+                                            }`}
+                                    >
+                                        {topic}
+                                    </button>
+                                ))}
+                            </div>
+                            <button
+                                onClick={handleAiGenerate}
+                                disabled={!selectedTopic || generatingQuestions}
+                                className="w-full mt-2 flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold text-sm shadow-lg shadow-purple-200 transition-all"
+                            >
+                                {generatingQuestions ? (
+                                    <><Loader2 size={16} className="animate-spin" /> Generating Questions...</>
+                                ) : (
+                                    <><Sparkles size={16} /> Generate Questions with AI</>
+                                )}
+                            </button>
+                        </>
+                    ) : (
+                        <p className="text-xs text-purple-400 text-center py-3">No topics found. Try a different combination.</p>
+                    )}
+                </div>
+            )}
+
+            {/* ── Manual Question Creator ── */}
+            {mode === 'manual' && (
+                <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-4">
+                    <div className="flex items-center gap-2 mb-1">
+                        <HelpCircle size={14} className="text-indigo-500" />
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Add Question</span>
+                    </div>
+
+                    <textarea
+                        className="w-full p-4 rounded-xl border-2 border-slate-200 focus:border-indigo-400 focus:outline-none font-bold text-sm min-h-[80px] bg-slate-50/50 resize-none"
+                        placeholder="Write your question here..."
+                        value={currentQText}
+                        onChange={e => setCurrentQText(e.target.value)}
+                    />
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {[option1, option2, option3, option4].map((opt, idx) => (
+                            <div
+                                key={idx}
+                                onClick={() => setCorrectIndex(idx)}
+                                className={`relative cursor-pointer p-0.5 rounded-xl border-2 transition-all ${correctIndex === idx
+                                    ? 'border-emerald-400 bg-emerald-50 shadow-sm'
+                                    : 'border-transparent bg-slate-50 hover:bg-white hover:border-slate-200'
+                                    }`}
+                            >
+                                {correctIndex === idx && (
+                                    <div className="absolute -top-2 -right-2 z-10 bg-emerald-500 text-white p-0.5 rounded-full border-2 border-white shadow">
+                                        <CheckCircle2 size={12} />
+                                    </div>
+                                )}
+                                <div className="flex items-center gap-3 p-3">
+                                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs ${correctIndex === idx ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-400'}`}>
+                                        {String.fromCharCode(65 + idx)}
+                                    </div>
+                                    <input
+                                        type="text"
+                                        className="w-full bg-transparent font-bold text-sm text-slate-800 placeholder:text-slate-300 focus:outline-none"
+                                        placeholder={`Option ${String.fromCharCode(65 + idx)}`}
+                                        value={idx === 0 ? option1 : idx === 1 ? option2 : idx === 2 ? option3 : option4}
+                                        onChange={e => {
+                                            const val = e.target.value;
+                                            if (idx === 0) setOption1(val);
+                                            if (idx === 1) setOption2(val);
+                                            if (idx === 2) setOption3(val);
+                                            if (idx === 3) setOption4(val);
+                                        }}
+                                        onClick={e => e.stopPropagation()}
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <textarea
+                        className="w-full p-3 rounded-xl border-2 border-slate-200 focus:border-indigo-400 focus:outline-none font-medium text-xs min-h-[60px] bg-slate-50/30 resize-none"
+                        placeholder="Explanation (why the answer is correct)..."
+                        value={explanation}
+                        onChange={e => setExplanation(e.target.value)}
+                    />
+
+                    <button
+                        onClick={handleAddQuestion}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm shadow-md shadow-indigo-200 transition-all"
+                    >
+                        <Plus size={16} /> Add Question
+                    </button>
+                </div>
+            )}
+
+            {/* ── Questions Stack ── */}
+            {questions.length > 0 && (
+                <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <List size={14} className="text-slate-400" />
+                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Question Stack</span>
+                        </div>
+                        <span className="text-[10px] font-bold bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full">{questions.length} Questions</span>
+                    </div>
+                    <div className="space-y-2 max-h-[250px] overflow-y-auto pr-1">
+                        {questions.map((q, idx) => (
+                            <div key={idx} className="bg-white p-3 rounded-xl border border-slate-200 flex items-start gap-3 group">
+                                <div className="w-6 h-6 bg-indigo-100 text-indigo-600 font-bold rounded-lg text-[10px] flex items-center justify-center shrink-0">
+                                    #{idx + 1}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="font-bold text-xs text-slate-700 leading-tight truncate">{q.text}</p>
+                                    <div className="flex items-center gap-1 mt-1">
+                                        <CheckCircle2 size={10} className="text-emerald-500" />
+                                        <span className="text-[10px] font-bold text-emerald-600 truncate">{q.options[q.correctAnswerIndex]}</span>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => handleRemoveQuestion(idx)}
+                                    className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                                >
+                                    <Trash2 size={14} />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* ── Save & Assign Button ── */}
+            <div className="flex gap-3 pt-2">
+                <button onClick={onClose} className="px-5 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-500 hover:bg-slate-50 transition-all">
+                    Cancel
+                </button>
+                <button
+                    onClick={handleSaveAndAssign}
+                    disabled={isLoading || questions.length === 0 || !questTitle}
+                    className="flex-1 flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold text-sm shadow-md shadow-emerald-200 transition-all"
+                >
+                    {isLoading ? (
+                        <><Loader2 size={16} className="animate-spin" /> Saving...</>
+                    ) : (
+                        <><Save size={16} /> Save & Assign to Classroom</>
+                    )}
+                </button>
+            </div>
+        </div>
+    );
+};
+
+
+/* ═══════════════════════════════════════════════════════════════
+   ██  MAIN CLASSROOM MANAGER COMPONENT
+   ═══════════════════════════════════════════════════════════════ */
 export const ClassroomManager: React.FC = () => {
     const [classrooms, setClassrooms]         = useState<any[]>([]);
     const [quests,     setQuests]             = useState<CustomQuest[]>([]);
@@ -36,6 +601,7 @@ export const ClassroomManager: React.FC = () => {
     const [grading,    setGrading]            = useState<Record<string,string>>({});
     const [proofModal, setProofModal]         = useState<string|null>(null);
     const [deletingSubId, setDeletingSubId]   = useState<string|null>(null);
+    const [creatingHwId, setCreatingHwId]     = useState<string|null>(null);
 
     const token = () => localStorage.getItem('quest_token');
     const auth  = () => ({ 'Content-Type':'application/json', Authorization:`Bearer ${token()}` });
@@ -143,11 +709,11 @@ export const ClassroomManager: React.FC = () => {
                 </div>
             )}
 
-            {/* ── Create assignment panel ── */}
+            {/* ── Create assignment panel (assign existing quest) ── */}
             {assigningId && (
                 <div className="bg-orange-50 border border-orange-200 rounded-2xl p-5 space-y-4">
                     <div className="flex items-center justify-between">
-                        <p className="font-bold text-orange-800 flex items-center gap-2"><ClipboardList size={16}/> New Assignment</p>
+                        <p className="font-bold text-orange-800 flex items-center gap-2"><ClipboardList size={16}/> Assign Existing Homework</p>
                         <button onClick={()=>setAssigningId(null)}><X size={16} className="text-slate-400"/></button>
                     </div>
                     <input type="text" placeholder="Assignment title *"
@@ -182,6 +748,7 @@ export const ClassroomManager: React.FC = () => {
                 <div className="space-y-3">
                     {classrooms.map(cls => {
                         const isExp = expandedId===cls.id;
+                        const isCreatingHw = creatingHwId === cls.id;
                         const needsReview = isExp ? submissions.reduce((n,a)=>n+(a.submissions?.filter((s:any)=>s.status==='submitted').length||0),0) : 0;
                         return (
                             <div key={cls.id} className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
@@ -213,10 +780,22 @@ export const ClassroomManager: React.FC = () => {
                                     </div>
 
                                     {/* Buttons */}
-                                    <div className="flex items-center gap-2 shrink-0">
+                                    <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                                        <button
+                                            onClick={() => {
+                                                setCreatingHwId(isCreatingHw ? null : cls.id);
+                                                setAssigningId(null);
+                                            }}
+                                            className={`flex items-center gap-1 px-3 py-1.5 border rounded-lg text-xs font-bold transition-all ${isCreatingHw
+                                                ? 'border-indigo-400 text-indigo-700 bg-indigo-50'
+                                                : 'border-emerald-200 text-emerald-600 hover:bg-emerald-50'
+                                            }`}
+                                        >
+                                            <Plus size={13}/> Create Homework
+                                        </button>
                                         <button onClick={()=>setAssigningId(cls.id)}
                                             className="flex items-center gap-1 px-3 py-1.5 border border-orange-200 text-orange-600 rounded-lg text-xs font-bold hover:bg-orange-50 transition-all">
-                                            <Plus size={13}/> Assign
+                                            <ClipboardList size={13}/> Assign Existing
                                         </button>
                                         <button onClick={()=>{
                                             if(isExp){ setExpandedId(null); }
@@ -228,6 +807,20 @@ export const ClassroomManager: React.FC = () => {
                                         </button>
                                     </div>
                                 </div>
+
+                                {/* ── Inline Homework Creator ── */}
+                                {isCreatingHw && (
+                                    <HomeworkCreator
+                                        classroomId={cls.id}
+                                        classroomName={cls.name}
+                                        onClose={() => setCreatingHwId(null)}
+                                        onCreated={() => {
+                                            setCreatingHwId(null);
+                                            fetchClassrooms();
+                                            fetchQuests();
+                                        }}
+                                    />
+                                )}
 
                                 {/* ── Submissions & Performance panel ── */}
                                 {isExp && (() => {
