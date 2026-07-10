@@ -746,6 +746,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
             </div>
         </div>
     );
+    };
 
     const renderUserPerformance = () => {
         if (!selectedUser) return null;
