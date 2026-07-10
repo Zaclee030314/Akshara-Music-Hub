@@ -104,7 +104,7 @@ export const TeacherAnalytics: React.FC<TeacherAnalyticsProps> = ({ token }) => 
         .sort((a, b) => b.accuracy - a.accuracy);
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Classroom Selector */}
             <div className="flex items-center gap-3">
                 <div className="relative inline-block w-64">
@@ -126,76 +126,77 @@ export const TeacherAnalytics: React.FC<TeacherAnalyticsProps> = ({ token }) => 
                     <Loader2 className="animate-spin text-indigo-500" size={32} />
                 </div>
             ) : (
-                <div className="space-y-4">
+                <div className="space-y-8">
                     {/* Class Overall Summary */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4 hover:border-indigo-200 transition-colors">
-                            <div className="p-3 bg-indigo-50 rounded-xl shrink-0">
-                                <BarChart3 className="text-indigo-600" size={24} />
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-5 hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                            <div className="p-4 bg-indigo-50 rounded-2xl shrink-0">
+                                <BarChart3 className="text-indigo-600" size={28} />
                             </div>
                             <div>
-                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Avg Accuracy</p>
-                                <p className="text-3xl font-display font-extrabold text-slate-800">{roster.length > 0 ? Math.round(roster.reduce((acc, curr) => acc + curr.accuracy, 0) / roster.length) : 0}%</p>
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Avg Accuracy</p>
+                                <p className="text-4xl font-display font-extrabold text-slate-800">{roster.length > 0 ? Math.round(roster.reduce((acc, curr) => acc + curr.accuracy, 0) / roster.length) : 0}%</p>
                             </div>
                         </div>
-                        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4 hover:border-emerald-200 transition-colors">
-                            <div className="p-3 bg-emerald-50 rounded-xl shrink-0">
-                                <Target className="text-emerald-600" size={24} />
+                        <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-5 hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                            <div className="p-4 bg-emerald-50 rounded-2xl shrink-0">
+                                <Target className="text-emerald-600" size={28} />
                             </div>
                             <div>
-                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Total Completed</p>
-                                <p className="text-3xl font-display font-extrabold text-slate-800">{roster.reduce((acc, curr) => acc + curr.completed, 0)}</p>
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total Completed</p>
+                                <p className="text-4xl font-display font-extrabold text-slate-800">{roster.reduce((acc, curr) => acc + curr.completed, 0)}</p>
                             </div>
                         </div>
-                        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4 hover:border-amber-200 transition-colors">
-                            <div className="p-3 bg-amber-50 rounded-xl shrink-0">
-                                <TrendingUp className="text-amber-600" size={24} />
+                        <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-5 hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                            <div className="p-4 bg-amber-50 rounded-2xl shrink-0">
+                                <TrendingUp className="text-amber-600" size={28} />
                             </div>
                             <div className="min-w-0">
-                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Top Performer</p>
-                                <p className="text-xl font-extrabold text-slate-800 truncate">{roster.length > 0 ? roster[0].name : 'N/A'}</p>
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Top Performer</p>
+                                <p className="text-2xl font-extrabold text-slate-800 truncate">{roster.length > 0 ? roster[0].name : 'N/A'}</p>
                             </div>
                         </div>
                     </div>
 
                     {/* Student Leaderboard & Visual Bars */}
-                    <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-                        <div className="px-5 py-4 bg-slate-50 border-b border-slate-100">
-                            <span className="font-bold text-sm text-slate-800">Student Performance Analytics</span>
+                    <div>
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="font-display text-2xl font-extrabold text-slate-800">Student Performance</h3>
+                            <span className="text-sm font-bold text-slate-500 bg-slate-100 px-4 py-1.5 rounded-full">{roster.length} Students</span>
                         </div>
                         {roster.length === 0 ? (
-                            <div className="py-12 text-center px-4">
-                                <Target className="mx-auto mb-3 text-slate-300" size={32} />
-                                <p className="text-sm text-slate-500 font-medium">No graded submissions yet to calculate analytics.</p>
+                            <div className="bg-white rounded-3xl border border-slate-100 shadow-sm py-16 text-center px-4">
+                                <Target className="mx-auto mb-4 text-slate-300" size={48} />
+                                <p className="text-base text-slate-500 font-medium">No graded submissions yet to calculate analytics.</p>
                             </div>
                         ) : (
-                            <div className="divide-y divide-slate-100">
+                            <div className="space-y-4">
                                 {roster.map((student, idx) => {
                                     const acc = student.accuracy;
                                     const color = acc >= 80 ? 'bg-emerald-500' : acc >= 50 ? 'bg-amber-500' : 'bg-red-500';
                                     const textColor = acc >= 80 ? 'text-emerald-600' : acc >= 50 ? 'text-amber-600' : 'text-red-500';
 
                                     return (
-                                        <div key={idx} className="p-5 hover:bg-slate-50/50 transition-colors group">
-                                            <div className="flex items-center justify-between mb-3">
-                                                <div className="flex items-center gap-4">
-                                                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-extrabold text-xs shadow-sm
+                                        <div key={idx} className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 group">
+                                            <div className="flex items-center justify-between mb-5">
+                                                <div className="flex items-center gap-5">
+                                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-extrabold text-base shadow-sm
                                                         ${idx===0?'bg-amber-100 text-amber-600':idx===1?'bg-slate-200 text-slate-600':idx===2?'bg-orange-100 text-orange-600':'bg-indigo-50 text-indigo-500'}`}>
                                                         #{idx+1}
                                                     </div>
                                                     <div>
-                                                        <p className="text-base font-bold text-slate-800">{student.name}</p>
-                                                        <p className="text-xs font-bold text-slate-400">{student.completed} assignments completed</p>
+                                                        <p className="text-lg font-bold text-slate-800">{student.name}</p>
+                                                        <p className="text-sm font-bold text-slate-400 mt-0.5">{student.completed} assignments completed</p>
                                                     </div>
                                                 </div>
-                                                <div className={`text-xl font-extrabold ${textColor}`}>
+                                                <div className={`text-3xl font-display font-extrabold ${textColor}`}>
                                                     {acc}%
                                                 </div>
                                             </div>
                                             {/* Progress Bar */}
-                                            <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden relative shadow-inner">
+                                            <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden relative shadow-inner">
                                                 <div 
-                                                    className={`h-full rounded-full transition-all duration-700 ${color}`}
+                                                    className={`h-full rounded-full transition-all duration-1000 ease-out ${color}`}
                                                     style={{ width: `${Math.max(acc, 2)}%` }} 
                                                 />
                                             </div>
