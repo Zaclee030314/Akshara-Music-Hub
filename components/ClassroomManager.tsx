@@ -4,7 +4,8 @@ import {
     ChevronDown, ChevronUp, Award, X, GraduationCap,
     FileText, Eye, ClipboardList, Trash2, CheckCircle,
     AlertCircle, MoreHorizontal, Sparkles, ArrowLeft,
-    Save, Info, Settings, List, HelpCircle, RefreshCw, Brain
+    Save, Info, Settings, List, HelpCircle, RefreshCw, Brain,
+    TrendingUp, BarChart3, Target
 } from 'lucide-react';
 import { CustomQuest, Question, Subject, GradeLevel, Syllabus } from '../types';
 import { Button } from './Button';
@@ -943,36 +944,82 @@ export const ClassroomManager: React.FC = () => {
                                                     })
                                                 )
                                             ) : (
-                                                <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-                                                    <div className="px-4 py-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
-                                                        <span className="font-bold text-sm text-slate-800">Leaderboard & Accuracy</span>
-                                                    </div>
-                                                    {roster.length === 0 ? (
-                                                        <p className="text-xs text-slate-400 italic px-4 py-6 text-center">No graded submissions yet to calculate accuracy.</p>
-                                                    ) : (
-                                                        <div className="divide-y divide-slate-50">
-                                                            {roster.map((student, idx) => (
-                                                                <div key={idx} className="flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors">
-                                                                    <div className="flex items-center gap-3">
-                                                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-extrabold text-xs
-                                                                            ${idx===0?'bg-amber-100 text-amber-600':idx===1?'bg-slate-200 text-slate-600':idx===2?'bg-orange-100 text-orange-600':'bg-indigo-50 text-indigo-500'}`}>
-                                                                            #{idx+1}
-                                                                        </div>
-                                                                        <div>
-                                                                            <p className="text-sm font-bold text-slate-700">{student.name}</p>
-                                                                            <p className="text-[10px] font-semibold text-slate-400">{student.completed} assignments completed</p>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div className="text-right">
-                                                                        <p className={`text-lg font-extrabold ${student.accuracy >= 80 ? 'text-emerald-500' : student.accuracy >= 50 ? 'text-amber-500' : 'text-red-500'}`}>
-                                                                            {student.accuracy}%
-                                                                        </p>
-                                                                        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Accuracy</p>
-                                                                    </div>
-                                                                </div>
-                                                            ))}
+                                                <div className="space-y-4">
+                                                    {/* Class Overall Summary */}
+                                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                                        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3">
+                                                            <div className="p-2.5 bg-indigo-50 rounded-lg shrink-0">
+                                                                <BarChart3 className="text-indigo-600" size={20} />
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Avg Accuracy</p>
+                                                                <p className="text-xl font-extrabold text-slate-800">{roster.length > 0 ? Math.round(roster.reduce((acc, curr) => acc + curr.accuracy, 0) / roster.length) : 0}%</p>
+                                                            </div>
                                                         </div>
-                                                    )}
+                                                        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3">
+                                                            <div className="p-2.5 bg-emerald-50 rounded-lg shrink-0">
+                                                                <Target className="text-emerald-600" size={20} />
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Completed</p>
+                                                                <p className="text-xl font-extrabold text-slate-800">{roster.reduce((acc, curr) => acc + curr.completed, 0)}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3">
+                                                            <div className="p-2.5 bg-amber-50 rounded-lg shrink-0">
+                                                                <TrendingUp className="text-amber-600" size={20} />
+                                                            </div>
+                                                            <div className="min-w-0">
+                                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Top Performer</p>
+                                                                <p className="text-sm font-extrabold text-slate-800 truncate">{roster.length > 0 ? roster[0].name : 'N/A'}</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Student Leaderboard & Visual Bars */}
+                                                    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                                                        <div className="px-4 py-3 bg-slate-50 border-b border-slate-100">
+                                                            <span className="font-bold text-sm text-slate-800">Student Analytics</span>
+                                                        </div>
+                                                        {roster.length === 0 ? (
+                                                            <p className="text-xs text-slate-400 italic px-4 py-6 text-center">No graded submissions yet to calculate analytics.</p>
+                                                        ) : (
+                                                            <div className="divide-y divide-slate-50">
+                                                                {roster.map((student, idx) => {
+                                                                    const acc = student.accuracy;
+                                                                    const color = acc >= 80 ? 'bg-emerald-500' : acc >= 50 ? 'bg-amber-500' : 'bg-red-500';
+                                                                    const textColor = acc >= 80 ? 'text-emerald-600' : acc >= 50 ? 'text-amber-600' : 'text-red-500';
+
+                                                                    return (
+                                                                        <div key={idx} className="p-4 hover:bg-slate-50 transition-colors group">
+                                                                            <div className="flex items-center justify-between mb-2">
+                                                                                <div className="flex items-center gap-3">
+                                                                                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-extrabold text-[10px]
+                                                                                        ${idx===0?'bg-amber-100 text-amber-600':idx===1?'bg-slate-200 text-slate-600':idx===2?'bg-orange-100 text-orange-600':'bg-indigo-50 text-indigo-500'}`}>
+                                                                                        #{idx+1}
+                                                                                    </div>
+                                                                                    <div>
+                                                                                        <p className="text-sm font-bold text-slate-800">{student.name}</p>
+                                                                                        <p className="text-[10px] font-bold text-slate-400">{student.completed} completed</p>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div className={`text-sm font-extrabold ${textColor}`}>
+                                                                                    {acc}%
+                                                                                </div>
+                                                                            </div>
+                                                                            {/* Progress Bar */}
+                                                                            <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden relative">
+                                                                                <div 
+                                                                                    className={`h-full rounded-full transition-all duration-700 ${color}`}
+                                                                                    style={{ width: `${Math.max(acc, 2)}%` }} 
+                                                                                />
+                                                                            </div>
+                                                                        </div>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>
