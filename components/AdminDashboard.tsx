@@ -104,7 +104,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
     const [rewardImageUrl, setRewardImageUrl] = useState<string | null>(null);
     const [userSearchQuery, setUserSearchQuery] = useState('');
     const [userSortOrder, setUserSortOrder] = useState<'default' | 'accuracy-desc' | 'accuracy-asc' | 'xp-desc'>('default');
-
+    const [redemptionSearchQuery, setRedemptionSearchQuery] = useState('');
 
     // Paper Files state
     const [paperFiles, setPaperFiles] = useState<any[]>([]);
@@ -666,13 +666,30 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
         </div>
     );
 
-    const renderRedemptions = () => (
+    const renderRedemptions = () => {
+        const filteredRedemptions = redemptions.filter(rd => 
+            rd.user.name.toLowerCase().includes(redemptionSearchQuery.toLowerCase()) || 
+            rd.user.email.toLowerCase().includes(redemptionSearchQuery.toLowerCase()) ||
+            rd.reward.title.toLowerCase().includes(redemptionSearchQuery.toLowerCase())
+        );
+        
+        return (
         <div className="bg-white rounded-3xl border border-brand-dark/5 shadow-sm overflow-hidden">
-            <div className="p-6 border-b border-brand-dark/5 flex justify-between items-center">
+            <div className="p-6 border-b border-brand-dark/5 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                 <h3 className="font-bold flex items-center gap-2 italic">
                     <Clock size={20} className="text-brand-orange" />
                     Student Redemptions
                 </h3>
+                <div className="relative">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-dark/20" size={16} />
+                    <input
+                        type="text"
+                        placeholder="Search student or reward..."
+                        value={redemptionSearchQuery}
+                        onChange={(e) => setRedemptionSearchQuery(e.target.value)}
+                        className="w-full sm:w-64 bg-gray-50 border border-brand-dark/5 rounded-xl pl-10 pr-4 py-2.5 text-sm font-medium outline-none focus:ring-2 ring-brand-blue/20 shadow-sm transition-all"
+                    />
+                </div>
             </div>
             <div className="overflow-x-auto">
                 <table className="w-full">
@@ -687,7 +704,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-brand-dark/5">
-                        {redemptions.map(rd => (
+                        {filteredRedemptions.map(rd => (
                             <tr key={rd.id} className="hover:bg-gray-50/50 transition-colors">
                                 <td className="px-6 py-4">
                                     <p className="font-bold text-sm">{rd.user.name}</p>
@@ -725,7 +742,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
                         ))}
                     </tbody>
                 </table>
-                {redemptions.length === 0 && <p className="text-center py-20 text-brand-dark/30 font-bold italic">No redemptions found</p>}
+                {filteredRedemptions.length === 0 && <p className="text-center py-20 text-brand-dark/30 font-bold italic">No redemptions found</p>}
             </div>
         </div>
     );
