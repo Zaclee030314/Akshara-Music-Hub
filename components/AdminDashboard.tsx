@@ -27,8 +27,11 @@ import {
     FileText,
     UserPlus,
     GraduationCap,
-    Loader2
+    Loader2,
+    ShieldCheck,
+    Shield
 } from 'lucide-react';
+import { useAuth } from '../contexts/useAuth';
 
 interface AdminStats {
     users: number;
@@ -92,8 +95,9 @@ interface AdminDashboardProps {
 const API_BASE = '/api/admin';
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
+    const { user: currentUser } = useAuth();
     const [stats, setStats] = useState<AdminStats | null>(null);
-    const [tab, setTab] = useState<'analytics' | 'users' | 'rewards' | 'redemptions' | 'papers'>('analytics');
+    const [tab, setTab] = useState<'analytics' | 'users' | 'rewards' | 'redemptions' | 'papers' | 'roles'>('analytics');
     const [loading, setLoading] = useState(true);
     const [users, setUsers] = useState<UserStats[]>([]);
     const [rewards, setRewards] = useState<Reward[]>([]);
@@ -108,6 +112,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
     const [showTeacherModal, setShowTeacherModal] = useState(false);
     const [teacherForm, setTeacherForm] = useState({ name: '', email: '', password: '' });
     const [creatingTeacher, setCreatingTeacher] = useState(false);
+    const [roleSearchQuery, setRoleSearchQuery] = useState('');
+    const [savingRoleId, setSavingRoleId] = useState<string | null>(null);
     const [userSearchQuery, setUserSearchQuery] = useState('');
     const [userSortOrder, setUserSortOrder] = useState<'default' | 'accuracy-desc' | 'accuracy-asc' | 'xp-desc'>('default');
     const [redemptionSearchQuery, setRedemptionSearchQuery] = useState('');
@@ -193,6 +199,27 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
             showToast('Failed to create teacher', 'error');
         }
         setCreatingTeacher(false);
+    };
+
+    const handleUpdateUserRole = async (userId: string, changes: { role?: string; isAdmin?: boolean }) => {
+        setSavingRoleId(userId);
+        try {
+            const res = await fetch(`${API_BASE}/users/${userId}/role`, {
+                method: 'PATCH',
+                headers,
+                body: JSON.stringify(changes),
+            });
+            const data = await res.json();
+            if (res.ok) {
+                setUsers(prev => prev.map(u => (u.id === userId ? { ...u, ...data.user } : u)));
+                showToast('Access updated', 'success');
+            } else {
+                showToast(data.error || 'Failed to update access', 'error');
+            }
+        } catch {
+            showToast('Failed to update access', 'error');
+        }
+        setSavingRoleId(null);
     };
 
     const handleSelectUser = (user: UserStats) => {
@@ -504,6 +531,101 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
                                 <ChevronRight size={20} className="text-brand-dark/20 group-hover:text-brand-blue group-hover:translate-x-1 transition-all" />
                             </div>
                         ))
+                    )}
+                </div>
+            </div>
+        );
+    };
+
+    const renderRoles = () => {
+        const filtered = users.filter(u =>
+            u.name.toLowerCase().includes(roleSearchQuery.toLowerCase()) ||
+            u.email.toLowerCase().includes(roleSearchQuery.toLowerCase())
+        );
+        const rank = (u: UserStats) => (u.isAdmin ? 0 : u.role === 'teacher' ? 1 : 2);
+        const sorted = [...filtered].sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name));
+
+        return (
+            <div className="space-y-4">
+                <div className="bg-brand-blue/5 border border-brand-blue/10 rounded-2xl p-4 flex items-start gap-3 text-sm text-brand-dark/60">
+                    <ShieldCheck className="text-brand-blue shrink-0 mt-0.5" size={18} />
+                    <span>Change a user's role or grant platform-admin access. Admins can manage students, teachers, rewards and everyone's access.</span>
+                </div>
+
+                <div className="relative">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-dark/20" size={18} />
+                    <input
+                        type="text"
+                        placeholder="Search users by name or email..."
+                        value={roleSearchQuery}
+                        onChange={(e) => setRoleSearchQuery(e.target.value)}
+                        className="w-full bg-white border border-brand-dark/5 rounded-2xl pl-12 pr-4 py-3.5 text-sm font-medium outline-none focus:ring-2 ring-brand-blue/20 shadow-sm transition-all"
+                    />
+                </div>
+
+                <div className="grid grid-cols-1 gap-3">
+                    {sorted.length === 0 ? (
+                        <div className="text-center py-20 bg-white rounded-3xl border border-brand-dark/5">
+                            <Search className="mx-auto text-brand-dark/10 mb-4" size={48} />
+                            <p className="text-brand-dark/30 font-bold italic">No users match your search</p>
+                        </div>
+                    ) : (
+                        sorted.map(u => {
+                            const isSelf = currentUser?.id === u.id;
+                            const saving = savingRoleId === u.id;
+                            return (
+                                <div key={u.id} className="bg-white rounded-2xl p-5 flex flex-col md:flex-row md:items-center gap-4 border border-brand-dark/5">
+                                    <div className="flex items-center gap-4 flex-1 min-w-0">
+                                        <div className="w-11 h-11 rounded-2xl bg-brand-dark/5 flex items-center justify-center text-brand-dark font-display font-bold text-lg shrink-0">
+                                            {u.name[0].toUpperCase()}
+                                        </div>
+                                        <div className="min-w-0">
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                                <p className="font-bold text-brand-dark truncate">{u.name}</p>
+                                                {isSelf && <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-brand-dark/5 text-brand-dark/40 font-bold uppercase">You</span>}
+                                                {u.isAdmin && <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-brand-orange/10 text-brand-orange font-bold uppercase flex items-center gap-0.5"><ShieldCheck size={9} /> Admin</span>}
+                                                <span className={`text-[8px] px-1.5 py-0.5 rounded-full font-bold uppercase ${u.role === 'teacher' ? 'bg-purple-100 text-purple-600' : 'bg-blue-50 text-blue-600'}`}>{u.role}</span>
+                                            </div>
+                                            <p className="text-[10px] text-brand-dark/40 font-medium truncate uppercase tracking-tighter">{u.email}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-2 shrink-0">
+                                        <select
+                                            value={u.role === 'teacher' ? 'teacher' : 'student'}
+                                            disabled={saving}
+                                            onChange={(e) => handleUpdateUserRole(u.id, { role: e.target.value })}
+                                            className="bg-gray-50 border border-brand-dark/5 rounded-xl px-3 py-2.5 text-sm font-bold outline-none focus:ring-2 ring-brand-blue/20 cursor-pointer disabled:opacity-50"
+                                        >
+                                            <option value="student">Student</option>
+                                            <option value="teacher">Teacher</option>
+                                        </select>
+
+                                        {u.isAdmin ? (
+                                            <button
+                                                onClick={() => handleUpdateUserRole(u.id, { isAdmin: false })}
+                                                disabled={saving || isSelf}
+                                                title={isSelf ? "You can't revoke your own admin access" : 'Revoke admin access'}
+                                                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-bold bg-red-50 text-red-500 hover:bg-red-100 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+                                            >
+                                                <Shield size={15} /> Revoke Admin
+                                            </button>
+                                        ) : (
+                                            <button
+                                                onClick={() => handleUpdateUserRole(u.id, { isAdmin: true })}
+                                                disabled={saving}
+                                                title="Grant platform-admin access"
+                                                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-bold bg-brand-dark text-white hover:bg-brand-dark/90 active:scale-95 transition-all disabled:opacity-50 whitespace-nowrap"
+                                            >
+                                                <ShieldCheck size={15} /> Make Admin
+                                            </button>
+                                        )}
+
+                                        {saving && <Loader2 className="animate-spin text-brand-dark/40" size={18} />}
+                                    </div>
+                                </div>
+                            );
+                        })
                     )}
                 </div>
             </div>
@@ -886,6 +1008,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
                     {[
                         { id: 'analytics', label: 'Analytics', icon: <TrendingUp size={18} /> },
                         { id: 'users', label: 'Students', icon: <Users size={18} /> },
+                        { id: 'roles', label: 'Roles', icon: <ShieldCheck size={18} /> },
                         { id: 'rewards', label: 'Rewards', icon: <Gift size={18} /> },
                         { id: 'redemptions', label: 'Orders', icon: <ShoppingBag size={18} /> },
                         { id: 'papers', label: 'Papers', icon: <FileText size={18} /> }
@@ -928,8 +1051,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
                                 {selectedUser ? 'Student Performance' :
                                     tab === 'analytics' ? 'Dashboard Overview' :
                                         tab === 'users' ? 'Student Management' :
-                                            tab === 'rewards' ? 'Rewards Catalog' :
-                                                tab === 'papers' ? 'Past Year Papers' : 'Fulfillment Center'}
+                                            tab === 'roles' ? 'Roles & Access' :
+                                                tab === 'rewards' ? 'Rewards Catalog' :
+                                                    tab === 'papers' ? 'Past Year Papers' : 'Fulfillment Center'}
                             </h1>
                             <p className="text-brand-dark/40 text-sm mt-1 font-medium italic">
                                 {selectedUser ? `Analyzing growth for ${selectedUser.name}` : 'Real-time platform monitoring'}
@@ -948,6 +1072,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
                         <>
                             {tab === 'analytics' && renderAnalytics()}
                             {tab === 'users' && renderUsers()}
+                            {tab === 'roles' && renderRoles()}
                             {tab === 'rewards' && renderRewards()}
                             {tab === 'redemptions' && renderRedemptions()}
                             {tab === 'papers' && renderPapers()}

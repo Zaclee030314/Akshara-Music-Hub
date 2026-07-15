@@ -145,6 +145,45 @@ router.post('/create-teacher', async (req, res) => {
     }
 });
 
+// PATCH /api/admin/users/:id/role — change a user's role and/or admin access
+router.patch('/users/:id/role', async (req: AuthRequest, res) => {
+    const { id } = req.params;
+    const { role, isAdmin } = req.body;
+
+    if (role !== undefined && role !== 'student' && role !== 'teacher') {
+        return res.status(400).json({ error: "role must be 'student' or 'teacher'" });
+    }
+    if (isAdmin !== undefined && typeof isAdmin !== 'boolean') {
+        return res.status(400).json({ error: 'isAdmin must be a boolean' });
+    }
+    if (role === undefined && isAdmin === undefined) {
+        return res.status(400).json({ error: 'Nothing to update' });
+    }
+
+    // Prevent an admin from revoking their own admin access (avoids lockout)
+    if (isAdmin === false && id === req.user?.id) {
+        return res.status(400).json({ error: 'You cannot revoke your own admin access' });
+    }
+
+    try {
+        const data: { role?: string; isAdmin?: boolean } = {};
+        if (role !== undefined) data.role = role;
+        if (isAdmin !== undefined) data.isAdmin = isAdmin;
+
+        const updated = await prisma.user.update({
+            where: { id },
+            data,
+            select: { id: true, name: true, email: true, role: true, isAdmin: true },
+        });
+
+        console.log(`[ADMIN] Updated access for ${updated.email}: role=${updated.role}, isAdmin=${updated.isAdmin}`);
+        res.json({ success: true, user: updated });
+    } catch (error: any) {
+        console.error('[ADMIN] Update role error:', error);
+        res.status(500).json({ error: 'Failed to update user role' });
+    }
+});
+
 // GET /api/admin/users/:userId/performance — Daily stats for a user
 router.get('/users/:userId/performance', async (req, res) => {
     const { userId } = req.params;
