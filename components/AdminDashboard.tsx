@@ -24,7 +24,10 @@ import {
     Upload,
     Sparkles,
     Zap,
-    FileText
+    FileText,
+    UserPlus,
+    GraduationCap,
+    Loader2
 } from 'lucide-react';
 
 interface AdminStats {
@@ -102,6 +105,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
     const [showRewardModal, setShowRewardModal] = useState(false);
     const [editingReward, setEditingReward] = useState<Reward | null>(null);
     const [rewardImageUrl, setRewardImageUrl] = useState<string | null>(null);
+    const [showTeacherModal, setShowTeacherModal] = useState(false);
+    const [teacherForm, setTeacherForm] = useState({ name: '', email: '', password: '' });
+    const [creatingTeacher, setCreatingTeacher] = useState(false);
     const [userSearchQuery, setUserSearchQuery] = useState('');
     const [userSortOrder, setUserSortOrder] = useState<'default' | 'accuracy-desc' | 'accuracy-asc' | 'xp-desc'>('default');
     const [redemptionSearchQuery, setRedemptionSearchQuery] = useState('');
@@ -159,6 +165,34 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
     const handleBackToUsers = () => {
         setSelectedUser(null);
         setUserPerformance([]);
+    };
+
+    const handleCreateTeacher = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!teacherForm.name || !teacherForm.email || !teacherForm.password) {
+            showToast('Please fill in all fields', 'error');
+            return;
+        }
+        setCreatingTeacher(true);
+        try {
+            const res = await fetch(`${API_BASE}/create-teacher`, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify(teacherForm),
+            });
+            const data = await res.json();
+            if (res.ok) {
+                showToast(`Teacher account created for ${data.teacher?.name || teacherForm.name}`, 'success');
+                setShowTeacherModal(false);
+                setTeacherForm({ name: '', email: '', password: '' });
+                fetchData();
+            } else {
+                showToast(data.error || 'Failed to create teacher', 'error');
+            }
+        } catch {
+            showToast('Failed to create teacher', 'error');
+        }
+        setCreatingTeacher(false);
     };
 
     const handleSelectUser = (user: UserStats) => {
@@ -418,6 +452,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
                             <option value="xp-desc">Most XP</option>
                         </select>
                     </div>
+                    <button
+                        onClick={() => setShowTeacherModal(true)}
+                        className="flex items-center justify-center gap-2 bg-brand-dark text-white rounded-2xl px-5 py-3.5 text-sm font-bold shadow-sm hover:bg-brand-dark/90 active:scale-95 transition-all whitespace-nowrap"
+                    >
+                        <UserPlus size={18} /> Add Teacher
+                    </button>
                 </div>
 
                 <div className="grid grid-cols-1 gap-3">
@@ -974,6 +1014,64 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
                                 <div className="flex gap-4 pt-4">
                                     <button type="button" onClick={() => setShowRewardModal(false)} className="flex-1 bg-gray-50 text-brand-dark/40 py-5 rounded-2xl font-bold hover:bg-gray-100 active:scale-95 transition-all">Cancel</button>
                                     <button type="submit" className="flex-[2] bg-brand-dark text-white py-5 rounded-3xl font-bold text-lg hover:bg-brand-dark/90 shadow-xl active:scale-95 transition-all">Save Catalog Item</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Create Teacher Modal */}
+            {showTeacherModal && (
+                <div className="fixed inset-0 z-[400] overflow-y-auto">
+                    <div className="flex items-center justify-center min-h-screen p-4">
+                        <div className="absolute inset-0 bg-brand-dark/60 backdrop-blur-sm" onClick={() => setShowTeacherModal(false)} />
+                        <div className="relative bg-white rounded-[40px] shadow-2xl w-full max-w-md p-10 transform transition-all animate-pop-in border border-brand-dark/10">
+                            <div className="flex items-center gap-3 mb-2">
+                                <div className="w-12 h-12 rounded-2xl bg-brand-blue/10 text-brand-blue flex items-center justify-center">
+                                    <GraduationCap size={24} />
+                                </div>
+                                <div>
+                                    <h2 className="text-2xl font-display font-bold">Add Teacher</h2>
+                                    <p className="text-xs text-brand-dark/40 font-medium">Provision a verified teacher account</p>
+                                </div>
+                            </div>
+                            <form onSubmit={handleCreateTeacher} className="space-y-5 mt-6">
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest px-1">Full Name</label>
+                                    <input
+                                        value={teacherForm.name}
+                                        onChange={(e) => setTeacherForm(p => ({ ...p, name: e.target.value }))}
+                                        className="w-full bg-gray-50 border-0 rounded-2xl px-6 py-4 font-bold focus:ring-2 ring-brand-blue/20"
+                                        placeholder="e.g. Ms. Tan"
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest px-1">Email</label>
+                                    <input
+                                        type="email"
+                                        value={teacherForm.email}
+                                        onChange={(e) => setTeacherForm(p => ({ ...p, email: e.target.value }))}
+                                        className="w-full bg-gray-50 border-0 rounded-2xl px-6 py-4 font-bold focus:ring-2 ring-brand-blue/20"
+                                        placeholder="teacher@centre.com"
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest px-1">Temporary Password</label>
+                                    <input
+                                        type="text"
+                                        value={teacherForm.password}
+                                        onChange={(e) => setTeacherForm(p => ({ ...p, password: e.target.value }))}
+                                        className="w-full bg-gray-50 border-0 rounded-2xl px-6 py-4 font-bold focus:ring-2 ring-brand-blue/20"
+                                        placeholder="At least 6 characters"
+                                    />
+                                    <p className="text-[10px] text-brand-dark/30 mt-1 px-1">Share this with the teacher — they can change it via “Forgot password”.</p>
+                                </div>
+                                <div className="flex gap-4 pt-2">
+                                    <button type="button" onClick={() => setShowTeacherModal(false)} className="flex-1 bg-gray-50 text-brand-dark/40 py-4 rounded-2xl font-bold hover:bg-gray-100 active:scale-95 transition-all">Cancel</button>
+                                    <button type="submit" disabled={creatingTeacher} className="flex-[2] bg-brand-dark text-white py-4 rounded-2xl font-bold hover:bg-brand-dark/90 shadow-xl active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+                                        {creatingTeacher ? <Loader2 className="animate-spin" size={18} /> : 'Create Teacher'}
+                                    </button>
                                 </div>
                             </form>
                         </div>

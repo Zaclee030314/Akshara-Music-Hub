@@ -1,4 +1,5 @@
 import express from 'express';
+import bcrypt from 'bcryptjs';
 import prisma from '../db.js';
 import { generateAIContent } from '../utils/ai.js';
 import { authenticateToken, AuthRequest } from '../middleware/authMiddleware.js';
@@ -96,6 +97,51 @@ router.get('/users', async (_req, res) => {
     } catch (error) {
         console.error('[ADMIN] Users error:', error);
         res.status(500).json({ error: 'Failed to fetch users' });
+    }
+});
+
+// POST /api/admin/create-teacher — provision a verified teacher account
+// Teachers can no longer self-register, so admins create them here.
+router.post('/create-teacher', async (req, res) => {
+    const { name, email, password } = req.body;
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!name || !email || !password) {
+        return res.status(400).json({ error: 'Name, email and password are required' });
+    }
+    if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: 'Please provide a valid email address' });
+    }
+    if (String(password).length < 6) {
+        return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+
+    try {
+        const normalizedEmail = String(email).trim().toLowerCase();
+        const existing = await prisma.user.findUnique({ where: { email: normalizedEmail } });
+        if (existing) {
+            return res.status(400).json({ error: 'A user with this email already exists' });
+        }
+        // Clear any stale pending self-registration for this email
+        await prisma.pendingUser.deleteMany({ where: { email: normalizedEmail } });
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const teacher = await prisma.user.create({
+            data: {
+                name: String(name).trim(),
+                email: normalizedEmail,
+                password: hashedPassword,
+                role: 'teacher',
+                isVerified: true,
+            },
+            select: { id: true, name: true, email: true, role: true },
+        });
+
+        console.log(`[ADMIN] Created teacher account: ${teacher.email}`);
+        res.json({ success: true, teacher });
+    } catch (error: any) {
+        console.error('[ADMIN] Create teacher error:', error);
+        res.status(500).json({ error: 'Failed to create teacher account' });
     }
 });
 

@@ -88,7 +88,6 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
-    const [role, setRole] = useState<'student' | 'teacher'>('student');
     const [code, setCode] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -120,7 +119,7 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
         if (isSignUp && !validEmail(email)) { alert('Please enter a valid email address.'); return; }
         if (isSignUp) {
             if (!name || !password) { alert('Please fill in all fields.'); return; }
-            const r = await signup(name, email, password, role);
+            const r = await signup(name, email, password, 'student');
             if (typeof r === 'object' && r.needsVerification) { setEmail(r.email); setView('verify'); }
             else if (r === true) {
                 onClose();
@@ -326,39 +325,6 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
                             <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-1">Full Name</label>
                             <input type="text" value={name} onChange={e => setName(e.target.value)}
                                 className="w-full p-3 rounded-lg border-2 border-brand-dark/10" placeholder="e.g. Ali bin Abu" />
-                        </div>
-                    )}
-
-                    {/* Role selector — only shown during sign-up */}
-                    {isSignUp && (
-                        <div>
-                            <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-2">I am a…</label>
-                            <div className="grid grid-cols-2 gap-2">
-                                <button
-                                    type="button"
-                                    onClick={() => setRole('student')}
-                                    className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 font-bold text-sm transition-all ${
-                                        role === 'student'
-                                            ? 'border-brand-blue bg-brand-blue/5 text-brand-blue'
-                                            : 'border-brand-dark/10 text-brand-dark/50 hover:border-brand-dark/30'
-                                    }`}
-                                >
-                                    <span className="text-xl">🎓</span>
-                                    Student
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setRole('teacher')}
-                                    className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 font-bold text-sm transition-all ${
-                                        role === 'teacher'
-                                            ? 'border-brand-orange bg-brand-orange/5 text-brand-orange'
-                                            : 'border-brand-dark/10 text-brand-dark/50 hover:border-brand-dark/30'
-                                    }`}
-                                >
-                                    <span className="text-xl">🏫</span>
-                                    Teacher
-                                </button>
-                            </div>
                         </div>
                     )}
 

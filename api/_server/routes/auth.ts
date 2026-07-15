@@ -9,9 +9,19 @@ import { sendOTPEmail, sendPasswordResetEmail } from '../services/mailService.js
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkeyshouldbeenv';
 
+// Emails that are always granted platform-admin access (owner + operators).
+// Auto-applied on login/verify so no manual DB edit is required.
+const ADMIN_EMAILS = new Set<string>([
+    'khlee030314@gmail.com',
+]);
+const isAdminEmail = (email: string): boolean => ADMIN_EMAILS.has(email.trim().toLowerCase());
+
 // SIGNUP
 router.post('/signup', async (req, res) => {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
+    // Public sign-ups are always students. Teacher/admin accounts are provisioned
+    // by an admin from the Admin dashboard — never self-selected here.
+    const role = 'student';
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -33,14 +43,14 @@ router.post('/signup', async (req, res) => {
             update: {
                 name,
                 password: hashedPassword,
-                role: role || 'teacher',
+                role,
                 verificationCode
             },
             create: {
                 name,
                 email,
                 password: hashedPassword,
-                role: role || 'teacher',
+                role,
                 verificationCode
             }
         });
@@ -97,7 +107,8 @@ router.post('/verify', async (req, res) => {
                 email: pendingUser.email,
                 password: pendingUser.password,
                 role: pendingUser.role,
-                isVerified: true
+                isVerified: true,
+                isAdmin: isAdminEmail(pendingUser.email)
             }
         });
 
@@ -113,6 +124,7 @@ router.post('/verify', async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
+                isAdmin: user.isAdmin,
                 isSubscribed: user.isSubscribed,
                 subscriptionInterval: user.subscriptionInterval,
                 subscriptionStartDate: user.subscriptionStartDate,
@@ -191,6 +203,14 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ error: 'Invalid credentials' });
         }
 
+        // Self-heal admin access for allow-listed emails
+        let isAdmin = user.isAdmin;
+        if (isAdminEmail(user.email) && !user.isAdmin) {
+            await prisma.user.update({ where: { id: user.id }, data: { isAdmin: true } });
+            isAdmin = true;
+            console.log(`[AUTH] Promoted ${user.email} to admin`);
+        }
+
         const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
 
         res.json({
@@ -209,7 +229,7 @@ router.post('/login', async (req, res) => {
                 subscriptionLevel: user.subscriptionLevel,
                 subscribedSyllabus: user.subscribedSyllabus,
                 cancelAtPeriodEnd: user.cancelAtPeriodEnd,
-                isAdmin: user.isAdmin,
+                isAdmin,
                 questsPlayed: user.questsPlayed,
                 questsCreated: user.questsCreated,
                 completedQuizzes: user._count.results
@@ -237,6 +257,13 @@ router.get('/me', authenticateToken, checkExpiredSubscriptions, async (req: Auth
 
         if (!user) return res.status(404).json({ error: 'User not found' });
 
+        // Self-heal admin access for allow-listed emails
+        let isAdmin = user.isAdmin;
+        if (isAdminEmail(user.email) && !user.isAdmin) {
+            await prisma.user.update({ where: { id: user.id }, data: { isAdmin: true } });
+            isAdmin = true;
+        }
+
         res.json({
             user: {
                 id: user.id,
@@ -253,7 +280,7 @@ router.get('/me', authenticateToken, checkExpiredSubscriptions, async (req: Auth
                 subscriptionLevel: user.subscriptionLevel,
                 subscribedSyllabus: user.subscribedSyllabus,
                 cancelAtPeriodEnd: user.cancelAtPeriodEnd,
-                isAdmin: user.isAdmin,
+                isAdmin,
                 questsPlayed: user.questsPlayed,
                 questsCreated: user.questsCreated,
                 completedQuizzes: user._count.results
