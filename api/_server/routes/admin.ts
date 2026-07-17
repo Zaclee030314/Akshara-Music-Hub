@@ -309,6 +309,53 @@ router.patch('/redemptions/:id', async (req, res) => {
     }
 });
 
+// GET /api/admin/referrals — grouped report of who referred whom
+router.get('/referrals', async (_req, res) => {
+    try {
+        // All users who signed up via a referral link.
+        const referred = await prisma.user.findMany({
+            where: { referredById: { not: null } },
+            select: { id: true, name: true, email: true, referredById: true },
+        });
+
+        // Group referred users by their referrer id.
+        const byReferrer = new Map<string, Array<{ id: string; name: string; email: string }>>();
+        for (const u of referred) {
+            const key = u.referredById as string;
+            if (!byReferrer.has(key)) byReferrer.set(key, []);
+            byReferrer.get(key)!.push({ id: u.id, name: u.name, email: u.email });
+        }
+
+        // Hydrate each referrer's details.
+        const referrers = await prisma.user.findMany({
+            where: { id: { in: Array.from(byReferrer.keys()) } },
+            select: { id: true, name: true, email: true, referralCode: true },
+        });
+        const referrerMap = new Map(referrers.map(r => [r.id, r]));
+
+        const report = Array.from(byReferrer.entries())
+            .map(([referrerId, referredUsers]) => {
+                const r = referrerMap.get(referrerId);
+                return {
+                    referrer: {
+                        id: referrerId,
+                        name: r?.name || 'Unknown',
+                        email: r?.email || '—',
+                        referralCode: r?.referralCode || null,
+                    },
+                    count: referredUsers.length,
+                    referred: referredUsers,
+                };
+            })
+            .sort((a, b) => b.count - a.count);
+
+        res.json(report);
+    } catch (error) {
+        console.error('[ADMIN] Referrals error:', error);
+        res.status(500).json({ error: 'Failed to fetch referrals' });
+    }
+});
+
 // ─── QUESTION BANK MANAGEMENT ────────────────────────────────────────────────
 
 // Helpers

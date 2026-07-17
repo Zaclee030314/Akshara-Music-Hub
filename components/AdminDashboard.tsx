@@ -31,11 +31,13 @@ import {
     ShieldCheck,
     Shield,
     Trophy,
-    Vote
+    Vote,
+    Share2
 } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
 import SeasonManager from './admin/SeasonManager';
 import PollManager from './admin/PollManager';
+import ReferralReport from './admin/ReferralReport';
 
 interface AdminStats {
     users: number;
@@ -101,7 +103,7 @@ const API_BASE = '/api/admin';
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
     const { user: currentUser } = useAuth();
     const [stats, setStats] = useState<AdminStats | null>(null);
-    const [tab, setTab] = useState<'analytics' | 'users' | 'rewards' | 'redemptions' | 'papers' | 'roles' | 'seasons' | 'polls'>('analytics');
+    const [tab, setTab] = useState<'analytics' | 'users' | 'rewards' | 'redemptions' | 'papers' | 'roles' | 'seasons' | 'polls' | 'referrals'>('analytics');
     const [loading, setLoading] = useState(true);
     const [users, setUsers] = useState<UserStats[]>([]);
     const [rewards, setRewards] = useState<Reward[]>([]);
@@ -1017,6 +1019,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
                         { id: 'redemptions', label: 'Orders', icon: <ShoppingBag size={18} /> },
                         { id: 'seasons', label: 'Seasons', icon: <Trophy size={18} /> },
                         { id: 'polls', label: 'Polls', icon: <Vote size={18} /> },
+                        { id: 'referrals', label: 'Referrals', icon: <Share2 size={18} /> },
                         { id: 'papers', label: 'Papers', icon: <FileText size={18} /> }
                     ].map(item => (
                         <button
@@ -1061,6 +1064,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
                                                 tab === 'rewards' ? 'Rewards Catalog' :
                                                 tab === 'seasons' ? 'Seasons & Competitions' :
                                                     tab === 'polls' ? 'Prize Polls' :
+                                                    tab === 'referrals' ? 'Referral Program' :
                                                         tab === 'papers' ? 'Past Year Papers' : 'Fulfillment Center'}
                             </h1>
                             <p className="text-brand-dark/40 text-sm mt-1 font-medium italic">
@@ -1085,6 +1089,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
                             {tab === 'redemptions' && renderRedemptions()}
                             {tab === 'seasons' && <SeasonManager token={token} />}
                             {tab === 'polls' && <PollManager token={token} />}
+                            {tab === 'referrals' && <ReferralReport token={token} />}
                             {tab === 'papers' && renderPapers()}
                         </>
                     )}

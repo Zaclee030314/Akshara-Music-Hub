@@ -18,7 +18,7 @@ const isAdminEmail = (email: string): boolean => ADMIN_EMAILS.has(email.trim().t
 
 // SIGNUP
 router.post('/signup', async (req, res) => {
-    const { name, email, password, grade, syllabus } = req.body;
+    const { name, email, password, grade, syllabus, referralCode } = req.body;
     // Public sign-ups are always students. Teacher/admin accounts are provisioned
     // by an admin from the Admin dashboard — never self-selected here.
     const role = 'student';
@@ -37,6 +37,19 @@ router.post('/signup', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
 
+        // Resolve an optional referral code. Invalid/missing/self-referral codes
+        // are silently ignored — a bad code must never fail the signup.
+        let referredById: string | null = null;
+        if (referralCode && typeof referralCode === 'string') {
+            const normalized = referralCode.trim().toUpperCase();
+            if (normalized) {
+                const referrer = await prisma.user.findUnique({ where: { referralCode: normalized } });
+                if (referrer && referrer.email !== email) {
+                    referredById = referrer.id;
+                }
+            }
+        }
+
         // Save to PendingUser instead of User
         await prisma.pendingUser.upsert({
             where: { email },
@@ -46,6 +59,7 @@ router.post('/signup', async (req, res) => {
                 role,
                 grade: grade || null,
                 syllabus: syllabus || null,
+                referredById,
                 verificationCode
             },
             create: {
@@ -55,6 +69,7 @@ router.post('/signup', async (req, res) => {
                 role,
                 grade: grade || null,
                 syllabus: syllabus || null,
+                referredById,
                 verificationCode
             }
         });
@@ -113,6 +128,7 @@ router.post('/verify', async (req, res) => {
                 role: pendingUser.role,
                 grade: pendingUser.grade,
                 gradeSyllabus: pendingUser.syllabus,
+                referredById: pendingUser.referredById,
                 isVerified: true,
                 isAdmin: isAdminEmail(pendingUser.email)
             }

@@ -35,10 +35,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const signup = async (name: string, email: string, password: string, role: 'student' | 'teacher', grade?: string, syllabus?: string): Promise<boolean | { needsVerification: true; email: string }> => {
         setIsLoading(true);
         try {
+            const referralCode = localStorage.getItem('ref_code') || undefined;
             const res = await fetch('/api/auth/signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, password, role, grade, syllabus })
+                body: JSON.stringify({ name, email, password, role, grade, syllabus, referralCode })
             });
             const data = await res.json();
             if (!res.ok) {
@@ -46,6 +47,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 setIsLoading(false);
                 return false;
             }
+            // Referral consumed — clear it so it doesn't attach to a future signup.
+            localStorage.removeItem('ref_code');
             setIsLoading(false);
             return { needsVerification: true, email: data.email || email };
         } catch (error) {

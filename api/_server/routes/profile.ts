@@ -1,8 +1,20 @@
 import express from 'express';
+import crypto from 'crypto';
 import { authenticateToken, AuthRequest } from '../middleware/authMiddleware.js';
 import prisma from '../db.js';
 
 const router = express.Router();
+
+// Generate an 8-char uppercase referral code excluding ambiguous chars (0/O/1/I).
+const REFERRAL_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const generateReferralCode = (): string => {
+    const bytes = crypto.randomBytes(8);
+    let code = '';
+    for (let i = 0; i < 8; i++) {
+        code += REFERRAL_ALPHABET[bytes[i] % REFERRAL_ALPHABET.length];
+    }
+    return code;
+};
 
 // Shape the profile fields returned to the client (parse children JSON safely).
 const shapeProfile = (user: any) => {
@@ -77,6 +89,40 @@ router.put('/', authenticateToken, async (req: AuthRequest, res) => {
         res.json(shapeProfile(user));
     } catch (error) {
         console.error('[PROFILE] PUT error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// GET /api/profile/referral-code — return (generating if needed) this user's referral code
+router.get('/referral-code', authenticateToken, async (req: AuthRequest, res) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        if (user.referralCode) {
+            return res.json({ code: user.referralCode });
+        }
+
+        // Generate a unique code, retrying on a unique-constraint collision.
+        for (let attempt = 0; attempt < 5; attempt++) {
+            const code = generateReferralCode();
+            try {
+                const updated = await prisma.user.update({
+                    where: { id: userId },
+                    data: { referralCode: code },
+                });
+                return res.json({ code: updated.referralCode });
+            } catch (err: any) {
+                if (err?.code === 'P2002') continue; // collision — retry
+                throw err;
+            }
+        }
+        return res.status(500).json({ error: 'Could not generate a referral code. Please try again.' });
+    } catch (error) {
+        console.error('[PROFILE] GET /referral-code error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });

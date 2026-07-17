@@ -75,6 +75,8 @@ model User {
   questsCreated         Int       @default(0)
   resetPasswordOtp      String?
   resetPasswordOtpExpiry DateTime?
+  referralCode          String?   @unique
+  referredById          String?
   quests                Quest[]
   results               Result[]
   redemptions           Redemption[]
@@ -85,6 +87,8 @@ model User {
   createdRewards     Reward[] @relation("TeacherRewards")
   seasonWins         SeasonWinner[] @relation("SeasonWins")
   pollVotes          PollVote[] @relation("PollVotes")
+
+  @@index([referredById])
 }
 
 model Season {
@@ -182,6 +186,7 @@ model PendingUser {
   role             String
   grade            String?
   syllabus         String?
+  referredById     String?
   verificationCode String
   createdAt        DateTime @default(now())
 }

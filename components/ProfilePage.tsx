@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Card } from './Card';
 import { Button } from './Button';
 import { useAuth } from '../contexts/useAuth';
-import { Loader2, Camera, User as UserIcon, Save, Plus, Trash2, CheckCircle2 } from 'lucide-react';
+import { Loader2, Camera, User as UserIcon, Save, Plus, Trash2, CheckCircle2, Gift, Copy, Check } from 'lucide-react';
 
 interface Child {
     name: string;
@@ -54,6 +54,10 @@ export const ProfilePage: React.FC = () => {
     const [savingFamily, setSavingFamily] = useState(false);
     const [familySaved, setFamilySaved] = useState(false);
 
+    // Referral
+    const [referralCode, setReferralCode] = useState<string | null>(null);
+    const [copied, setCopied] = useState(false);
+
     const loadProfile = async () => {
         try {
             const res = await fetch('/api/profile', { headers: authHeaders() });
@@ -74,9 +78,35 @@ export const ProfilePage: React.FC = () => {
         }
     };
 
+    const loadReferralCode = async () => {
+        try {
+            const res = await fetch('/api/profile/referral-code', { headers: authHeaders() });
+            if (res.ok) {
+                const data = await res.json();
+                setReferralCode(data.code || null);
+            }
+        } catch (err) {
+            console.error('Failed to load referral code', err);
+        }
+    };
+
     useEffect(() => {
         loadProfile();
+        loadReferralCode();
     }, []);
+
+    const referralLink = referralCode ? `${window.location.origin}/?ref=${referralCode}` : '';
+
+    const handleCopyReferral = async () => {
+        if (!referralLink) return;
+        try {
+            await navigator.clipboard.writeText(referralLink);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+            console.error('Copy failed', err);
+        }
+    };
 
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -292,6 +322,30 @@ export const ProfilePage: React.FC = () => {
                         <p className="font-medium text-brand-dark">{profile.gradeSyllabus || '—'}</p>
                     </div>
                 </div>
+            </Card>
+
+            {/* Refer & Earn */}
+            <Card className="p-6 md:p-8 shadow-sm space-y-4 bg-gradient-to-br from-brand-orange/5 to-yellow-50/50">
+                <h3 className="font-bold text-brand-dark flex items-center gap-2"><Gift size={18} className="text-brand-orange" /> Refer &amp; Earn</h3>
+                <p className="text-sm text-brand-dark/60">Share this link with other parents — you'll be credited for every signup.</p>
+                {referralCode ? (
+                    <div className="flex flex-col sm:flex-row gap-2">
+                        <input
+                            type="text"
+                            value={referralLink}
+                            readOnly
+                            onFocus={(e) => e.currentTarget.select()}
+                            className="flex-1 p-3 rounded-xl border-2 border-brand-dark/10 bg-white font-medium text-sm text-brand-dark/70 focus:outline-none focus:border-brand-orange"
+                        />
+                        <Button onClick={handleCopyReferral} className="bg-brand-orange hover:bg-orange-400 shrink-0">
+                            {copied ? <><Check size={16} /> Copied!</> : <><Copy size={16} /> Copy</>}
+                        </Button>
+                    </div>
+                ) : (
+                    <div className="flex items-center gap-2 text-brand-dark/40 text-sm">
+                        <Loader2 className="animate-spin" size={16} /> Generating your link…
+                    </div>
+                )}
             </Card>
 
             {/* Family details */}

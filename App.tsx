@@ -34,6 +34,7 @@ import { ProfilePage } from './components/ProfilePage';
 import { BillingPage } from './components/BillingPage';
 import { ProfileCompletionModal } from './components/ProfileCompletionModal';
 import { SeasonBanner } from './components/SeasonBanner';
+import { SeasonShowcase } from './components/SeasonShowcase';
 import { PrizePollCard } from './components/PrizePollCard';
 import { SeasonResultsPopup } from './components/SeasonResultsPopup';
 
@@ -84,6 +85,20 @@ export default function App() {
     const saved = localStorage.getItem('quest_stats');
     return saved ? JSON.parse(saved) : INITIAL_STATS;
   });
+
+  // Capture referral code from the URL (?ref=CODE) and persist it for signup.
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
+    const ref = query.get('ref');
+    // Only strip when a ref exists and this isn't a Stripe success/cancel redirect
+    // (that flow owns its own history.replaceState below).
+    if (ref && query.get('success') !== 'true' && query.get('canceled') !== 'true') {
+      localStorage.setItem('ref_code', ref.trim().toUpperCase());
+      query.delete('ref');
+      const qs = query.toString();
+      window.history.replaceState({}, document.title, window.location.pathname + (qs ? `?${qs}` : ''));
+    }
+  }, []);
 
   // Check for Subscription Success in URL
   useEffect(() => {
@@ -1215,6 +1230,8 @@ export default function App() {
           </div>
         </Card>
       </div>
+
+      <SeasonShowcase onJoin={() => { if (!user) setShowLoginModal(true); else navigate('/practice'); }} />
 
       <Benefits />
       <HowItWorks />
