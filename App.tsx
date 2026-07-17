@@ -33,6 +33,9 @@ import { Leaderboard } from './components/Leaderboard';
 import { ProfilePage } from './components/ProfilePage';
 import { BillingPage } from './components/BillingPage';
 import { ProfileCompletionModal } from './components/ProfileCompletionModal';
+import { SeasonBanner } from './components/SeasonBanner';
+import { PrizePollCard } from './components/PrizePollCard';
+import { SeasonResultsPopup } from './components/SeasonResultsPopup';
 
 const INITIAL_STATS: UserStats = {
   xp: 0,
@@ -1425,6 +1428,10 @@ export default function App() {
         </div>
       )}
 
+      {/* Phase 3: Seasonal competition banner + prize poll */}
+      <SeasonBanner />
+      <PrizePollCard />
+
       {/* Header and Stats Overview */}
       <div className="text-center">
         <div className="relative inline-block mb-4">
@@ -2027,6 +2034,8 @@ export default function App() {
       {user && user.isSubscribed && user.profileCompleted === false && !dismissedProfileModal && (
         <ProfileCompletionModal onClose={() => setDismissedProfileModal(true)} />
       )}
+      {/* Phase 3: season results announcement popup (shown once per finalized season) */}
+      {user && <SeasonResultsPopup />}
       {/* Background Decorative Blobs */}
       <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-orange/20 rounded-full blur-3xl -z-10 animate-float" />
       <div className="fixed bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-brand-blue/10 rounded-full blur-3xl -z-10" />

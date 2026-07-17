@@ -35,6 +35,8 @@ import classroomRoutes from './_server/routes/classrooms.js';
 import assignmentRoutes from './_server/routes/assignments.js';
 import leaderboardRoutes from './_server/routes/leaderboard.js';
 import profileRoutes from './_server/routes/profile.js';
+import seasonRoutes from './_server/routes/seasons.js';
+import pollRoutes from './_server/routes/polls.js';
 
 const app = express();
 console.log("[VERCEL] Starting serverless function...");
@@ -67,6 +69,8 @@ app.use('/api/classrooms', classroomRoutes);
 app.use('/api/assignments', assignmentRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/seasons', seasonRoutes);
+app.use('/api/polls', pollRoutes);
 
 app.get('/api', (req, res) => {
     res.send('Akshara Music Hub API is running on Vercel');

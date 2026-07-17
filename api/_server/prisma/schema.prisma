@@ -83,6 +83,63 @@ model User {
   studentClassrooms  Classroom[] @relation("StudentClassrooms")
   submissions        AssignmentSubmission[] @relation("StudentSubmissions")
   createdRewards     Reward[] @relation("TeacherRewards")
+  seasonWins         SeasonWinner[] @relation("SeasonWins")
+  pollVotes          PollVote[] @relation("PollVotes")
+}
+
+model Season {
+  id                String   @id @default(uuid())
+  name              String
+  description       String?
+  prizeTitle        String
+  prizeDetails      String?
+  secondPlacePoints Int      @default(0)
+  thirdPlacePoints  Int      @default(0)
+  startDate         DateTime
+  endDate           DateTime
+  status            String   @default("upcoming") // upcoming | active | ended | finalized
+  createdAt         DateTime @default(now())
+  winners           SeasonWinner[]
+}
+
+model SeasonWinner {
+  id            String @id @default(uuid())
+  seasonId      String
+  userId        String
+  rank          Int
+  points        Int    // final season score snapshot
+  awardedPoints Int    @default(0) // bonus XP credited (ranks 2/3)
+  prizeTitle    String // snapshot of the season prize at finalize time
+  season        Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  user          User   @relation("SeasonWins", fields: [userId], references: [id])
+
+  @@unique([seasonId, rank])
+  @@index([userId])
+}
+
+model Poll {
+  id               String   @id @default(uuid())
+  question         String
+  description      String?
+  options          String   // JSON string array
+  allowSuggestions Boolean  @default(false)
+  isActive         Boolean  @default(true)
+  seasonId         String?
+  createdAt        DateTime @default(now())
+  votes            PollVote[]
+}
+
+model PollVote {
+  id          String   @id @default(uuid())
+  pollId      String
+  userId      String
+  optionIndex Int?
+  suggestion  String?
+  createdAt   DateTime @default(now())
+  poll        Poll     @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  user        User     @relation("PollVotes", fields: [userId], references: [id])
+
+  @@unique([pollId, userId])
 }
 
 model Reward {

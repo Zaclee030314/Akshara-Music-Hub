@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from './Card';
-import { Trophy, Medal, Star, UserCircle2, Loader2 } from 'lucide-react';
+import { Trophy, Medal, Star, UserCircle2, Loader2, Award } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
 
 interface LeaderboardUser {
@@ -13,11 +13,29 @@ interface LeaderboardUser {
     grade?: string | null;
 }
 
+interface PastWinner {
+    rank: number;
+    userId: string;
+    name: string;
+    avatar: string | null;
+    points: number;
+    prizeTitle: string;
+}
+
+interface PastSeason {
+    id: string;
+    name: string;
+    endDate: string;
+    prizeTitle: string;
+    winners: PastWinner[];
+}
+
 export const Leaderboard: React.FC = () => {
     const { user } = useAuth();
     const [leaderboardData, setLeaderboardData] = useState<LeaderboardUser[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [pastSeasons, setPastSeasons] = useState<PastSeason[]>([]);
 
     useEffect(() => {
         const fetchLeaderboard = async () => {
@@ -35,7 +53,15 @@ export const Leaderboard: React.FC = () => {
         };
 
         fetchLeaderboard();
+
+        fetch('/api/seasons/history')
+            .then(r => (r.ok ? r.json() : []))
+            .then(data => setPastSeasons(Array.isArray(data) ? data : []))
+            .catch(() => { /* silent — past winners are supplementary */ });
     }, []);
+
+    const medalFor = (rank: number) => (rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉');
+    const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
     const displayData = [...leaderboardData];
 
@@ -124,6 +150,49 @@ export const Leaderboard: React.FC = () => {
                     </div>
                 )}
             </Card>
+
+            {pastSeasons.length > 0 && (
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 px-1">
+                        <Award size={22} className="text-brand-orange" />
+                        <h3 className="text-xl font-display font-bold text-brand-dark">Past Season Winners</h3>
+                    </div>
+                    {pastSeasons.map(season => (
+                        <Card key={season.id} className="p-5 md:p-6 bg-white/80 border border-brand-dark/5">
+                            <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
+                                <h4 className="font-bold text-brand-dark">{season.name}</h4>
+                                <span className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest">
+                                    ended {fmtDate(season.endDate)}
+                                </span>
+                            </div>
+                            {season.winners.length === 0 ? (
+                                <p className="text-brand-dark/40 text-sm font-bold italic">No winners recorded.</p>
+                            ) : (
+                                <div className="flex flex-col sm:flex-row gap-3">
+                                    {season.winners.map(w => (
+                                        <div key={w.userId} className="flex items-center gap-3 bg-gray-50 rounded-2xl px-4 py-3 flex-1 min-w-0">
+                                            <span className="text-xl shrink-0">{medalFor(w.rank)}</span>
+                                            {w.avatar ? (
+                                                <img src={w.avatar} alt={w.name} className="w-9 h-9 rounded-full object-cover border-2 border-gray-200 shrink-0" />
+                                            ) : (
+                                                <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 shrink-0">
+                                                    <UserCircle2 size={22} />
+                                                </div>
+                                            )}
+                                            <div className="min-w-0">
+                                                <p className="font-bold text-sm text-brand-dark truncate">{w.name}</p>
+                                                <p className="text-[11px] text-brand-dark/50 font-bold">
+                                                    {w.points} pts{w.rank === 1 ? ` · ${w.prizeTitle}` : ''}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </Card>
+                    ))}
+                </div>
+            )}
         </div>
     );
 };
