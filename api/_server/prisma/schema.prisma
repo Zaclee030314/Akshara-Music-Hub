@@ -33,6 +33,9 @@ model Result {
   mode            String
   subject         String?
   topic           String?
+  grade           String?
+  xpAwarded       Int      @default(0)
+  coinsAwarded    Int      @default(0)
   date            DateTime @default(now())
   quest           Quest?   @relation(fields: [questId], references: [id])
   user            User     @relation(fields: [userId], references: [id])
@@ -47,6 +50,8 @@ model User {
   password              String
   name                  String
   role                  String
+  grade                 String?
+  gradeSyllabus         String?
   xp                    Int       @default(0)
   coins                 Int       @default(0)
   isSubscribed          Boolean   @default(false)
@@ -112,6 +117,8 @@ model PendingUser {
   password         String
   name             String
   role             String
+  grade            String?
+  syllabus         String?
   verificationCode String
   createdAt        DateTime @default(now())
 }

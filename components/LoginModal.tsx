@@ -4,6 +4,8 @@ import { Button } from './Button';
 import { ArrowLeft, LogIn, Mail, Loader2, KeyRound, ShieldCheck, Lock, Eye, EyeOff, CheckCircle2, X } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
 import { useNavigate } from 'react-router-dom';
+import { Syllabus } from '../types';
+import { getGradesBySyllabus } from '../lib/curriculum';
 
 interface LoginModalProps {
     onClose: () => void;
@@ -91,6 +93,16 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
     const [code, setCode] = useState('');
     const [loading, setLoading] = useState(false);
 
+    // Signup: syllabus + grade selection
+    const [selectedSyllabus, setSelectedSyllabus] = useState<Syllabus | ''>('');
+    const [selectedGrade, setSelectedGrade] = useState('');
+
+    const gradeOptions = React.useMemo(() => {
+        if (!selectedSyllabus) return [];
+        const g = getGradesBySyllabus(selectedSyllabus as Syllabus);
+        return [...g.primary, ...g.secondary, ...(g.advanced || [])];
+    }, [selectedSyllabus]);
+
     // Forgot password state
     const [fpEmail, setFpEmail] = useState('');
     const [fpOtp, setFpOtp] = useState('');
@@ -119,7 +131,9 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
         if (isSignUp && !validEmail(email)) { alert('Please enter a valid email address.'); return; }
         if (isSignUp) {
             if (!name || !password) { alert('Please fill in all fields.'); return; }
-            const r = await signup(name, email, password, 'student');
+            if (!selectedSyllabus) { alert('Please select your syllabus.'); return; }
+            if (!selectedGrade) { alert('Please select your standard/grade.'); return; }
+            const r = await signup(name, email, password, 'student', selectedGrade, selectedSyllabus);
             if (typeof r === 'object' && r.needsVerification) { setEmail(r.email); setView('verify'); }
             else if (r === true) {
                 onClose();
@@ -325,6 +339,39 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
                             <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-1">Full Name</label>
                             <input type="text" value={name} onChange={e => setName(e.target.value)}
                                 className="w-full p-3 rounded-lg border-2 border-brand-dark/10" placeholder="e.g. Ali bin Abu" />
+                        </div>
+                    )}
+
+                    {isSignUp && (
+                        <div>
+                            <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-1">Syllabus</label>
+                            <select
+                                value={selectedSyllabus}
+                                onChange={e => { setSelectedSyllabus(e.target.value as Syllabus | ''); setSelectedGrade(''); }}
+                                className="w-full p-3 rounded-lg border-2 border-brand-dark/10 bg-white"
+                            >
+                                <option value="">Select your syllabus…</option>
+                                {Object.values(Syllabus).map(s => (
+                                    <option key={s} value={s}>{s}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
+
+                    {isSignUp && (
+                        <div>
+                            <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-1">My Standard/Grade</label>
+                            <select
+                                value={selectedGrade}
+                                onChange={e => setSelectedGrade(e.target.value)}
+                                disabled={!selectedSyllabus}
+                                className="w-full p-3 rounded-lg border-2 border-brand-dark/10 bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <option value="">{selectedSyllabus ? 'Select your standard/grade…' : 'Choose a syllabus first'}</option>
+                                {gradeOptions.map(g => (
+                                    <option key={g} value={g}>{g}</option>
+                                ))}
+                            </select>
                         </div>
                     )}
 

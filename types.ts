@@ -73,6 +73,8 @@ export interface User {
   name: string;
   email: string;
   role: 'student' | 'teacher';
+  grade?: string;
+  gradeSyllabus?: string;
   isSubscribed: boolean;
   subscriptionEndDate?: string | Date;
   subscriptionInterval?: 'month';
@@ -127,6 +129,8 @@ export interface ResultEntry {
   totalQuestions: number;
   mode: string;
   subject?: string;
+  grade?: string;
+  xpAwarded?: number;
   date: string;
   quest?: {
     title: string;

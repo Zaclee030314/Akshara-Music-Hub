@@ -32,13 +32,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     }, []);
 
-    const signup = async (name: string, email: string, password: string, role: 'student' | 'teacher'): Promise<boolean | { needsVerification: true; email: string }> => {
+    const signup = async (name: string, email: string, password: string, role: 'student' | 'teacher', grade?: string, syllabus?: string): Promise<boolean | { needsVerification: true; email: string }> => {
         setIsLoading(true);
         try {
             const res = await fetch('/api/auth/signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, password, role })
+                body: JSON.stringify({ name, email, password, role, grade, syllabus })
             });
             const data = await res.json();
             if (!res.ok) {

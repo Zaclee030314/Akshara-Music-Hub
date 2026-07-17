@@ -9,7 +9,7 @@ import { StudyPlanGenerator } from './components/StudyPlanGenerator';
 import { StudyProgress } from './components/StudyProgress';
 
 const API_BASE = '/api';
-import { BookOpen, Trophy, Star, Sparkles, Loader2, ArrowLeft, RefreshCw, ScrollText, CheckCircle2, Zap, Brain, Rocket, Lock, LogIn, Mail, GraduationCap, Coins, Gift, LogOut, User as UserIcon, ShieldCheck, Coffee, Plus, Target, Trash2, Save, HelpCircle, Calendar, Home, ArrowRight, ChevronRight } from 'lucide-react';
+import { BookOpen, Trophy, Star, Sparkles, Loader2, ArrowLeft, RefreshCw, ScrollText, CheckCircle2, Zap, Brain, Rocket, Lock, LogIn, Mail, GraduationCap, Coins, Gift, LogOut, User as UserIcon, ShieldCheck, Coffee, Plus, Target, Trash2, Save, HelpCircle, Calendar, Home, ArrowRight, ChevronRight, X } from 'lucide-react';
 import { useAuth } from './contexts/useAuth';
 import { PaymentForm } from './components/PaymentForm';
 import { LoginModal } from './components/LoginModal';
@@ -64,6 +64,7 @@ const SUBJECTS = [
 
 import { useNavigate, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { getSyllabusesByCountry, getGradesBySyllabus } from './lib/curriculum';
 
 export default function App() {
   const { user, login, signup, verifyCode, resendCode, logout, subscribe, cancelSubscription, isLoading: authLoading } = useAuth();
@@ -123,6 +124,7 @@ export default function App() {
   // Custom Quest State
   const [customQuests, setCustomQuests] = useState<CustomQuest[]>([]);
   const [selectedCustomQuest, setSelectedCustomQuest] = useState<CustomQuest | null>(null);
+  const [lastGameGated, setLastGameGated] = useState(false);
   const [gameMode, setGameMode] = useState<'AI' | 'CUSTOM' | 'PAST_YEAR'>('AI');
   const [selectedYear, setSelectedYear] = useState<string | null>(null);
 
@@ -336,19 +338,6 @@ export default function App() {
   }, [location.pathname]);
 
   // Returns syllabuses available for the detected country
-  const getSyllabusesByCountry = (country: string | null): Syllabus[] => {
-    if (country === 'MY') {
-      // Malaysia: show everything
-      return Object.values(Syllabus);
-    } else if (country === 'SG') {
-      // Singapore: MOE Singapore, IGCSE, IB – no KSSM or UEC
-      return [Syllabus.MOE_SINGAPORE, Syllabus.IGCSE, Syllabus.IB];
-    } else {
-      // International / undetected: IGCSE and IB only
-      return [Syllabus.IGCSE, Syllabus.IB, Syllabus.MOE_SINGAPORE];
-    }
-  };
-
   // Auto-select best-fit default syllabus based on detected country
   useEffect(() => {
     if (location.pathname === '/practice' && !selectedSyllabus) {
@@ -378,41 +367,6 @@ export default function App() {
       }
     }
   }, [selectedGrade]);
-
-  const getGradesBySyllabus = (syll: Syllabus) => {
-    const all = Object.values(GradeLevel);
-    switch (syll) {
-      case Syllabus.IGCSE:
-        return {
-          primary: all.filter(g => ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5', 'Year 6'].includes(g)),
-          secondary: all.filter(g => ['Year 7', 'Year 8', 'Year 9', 'Year 10', 'Year 11'].includes(g)),
-          advanced: all.filter(g => ['Year 12', 'Year 13'].includes(g))
-        };
-      case Syllabus.MOE_SINGAPORE:
-        return {
-          primary: all.filter(g => g.startsWith('Standard')), // Singapore P1-P6 maps well to Standard 1-6
-          secondary: all.filter(g => g.startsWith('Secondary'))
-        };
-      case Syllabus.IB:
-        return {
-          primary: all.filter(g => g.startsWith('Year') && parseInt(g.split(' ')[1]) <= 6),
-          secondary: all.filter(g => g.startsWith('Year') && parseInt(g.split(' ')[1]) > 6 && parseInt(g.split(' ')[1]) <= 11),
-          advanced: all.filter(g => ['Year 12', 'Year 13'].includes(g)) // IB also uses Year 12-13
-        };
-      case Syllabus.UEC:
-        // UEC: Chinese independent schools — Junior Middle (Form 1-3) + Senior Middle (Form 4-6)
-        return {
-          primary: all.filter(g => [GradeLevel.FORM_1, GradeLevel.FORM_2, GradeLevel.FORM_3].includes(g as GradeLevel)),
-          secondary: all.filter(g => [GradeLevel.FORM_4, GradeLevel.FORM_5, GradeLevel.FORM_6].includes(g as GradeLevel))
-        };
-      case Syllabus.KSSR_KSSM:
-      default:
-        return {
-          primary: all.filter(g => g.startsWith('Standard')),
-          secondary: all.filter(g => g.startsWith('Form'))
-        };
-    }
-  };
 
   // Returns only the subjects available for a given grade level (and syllabus context)
   const getSubjectsByGrade = (grade: GradeLevel | null, syllabus: Syllabus | null) => {
@@ -803,7 +757,7 @@ export default function App() {
     const subscriptionLevel = (user as any)?.subscriptionLevel;
     const subscribedSyllabus = (user as any)?.subscribedSyllabus;
 
-    if (!isPro && usageCount >= 1) {
+    if (!isPro && usageCount >= 3) {
       setShowLimitModal(true);
       return;
     }
@@ -878,6 +832,9 @@ export default function App() {
   };
 
   const handleGameComplete = async (score: number, correctAnswers: number) => {
+    // Whether the server withheld XP/coins because the quiz was below the
+    // student's registered standard. Used to skip the optimistic stat update.
+    let gated = false;
     // Save to Database first
     if (user) {
       try {
@@ -908,12 +865,15 @@ export default function App() {
             correctAnswers,
             totalQuestions: questions.length,
             subject: gameMode === 'AI' ? selectedSubject : selectedCustomQuest?.subject,
-            topic: gameMode === 'AI' ? selectedTopic : undefined
+            topic: gameMode === 'AI' ? selectedTopic : undefined,
+            grade: selectedCustomQuest?.grade || selectedGrade
           })
         });
         if (res.ok) {
           // Sync coins from authoritative DB value
           const data = await res.json();
+          gated = !!data.gated;
+          setLastGameGated(gated);
           if (typeof data.newCoinTotal === 'number') {
             setStats(prev => ({ ...prev, coins: data.newCoinTotal }));
           }
@@ -925,10 +885,10 @@ export default function App() {
       }
     }
 
-    // Optimistic update for immediate feedback
-    const xpGained = score;
+    // Optimistic update for immediate feedback (skipped when the server gated the award)
+    const xpGained = gated ? 0 : score;
     // 1 coin per correct answer — matches the backend results.ts logic
-    const coinsGained = correctAnswers || 0;
+    const coinsGained = gated ? 0 : (correctAnswers || 0);
     const newXp = stats.xp + xpGained;
     const newLevel = Math.floor(newXp / 1000) + 1;
     const oldLevel = stats.level;
@@ -1055,7 +1015,7 @@ export default function App() {
 
           <div className="bg-orange-50/50 p-4 rounded-2xl mb-6 border border-brand-orange/10">
             <p className="text-brand-dark/70 leading-relaxed font-medium">
-              You've completed your <span className="text-brand-orange font-bold">1 free quiz</span>.
+              You've completed your <span className="text-brand-orange font-bold">3 free quizzes</span>.
               Upgrade to Pro for unlimited quest creation and play to unlock your full potential!
             </p>
           </div>
@@ -1334,7 +1294,7 @@ export default function App() {
                 <ul className="space-y-5 w-full flex-1">
                   <li className="flex items-start gap-3 text-sm font-medium text-brand-dark/60">
                     <CheckCircle2 size={18} className="text-brand-green shrink-0" />
-                    <span>1 free quiz and 1 free create question</span>
+                    <span>3 free quizzes and 3 free create questions</span>
                   </li>
                 </ul>
 
@@ -1445,6 +1405,22 @@ export default function App() {
 
   const renderDashboard = () => (
     <div className="max-w-4xl mx-auto space-y-8 pt-12">
+
+      {/* Award-gating notice — last quiz was below the student's registered standard */}
+      {lastGameGated && (
+        <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-2xl font-medium text-sm">
+          <span className="flex-1">
+            No XP earned — this quiz was below your registered standard{user?.grade ? ` (${user.grade})` : ''}. Play your standard or higher to earn points!
+          </span>
+          <button
+            onClick={() => setLastGameGated(false)}
+            className="shrink-0 text-amber-600 hover:text-amber-800 transition-colors"
+            aria-label="Dismiss"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
 
       {/* Header and Stats Overview */}
       <div className="text-center">
@@ -2055,7 +2031,7 @@ export default function App() {
             <button onClick={() => { setShowMobileMenu(false); if (!user) setShowLoginModal(true); else navigate(user?.isAdmin ? '/admin' : user?.role === 'teacher' ? '/teacher' : '/dashboard'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">📊 Dashboard</button>
             <button onClick={() => { setShowMobileMenu(false); if (!user) setShowLoginModal(true); else navigate('/classrooms'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">🏫 Classrooms</button>
             <button onClick={() => { setShowMobileMenu(false); navigate('/leaderboard'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">🏆 Leaderboard</button>
-            {user?.isSubscribed && (
+            {user && (
               <button onClick={() => { setShowMobileMenu(false); navigate('/rewards'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-orange hover:bg-brand-orange/5 transition-all text-sm">🛍️ Rewards</button>
             )}
           </div>
@@ -2092,8 +2068,8 @@ export default function App() {
             <Button size="sm" onClick={() => setShowLoginModal(true)}>Log In</Button>
           ) : (
             <>
-              {/* Rewards button - subscribers only */}
-              {user?.isSubscribed && (
+              {/* Rewards button - all logged-in users */}
+              {user && (
                 <button
                   onClick={() => { navigate('/rewards'); setShowProfileMenu(false); }}
                   className="hidden md:flex items-center gap-1.5 bg-brand-orange/10 hover:bg-brand-orange/20 border border-brand-orange/20 text-brand-orange px-3 py-1 rounded-full font-bold text-sm transition-all"

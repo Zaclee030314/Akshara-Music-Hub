@@ -137,7 +137,7 @@ router.post('/quest', authenticateToken, checkExpiredSubscriptions, async (req: 
             const user = await prisma.user.findUnique({ where: { id: userId } });
 
             // Check Limit
-            if (user && !user.isSubscribed && user.questsPlayed >= 1) {
+            if (user && !user.isSubscribed && user.questsPlayed >= 3) {
                 console.log(`[GEN] ❌ Limit reached for user ${userId}`);
                 return res.status(403).json({
                     error: "Free limit reached. Upgrade to Pro for unlimited quests!",

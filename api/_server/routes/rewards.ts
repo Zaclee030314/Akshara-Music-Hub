@@ -10,21 +10,9 @@ router.get('/', authenticateToken, async (req: AuthRequest, res) => {
         const userId = req.user?.id;
         if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
-        const user = await prisma.user.findUnique({
-            where: { id: userId },
-            include: { studentClassrooms: true }
-        });
-
-        const teacherIds = user?.studentClassrooms.map(c => c.teacherId) || [];
-
+        // Single tuition centre: every student sees all active rewards
         const rewards = await prisma.reward.findMany({
-            where: { 
-                isActive: true,
-                OR: [
-                    { creatorId: null },
-                    { creatorId: { in: teacherIds } }
-                ]
-            },
+            where: { isActive: true },
             orderBy: { coinCost: 'asc' }
         });
         res.json(rewards);

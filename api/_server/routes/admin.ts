@@ -241,7 +241,7 @@ router.post('/rewards', async (req, res) => {
     try {
         const { title, description, coinCost, icon, stock } = req.body;
         const reward = await prisma.reward.create({
-            data: { title, description, coinCost, icon, stock: stock || null }
+            data: { title, description, coinCost: parseInt(coinCost), icon, stock: stock ? parseInt(stock) : null }
         });
         res.json(reward);
     } catch (error) {

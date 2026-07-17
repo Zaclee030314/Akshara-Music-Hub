@@ -196,10 +196,19 @@ export const DataAnalysis: React.FC<DataAnalysisProps> = ({ token }) => {
                                         <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full ${mode.className}`}>
                                             {mode.icon} {mode.label}
                                         </span>
+                                        {result.grade && (
+                                            <span className="inline-flex items-center text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full bg-brand-dark/5 text-brand-dark/50">
+                                                {result.grade}
+                                            </span>
+                                        )}
                                         <span className="text-xs text-brand-dark/40 font-medium">{formatDate(result.date)}</span>
                                     </div>
                                     <h5 className="font-bold text-brand-dark truncate">{title}</h5>
-                                    <p className="text-xs text-brand-dark/50 font-medium">{correct} / {total} correct · +{result.score} XP</p>
+                                    <p className="text-xs text-brand-dark/50 font-medium">
+                                        {correct} / {total} correct · {result.grade && result.xpAwarded === 0 && result.score > 0
+                                            ? <span className="text-amber-600">0 XP · below your standard</span>
+                                            : <>+{result.xpAwarded && result.xpAwarded > 0 ? result.xpAwarded : result.score} XP</>}
+                                    </p>
                                 </div>
                                 <div className="text-right shrink-0">
                                     <span className={`text-2xl font-display font-bold ${accuracyColor(accuracy)}`}>{accuracy}%</span>

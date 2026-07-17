@@ -18,7 +18,7 @@ const isAdminEmail = (email: string): boolean => ADMIN_EMAILS.has(email.trim().t
 
 // SIGNUP
 router.post('/signup', async (req, res) => {
-    const { name, email, password } = req.body;
+    const { name, email, password, grade, syllabus } = req.body;
     // Public sign-ups are always students. Teacher/admin accounts are provisioned
     // by an admin from the Admin dashboard — never self-selected here.
     const role = 'student';
@@ -44,6 +44,8 @@ router.post('/signup', async (req, res) => {
                 name,
                 password: hashedPassword,
                 role,
+                grade: grade || null,
+                syllabus: syllabus || null,
                 verificationCode
             },
             create: {
@@ -51,6 +53,8 @@ router.post('/signup', async (req, res) => {
                 email,
                 password: hashedPassword,
                 role,
+                grade: grade || null,
+                syllabus: syllabus || null,
                 verificationCode
             }
         });
@@ -107,6 +111,8 @@ router.post('/verify', async (req, res) => {
                 email: pendingUser.email,
                 password: pendingUser.password,
                 role: pendingUser.role,
+                grade: pendingUser.grade,
+                gradeSyllabus: pendingUser.syllabus,
                 isVerified: true,
                 isAdmin: isAdminEmail(pendingUser.email)
             }
@@ -124,6 +130,8 @@ router.post('/verify', async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
+                grade: user.grade,
+                gradeSyllabus: user.gradeSyllabus,
                 isAdmin: user.isAdmin,
                 isSubscribed: user.isSubscribed,
                 subscriptionInterval: user.subscriptionInterval,
@@ -220,6 +228,8 @@ router.post('/login', async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
+                grade: user.grade,
+                gradeSyllabus: user.gradeSyllabus,
                 xp: user.xp,
                 coins: user.coins,
                 isSubscribed: user.isSubscribed,
@@ -270,6 +280,8 @@ router.get('/me', authenticateToken, checkExpiredSubscriptions, async (req: Auth
                 name: user.name,
                 email: user.email,
                 role: user.role,
+                grade: user.grade,
+                gradeSyllabus: user.gradeSyllabus,
                 xp: user.xp,
                 coins: user.coins,
                 level: Math.floor(user.xp / 1000) + 1,
