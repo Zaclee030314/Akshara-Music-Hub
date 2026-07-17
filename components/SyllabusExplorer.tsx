@@ -11,9 +11,10 @@ const REGIONS = [
     { id: 'malaysia', name: 'Malaysia 🇲🇾', icon: 'MY', syllabus: Syllabus.KSSR_KSSM },
     { id: 'singapore', name: 'Singapore 🇸🇬', icon: 'SG', syllabus: Syllabus.MOE_SINGAPORE },
     { id: 'international', name: 'International 🌍', icon: 'INT', syllabus: Syllabus.IGCSE },
+    { id: 'music', name: 'Music Programmes 🎵', icon: 'MUSIC', syllabus: Syllabus.WESTERN_MUSIC },
 ];
 
-const SUBJECT_DATA: Record<string, { name: string; subjects: any[] }[]> = {
+const SUBJECT_DATA: Record<string, { name: string; subjects: any[]; syllabus?: Syllabus }[]> = {
     malaysia: [
         {
             name: 'Primary (Standard 1-6)',
@@ -78,6 +79,24 @@ const SUBJECT_DATA: Record<string, { name: string; subjects: any[] }[]> = {
                 { id: Subject.COMPUTER_SCIENCE, label: 'Comp Science', icon: '💻', color: 'bg-cyan-100 text-cyan-700' },
             ]
         }
+    ],
+    music: [
+        {
+            name: 'Western Music (Grade 1-8)',
+            syllabus: Syllabus.WESTERN_MUSIC,
+            subjects: [
+                { id: Subject.MUSIC_THEORY, label: 'Music Theory', icon: '🎼', color: 'bg-rose-100 text-rose-700' },
+                { id: Subject.AURAL_PRACTICAL, label: 'Aural & Practical', icon: '🎧', color: 'bg-violet-100 text-violet-700' },
+            ]
+        },
+        {
+            name: 'Indian Music (Grade 1-8)',
+            syllabus: Syllabus.INDIAN_MUSIC,
+            subjects: [
+                { id: Subject.MUSIC_THEORY, label: 'Music Theory', icon: '🎼', color: 'bg-rose-100 text-rose-700' },
+                { id: Subject.AURAL_PRACTICAL, label: 'Aural & Practical', icon: '🎧', color: 'bg-violet-100 text-violet-700' },
+            ]
+        }
     ]
 };
 
@@ -105,7 +124,7 @@ export const SyllabusExplorer: React.FC<SyllabusExplorerProps> = ({ onSelectSubj
                                 : 'bg-white text-brand-dark/50 hover:bg-brand-orange/5'
                                 }`}
                         >
-                            <span className="text-xl">{region.icon === 'MY' ? '🇲🇾' : (region.id === 'singapore' ? '🇸🇬' : '🌍')}</span>
+                            <span className="text-xl">{region.icon === 'MY' ? '🇲🇾' : (region.id === 'singapore' ? '🇸🇬' : region.id === 'music' ? '🎵' : '🌍')}</span>
                             {region.name}
                         </button>
                     ))}
@@ -122,7 +141,7 @@ export const SyllabusExplorer: React.FC<SyllabusExplorerProps> = ({ onSelectSubj
                             {group.subjects.map((sub) => (
                                 <button
                                     key={sub.id}
-                                    onClick={() => onSelectSubject(sub.id, REGIONS.find(r => r.id === selectedRegion)?.syllabus || Syllabus.KSSR_KSSM)}
+                                    onClick={() => onSelectSubject(sub.id, group.syllabus || REGIONS.find(r => r.id === selectedRegion)?.syllabus || Syllabus.KSSR_KSSM)}
                                     className="group relative flex flex-col items-center justify-center p-3 sm:p-4 rounded-xl bg-white border border-transparent shadow-sm hover:border-brand-orange/20 hover:shadow-md transition-all duration-300"
                                 >
                                     <div className={`w-10 h-10 md:w-12 md:h-12 ${sub.color.split(' ')[0]} rounded-lg flex items-center justify-center text-xl md:text-2xl mb-2 group-hover:scale-110 transition-transform`}>

@@ -19,9 +19,11 @@ router.post('/create-payment-intent', authenticateToken, async (req: any, res: a
     const secretKey = process.env.STRIPE_SECRET_KEY || '';
     const isMockMode = !secretKey.startsWith('sk_') || process.env.STRIPE_MOCK_MODE === 'true';
 
-    // Pricing: Single = 16.9, All = 19.9
-    const finalAmount = planLevel === 'all' ? 1990 : 1690;
-    const finalCurrency = (currency || 'myr').toLowerCase();
+    // Promo prices actually charged (MYR cents). Full prices are marketing strikethroughs on the frontend.
+    const PRICE_TABLE: Record<string, number> = { single: 5990, all: 9990 };
+    const finalAmount = PRICE_TABLE[planLevel] ?? PRICE_TABLE.single;
+    // Charged currency is always MYR regardless of client-detected display currency.
+    const finalCurrency = 'myr';
 
     if (isMockMode) {
         console.warn(`⚠️ STRIPE MOCK MODE ENABLED. Processing ${finalCurrency.toUpperCase()} ${finalAmount / 100} (${interval || 'month'})`);

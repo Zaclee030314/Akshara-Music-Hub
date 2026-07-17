@@ -10,6 +10,7 @@ export interface AuthContextType {
     logout: () => void;
     subscribe: () => Promise<void>;
     cancelSubscription: () => Promise<boolean>;
+    reactivateSubscription: () => Promise<boolean>;
     refreshUser: () => Promise<void>;
     isLoading: boolean;
 }

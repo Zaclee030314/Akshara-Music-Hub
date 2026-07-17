@@ -9,10 +9,12 @@ interface LeaderboardUser {
     xp: number;
     level: number;
     rank: number;
+    avatar?: string | null;
+    grade?: string | null;
 }
 
 export const Leaderboard: React.FC = () => {
-    const { user, userStats } = useAuth();
+    const { user } = useAuth();
     const [leaderboardData, setLeaderboardData] = useState<LeaderboardUser[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -35,26 +37,7 @@ export const Leaderboard: React.FC = () => {
         fetchLeaderboard();
     }, []);
 
-    // Ensure current user is in the list if logged in, even if not in top 50
     const displayData = [...leaderboardData];
-    if (user && userStats && !loading && !error) {
-        const userInTop = displayData.find(u => u.id === user.id);
-        if (!userInTop) {
-            displayData.push({
-                id: user.id,
-                name: user.name + ' (You)',
-                xp: userStats.xp,
-                level: userStats.level,
-                rank: userStats.leaderboardRank || displayData.length + 1
-            });
-        } else {
-            // mark them as (You) if not already marked
-            if (!userInTop.name.endsWith('(You)')) {
-                userInTop.name = userInTop.name + ' (You)';
-            }
-        }
-        displayData.sort((a, b) => a.rank - b.rank);
-    }
 
     return (
         <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500">
@@ -101,13 +84,28 @@ export const Leaderboard: React.FC = () => {
                                             {RankIcon ? RankIcon : `#${player.rank}`}
                                         </div>
                                         <div className="flex items-center gap-3">
-                                            <div className={`p-2 rounded-full ${isCurrentUser ? 'bg-brand-blue/20 text-brand-blue' : 'bg-gray-200 text-gray-500'}`}>
-                                                <UserCircle2 size={24} />
-                                            </div>
+                                            {player.avatar ? (
+                                                <img
+                                                    src={player.avatar}
+                                                    alt={player.name}
+                                                    className={`w-10 h-10 rounded-full object-cover border-2 ${isCurrentUser ? 'border-brand-blue' : 'border-gray-200'}`}
+                                                />
+                                            ) : (
+                                                <div className={`p-2 rounded-full ${isCurrentUser ? 'bg-brand-blue/20 text-brand-blue' : 'bg-gray-200 text-gray-500'}`}>
+                                                    <UserCircle2 size={24} />
+                                                </div>
+                                            )}
                                             <div>
-                                                <p className={`font-bold ${isCurrentUser ? 'text-brand-blue' : 'text-brand-dark'}`}>
-                                                    {player.name}
-                                                </p>
+                                                <div className="flex items-center gap-2">
+                                                    <p className={`font-bold ${isCurrentUser ? 'text-brand-blue' : 'text-brand-dark'}`}>
+                                                        {player.name}{isCurrentUser ? ' (You)' : ''}
+                                                    </p>
+                                                    {player.grade && (
+                                                        <span className="text-[10px] font-bold bg-brand-orange/10 text-brand-orange px-2 py-0.5 rounded-full">
+                                                            {player.grade}
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 <div className="flex items-center gap-1 text-sm text-brand-dark/50">
                                                     <Star size={14} className="text-brand-orange fill-brand-orange" />
                                                     Level {player.level}

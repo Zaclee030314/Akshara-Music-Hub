@@ -11,7 +11,9 @@ router.get('/', async (req, res) => {
             select: {
                 id: true,
                 name: true,
-                xp: true
+                xp: true,
+                avatar: true,
+                grade: true
             },
             orderBy: {
                 xp: 'desc'
@@ -24,6 +26,8 @@ router.get('/', async (req, res) => {
             id: user.id,
             name: user.name,
             xp: user.xp,
+            avatar: user.avatar,
+            grade: user.grade,
             level: Math.floor(user.xp / 100) + 1, // Basic level formula
             rank: index + 1
         }));

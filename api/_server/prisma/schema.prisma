@@ -52,6 +52,12 @@ model User {
   role                  String
   grade                 String?
   gradeSyllabus         String?
+  avatar                String?
+  parentName            String?
+  parentPhone           String?
+  parentEmail           String?
+  children              String?   // JSON array [{name,age,birthday}]
+  profileCompleted      Boolean   @default(false)
   xp                    Int       @default(0)
   coins                 Int       @default(0)
   isSubscribed          Boolean   @default(false)

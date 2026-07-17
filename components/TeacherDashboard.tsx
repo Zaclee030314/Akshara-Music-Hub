@@ -49,6 +49,11 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onBack, onVi
         const allSubjects = Object.values(Subject);
         if (!grade) return allSubjects;
 
+        // ── Music (Western & Indian) → music subjects only ───────
+        if (syllabus === Syllabus.WESTERN_MUSIC || syllabus === Syllabus.INDIAN_MUSIC || (grade as string).startsWith('Grade ')) {
+            return [Subject.MUSIC_THEORY, Subject.AURAL_PRACTICAL];
+        }
+
         // ── UEC (Unified Examination Certificate) ───────
         if (syllabus === 'Unified Examination Certificate (UEC)') {
             if ([GradeLevel.FORM_1, GradeLevel.FORM_2, GradeLevel.FORM_3].includes(grade as GradeLevel)) {
@@ -357,7 +362,9 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onBack, onVi
                                             >
                                                 <option value="">Grade</option>
                                                 {/* (Keep existing grade mapping logic) */}
-                                                {questSyllabus === 'Unified Examination Certificate (UEC)'
+                                                {questSyllabus === Syllabus.WESTERN_MUSIC || questSyllabus === Syllabus.INDIAN_MUSIC
+                                                    ? [GradeLevel.MUSIC_GRADE_1, GradeLevel.MUSIC_GRADE_2, GradeLevel.MUSIC_GRADE_3, GradeLevel.MUSIC_GRADE_4, GradeLevel.MUSIC_GRADE_5, GradeLevel.MUSIC_GRADE_6, GradeLevel.MUSIC_GRADE_7, GradeLevel.MUSIC_GRADE_8].map(g => <option key={g} value={g}>{g}</option>)
+                                                    : questSyllabus === 'Unified Examination Certificate (UEC)'
                                                     ? [GradeLevel.FORM_1, GradeLevel.FORM_2, GradeLevel.FORM_3, GradeLevel.FORM_4, GradeLevel.FORM_5, GradeLevel.FORM_6].map(g => <option key={g} value={g}>{g}</option>)
                                                     : questSyllabus === 'Malaysian National Curriculum (KSSR/KSSM)'
                                                         ? [...[GradeLevel.STD_1, GradeLevel.STD_2, GradeLevel.STD_3, GradeLevel.STD_4, GradeLevel.STD_5, GradeLevel.STD_6], ...[GradeLevel.FORM_1, GradeLevel.FORM_2, GradeLevel.FORM_3, GradeLevel.FORM_4, GradeLevel.FORM_5, GradeLevel.FORM_6]].map(g => <option key={g} value={g}>{g}</option>)

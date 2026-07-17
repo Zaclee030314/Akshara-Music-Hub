@@ -210,6 +210,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return false;
     };
 
+    const reactivateSubscription = async (): Promise<boolean> => {
+        setIsLoading(true);
+        try {
+            const token = localStorage.getItem('quest_token');
+            const res = await fetch('/api/subscription/reactivate-subscription', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                if (data.success) {
+                    await refreshUser();
+                    setIsLoading(false);
+                    return true;
+                }
+            }
+            const err = await res.json().catch(() => ({}));
+            alert(`Reactivation failed: ${err.error || 'Unknown error'}`);
+        } catch (e) {
+            console.error(e);
+            alert("Error reactivating subscription");
+        } finally {
+            setIsLoading(false);
+        }
+        return false;
+    };
+
     const refreshUser = async () => {
         const token = localStorage.getItem('quest_token');
         if (!token) return;
@@ -227,7 +257,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, signup, verifyCode, resendCode, logout, subscribe, cancelSubscription, refreshUser, isLoading }}>
+        <AuthContext.Provider value={{ user, login, signup, verifyCode, resendCode, logout, subscribe, cancelSubscription, reactivateSubscription, refreshUser, isLoading }}>
             {children}
         </AuthContext.Provider>
     );

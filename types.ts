@@ -14,7 +14,9 @@ export enum Subject {
   ADD_MATH = 'Additional Mathematics',
   ECONOMICS = 'Economics',
   BUSINESS = 'Business Studies',
-  COMPUTER_SCIENCE = 'Computer Science'
+  COMPUTER_SCIENCE = 'Computer Science',
+  MUSIC_THEORY = 'Music Theory',
+  AURAL_PRACTICAL = 'Aural & Practical'
 }
 
 export enum Syllabus {
@@ -22,7 +24,9 @@ export enum Syllabus {
   MOE_SINGAPORE = 'Singapore National Curriculum',
   IGCSE = 'Cambridge IGCSE',
   UEC = 'Unified Examination Certificate (UEC)',
-  IB = 'International Baccalaureate (IB)'
+  IB = 'International Baccalaureate (IB)',
+  WESTERN_MUSIC = 'Western Music',
+  INDIAN_MUSIC = 'Indian Music'
 }
 
 export enum GradeLevel {
@@ -57,7 +61,16 @@ export enum GradeLevel {
   SEC_2 = 'Secondary 2',
   SEC_3 = 'Secondary 3',
   SEC_4 = 'Secondary 4',
-  SEC_5 = 'Secondary 5'
+  SEC_5 = 'Secondary 5',
+  // Music (Western & Indian)
+  MUSIC_GRADE_1 = 'Grade 1',
+  MUSIC_GRADE_2 = 'Grade 2',
+  MUSIC_GRADE_3 = 'Grade 3',
+  MUSIC_GRADE_4 = 'Grade 4',
+  MUSIC_GRADE_5 = 'Grade 5',
+  MUSIC_GRADE_6 = 'Grade 6',
+  MUSIC_GRADE_7 = 'Grade 7',
+  MUSIC_GRADE_8 = 'Grade 8'
 }
 
 export interface Question {
@@ -85,6 +98,7 @@ export interface User {
   avatar?: string;
   password?: string;
   isAdmin?: boolean;
+  profileCompleted?: boolean;
 }
 
 export interface UserStats {

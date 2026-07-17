@@ -9,7 +9,7 @@ import { StudyPlanGenerator } from './components/StudyPlanGenerator';
 import { StudyProgress } from './components/StudyProgress';
 
 const API_BASE = '/api';
-import { BookOpen, Trophy, Star, Sparkles, Loader2, ArrowLeft, RefreshCw, ScrollText, CheckCircle2, Zap, Brain, Rocket, Lock, LogIn, Mail, GraduationCap, Coins, Gift, LogOut, User as UserIcon, ShieldCheck, Coffee, Plus, Target, Trash2, Save, HelpCircle, Calendar, Home, ArrowRight, ChevronRight, X } from 'lucide-react';
+import { BookOpen, Trophy, Star, Sparkles, Loader2, ArrowLeft, RefreshCw, ScrollText, CheckCircle2, Zap, Brain, Rocket, Lock, LogIn, Mail, GraduationCap, Coins, Gift, LogOut, User as UserIcon, ShieldCheck, Coffee, Plus, Target, Trash2, Save, HelpCircle, Calendar, Home, ArrowRight, ChevronRight, X, CreditCard } from 'lucide-react';
 import { useAuth } from './contexts/useAuth';
 import { PaymentForm } from './components/PaymentForm';
 import { LoginModal } from './components/LoginModal';
@@ -30,6 +30,9 @@ import { DataAnalysis } from './components/DataAnalysis';
 import { StudentClassrooms } from './components/StudentClassrooms';
 import { ClassroomManager } from './components/ClassroomManager';
 import { Leaderboard } from './components/Leaderboard';
+import { ProfilePage } from './components/ProfilePage';
+import { BillingPage } from './components/BillingPage';
+import { ProfileCompletionModal } from './components/ProfileCompletionModal';
 
 const INITIAL_STATS: UserStats = {
   xp: 0,
@@ -60,6 +63,8 @@ const SUBJECTS = [
   { id: Subject.ECONOMICS, icon: <span className="text-2xl">📈</span>, color: 'bg-cyan-100' },
   { id: Subject.BUSINESS, icon: <span className="text-2xl">💼</span>, color: 'bg-amber-100' },
   { id: Subject.COMPUTER_SCIENCE, icon: <span className="text-2xl">💻</span>, color: 'bg-slate-200' },
+  { id: Subject.MUSIC_THEORY, icon: <span className="text-2xl">🎼</span>, color: 'bg-rose-100' },
+  { id: Subject.AURAL_PRACTICAL, icon: <span className="text-2xl">🎧</span>, color: 'bg-violet-100' },
 ];
 
 import { useNavigate, Routes, Route, useLocation, Navigate } from 'react-router-dom';
@@ -67,7 +72,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { getSyllabusesByCountry, getGradesBySyllabus } from './lib/curriculum';
 
 export default function App() {
-  const { user, login, signup, verifyCode, resendCode, logout, subscribe, cancelSubscription, isLoading: authLoading } = useAuth();
+  const { user, login, signup, verifyCode, resendCode, logout, subscribe, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -140,10 +145,11 @@ export default function App() {
   const [showQuotaModal, setShowQuotaModal] = useState(false);
   const [showLevelUp, setShowLevelUp] = useState(false);
   const [levelUpData, setLevelUpData] = useState<{ prevLevel: number; newLevel: number; xpGained: number } | null>(null);
-  const [currencyConfig, setCurrencyConfig] = useState({ code: 'MYR', symbol: 'RM', amount: 9.9, amountAll: 14.9 });
+  const [currencyConfig, setCurrencyConfig] = useState({ code: 'MYR', symbol: 'RM', amount: 59.9, amountAll: 99.9 });
   const [detectedCountry, setDetectedCountry] = useState<string | null>(null);
   const [showPromo, setShowPromo] = useState(true);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [dismissedProfileModal, setDismissedProfileModal] = useState(false);
   const [selectedPlanLevel, setSelectedPlanLevel] = useState<'single' | 'all'>('single');
   const [selectedSubscriptionSyllabus, setSelectedSubscriptionSyllabus] = useState<Syllabus | null>(null);
   const [activeSession, setActiveSession] = useState<any | null>(null);
@@ -289,11 +295,11 @@ export default function App() {
       const applyCountry = (code: string) => {
         setDetectedCountry(code);
         if (code === 'SG') {
-          setCurrencyConfig({ code: 'SGD', symbol: 'S$', amount: 9.9, amountAll: 14.9 });
+          setCurrencyConfig({ code: 'SGD', symbol: 'S$', amount: 59.9, amountAll: 99.9 });
         } else if (code === 'MY') {
-          setCurrencyConfig({ code: 'MYR', symbol: 'RM', amount: 9.9, amountAll: 14.9 });
+          setCurrencyConfig({ code: 'MYR', symbol: 'RM', amount: 59.9, amountAll: 99.9 });
         } else {
-          setCurrencyConfig({ code: 'USD', symbol: '$', amount: 9.9, amountAll: 14.9 });
+          setCurrencyConfig({ code: 'USD', symbol: '$', amount: 59.9, amountAll: 99.9 });
         }
       };
 
@@ -371,6 +377,14 @@ export default function App() {
   // Returns only the subjects available for a given grade level (and syllabus context)
   const getSubjectsByGrade = (grade: GradeLevel | null, syllabus: Syllabus | null) => {
     if (!grade) return SUBJECTS;
+
+    // ─── Music (Western & Indian) ──────────────────────────────────────────────
+    if (syllabus === Syllabus.WESTERN_MUSIC || syllabus === Syllabus.INDIAN_MUSIC || grade.startsWith('Grade ')) {
+      return SUBJECTS.filter(s => [
+        Subject.MUSIC_THEORY,
+        Subject.AURAL_PRACTICAL,
+      ].includes(s.id as Subject));
+    }
 
     // ─── UEC (Unified Examination Certificate) ─────────────────────────────────
     // UEC Junior Middle: Form 1-3
@@ -928,24 +942,6 @@ export default function App() {
     navigate('/dashboard');
   };
 
-  const getDaysRemaining = (date?: string | Date) => {
-    if (!date) return null;
-    const end = new Date(date);
-    const now = new Date();
-    const diffTime = end.getTime() - now.getTime();
-    if (diffTime < 0) return 0;
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  };
-
-  const handleCancelSubscription = async () => {
-    if (window.confirm("Are you sure you want to cancel your Pro subscription? You will lose access to unlimited quizzes.")) {
-      const success = await cancelSubscription();
-      if (success) {
-        alert("Your subscription has been cancelled.");
-        navigate('/');
-      }
-    }
-  };
 
   // EXP progress within current level (each level = 1000 XP)
   const xpForCurrentLevel = (stats.level - 1) * 1000;
@@ -1305,11 +1301,14 @@ export default function App() {
 
               {/* Single Syllabus Plan */}
               <Card className="p-8 md:p-10 flex flex-col items-center gap-8 border-2 border-brand-dark/5 shadow-xl relative bg-white rounded-3xl group hover:border-brand-orange/20 transition-all">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-brand-green text-white px-5 py-1.5 rounded-full font-bold text-xs shadow-lg whitespace-nowrap">
+                  PROMO
+                </div>
                 <div className="text-center space-y-3">
                   <h3 className="font-display font-bold text-3xl text-brand-dark">Single Syllabus</h3>
                   <div className="text-5xl font-display font-bold text-brand-dark flex flex-col items-center">
                     <span className="text-2xl text-brand-dark/40 line-through mb-1">
-                      {currencyConfig.symbol} {currencyConfig.code === 'MYR' ? '29.9' : (currencyConfig.amount + 13).toFixed(1)}
+                      {currencyConfig.symbol} 99.90
                     </span>
                     <div>
                       {currencyConfig.symbol} {currencyConfig.amount}
@@ -1341,6 +1340,10 @@ export default function App() {
                     <CheckCircle2 size={18} className="text-brand-green shrink-0" />
                     <span>One Selected Syllabus</span>
                   </li>
+                  <li className="flex items-start gap-3 text-sm font-medium text-brand-dark/60">
+                    <CheckCircle2 size={18} className="text-brand-green shrink-0" />
+                    <span>Includes Western Music &amp; Indian Music syllabi</span>
+                  </li>
                 </ul>
 
                 <Button
@@ -1362,10 +1365,10 @@ export default function App() {
                 </div>
 
                 <div className="text-center space-y-3">
-                  <h3 className="font-display font-bold text-3xl text-brand-dark">All Syllabus</h3>
+                  <h3 className="font-display font-bold text-3xl text-brand-dark">Max Package</h3>
                   <div className="text-5xl font-display font-bold text-brand-dark flex flex-col items-center">
                     <span className="text-2xl text-brand-dark/40 line-through mb-1">
-                      {currencyConfig.symbol} {currencyConfig.code === 'MYR' ? '39.9' : (currencyConfig.amountAll + 20).toFixed(1)}
+                      {currencyConfig.symbol} 149.90
                     </span>
                     <div>
                       {currencyConfig.symbol} {currencyConfig.amountAll}
@@ -1381,7 +1384,7 @@ export default function App() {
                   </li>
                   <li className="flex items-start gap-4 text-sm font-bold text-brand-dark/80 px-2">
                     <CheckCircle2 size={18} className="text-brand-green shrink-0" />
-                    <span>All Syllabuses Included</span>
+                    <span>All syllabi & subjects included</span>
                   </li>
                 </ul>
 
@@ -2019,6 +2022,11 @@ export default function App() {
     <div className="min-h-screen relative overflow-x-hidden selection:bg-brand-orange selection:text-white flex flex-col">
       {/* Level Up Overlay */}
       {showLevelUp && levelUpData && <LevelUpOverlay />}
+
+      {/* Post-purchase profile completion (subscribed but family details not yet filled) */}
+      {user && user.isSubscribed && user.profileCompleted === false && !dismissedProfileModal && (
+        <ProfileCompletionModal onClose={() => setDismissedProfileModal(true)} />
+      )}
       {/* Background Decorative Blobs */}
       <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-orange/20 rounded-full blur-3xl -z-10 animate-float" />
       <div className="fixed bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-brand-blue/10 rounded-full blur-3xl -z-10" />
@@ -2033,6 +2041,12 @@ export default function App() {
             <button onClick={() => { setShowMobileMenu(false); navigate('/leaderboard'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">🏆 Leaderboard</button>
             {user && (
               <button onClick={() => { setShowMobileMenu(false); navigate('/rewards'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-orange hover:bg-brand-orange/5 transition-all text-sm">🛍️ Rewards</button>
+            )}
+            {user && (
+              <button onClick={() => { setShowMobileMenu(false); navigate('/profile'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">👤 My Profile</button>
+            )}
+            {user && (
+              <button onClick={() => { setShowMobileMenu(false); navigate('/billing'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">💳 My Subscription</button>
             )}
           </div>
         </div>
@@ -2115,6 +2129,18 @@ export default function App() {
                       {user?.isAdmin ? 'Admin Dashboard' : user?.role === 'teacher' ? 'Teacher Dashboard' : 'My Dashboard'}
                     </button>
                     <button
+                      onClick={() => { navigate('/profile'); setShowProfileMenu(false); }}
+                      className="w-full text-left px-4 py-3 hover:bg-brand-blue/5 text-sm font-bold text-brand-dark/70 hover:text-brand-blue flex items-center gap-2 transition-colors"
+                    >
+                      <UserIcon size={16} /> My Profile
+                    </button>
+                    <button
+                      onClick={() => { navigate('/billing'); setShowProfileMenu(false); }}
+                      className="w-full text-left px-4 py-3 hover:bg-brand-blue/5 text-sm font-bold text-brand-dark/70 hover:text-brand-blue flex items-center gap-2 transition-colors"
+                    >
+                      <CreditCard size={16} /> My Subscription
+                    </button>
+                    <button
                       onClick={() => { logout(); setShowProfileMenu(false); }}
                       className="w-full text-left px-4 py-3 hover:bg-red-50 text-sm font-bold text-red-500 flex items-center gap-2 transition-colors"
                     >
@@ -2153,6 +2179,8 @@ export default function App() {
           } />
 
           <Route path="/leaderboard" element={<div className="pt-8"><Leaderboard /></div>} />
+          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route path="/billing" element={<ProtectedRoute><BillingPage /></ProtectedRoute>} />
           <Route path="/rewards" element={
             <ProtectedRoute>
               {renderRewards()}
