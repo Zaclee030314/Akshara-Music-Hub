@@ -5,8 +5,8 @@ import prisma from '../db.js';
 
 const router = express.Router();
 
-// Get all quests (PUBLIC)
-router.get('/', async (req, res) => {
+// Get all quests (AUTHENTICATED)
+router.get('/', authenticateToken, async (req: AuthRequest, res) => {
     try {
         console.log('[API] Fetching all quests...');
         // Could filter by subject/grade

@@ -628,7 +628,7 @@ export const ClassroomManager: React.FC = () => {
         setIsLoading(false);
     };
     const fetchQuests = async () => {
-        try { const r=await fetch('/api/quests'); if(r.ok) setQuests(await r.json()); } catch(e){}
+        try { const r=await fetch('/api/quests', { headers: auth() }); if(r.ok) setQuests(await r.json()); } catch(e){}
     };
     const fetchSubs = async (classId:string) => {
         try {

@@ -211,7 +211,9 @@ export default function App() {
         if (aId) setActiveAssignmentId(aId);
         
         if (qId) {
-          fetch('/api/quests').then(res => res.json()).then(data => {
+          fetch('/api/quests', {
+            headers: { Authorization: `Bearer ${localStorage.getItem('quest_token')}` }
+          }).then(res => res.json()).then(data => {
             const q = data.find((x: any) => x.id === qId);
             if (q) {
                 setSelectedCustomQuest(q);
@@ -348,8 +350,12 @@ export default function App() {
   // Load custom quests whenever view changes (e.g. coming back from dashboard)
   useEffect(() => {
     const fetchQuests = async () => {
+      const token = localStorage.getItem('quest_token');
+      if (!token) return; // anonymous visitors: skip (route is now authenticated)
       try {
-        const res = await fetch('/api/quests');
+        const res = await fetch('/api/quests', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
         if (res.ok) {
           const data = await res.json();
           setCustomQuests(data);
@@ -1310,7 +1316,7 @@ export default function App() {
                 <ul className="space-y-5 w-full flex-1">
                   <li className="flex items-start gap-3 text-sm font-medium text-brand-dark/60">
                     <CheckCircle2 size={18} className="text-brand-green shrink-0" />
-                    <span>3 free quizzes and 3 free create questions</span>
+                    <span>3 free AI-generated quizzes</span>
                   </li>
                 </ul>
 
@@ -1331,7 +1337,7 @@ export default function App() {
                       {currencyConfig.symbol} 99.90
                     </span>
                     <div>
-                      {currencyConfig.symbol} {currencyConfig.amount}
+                      {currencyConfig.symbol} {currencyConfig.amount.toFixed(2)}
                       <span className="text-lg font-normal opacity-40">/mo</span>
                     </div>
                   </div>
@@ -1391,7 +1397,7 @@ export default function App() {
                       {currencyConfig.symbol} 149.90
                     </span>
                     <div>
-                      {currencyConfig.symbol} {currencyConfig.amountAll}
+                      {currencyConfig.symbol} {currencyConfig.amountAll.toFixed(2)}
                       <span className="text-lg font-normal opacity-40">/mo</span>
                     </div>
                   </div>

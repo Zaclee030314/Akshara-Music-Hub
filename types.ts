@@ -99,6 +99,7 @@ export interface User {
   password?: string;
   isAdmin?: boolean;
   profileCompleted?: boolean;
+  lastSeenSeasonId?: string | null;
 }
 
 export interface UserStats {

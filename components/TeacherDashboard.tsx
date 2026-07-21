@@ -167,7 +167,9 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onBack, onVi
         if (!user) return;
         setIsLoading(true);
         try {
-            const res = await fetch('/api/quests');
+            const res = await fetch('/api/quests', {
+                headers: { Authorization: `Bearer ${localStorage.getItem('quest_token')}` }
+            });
             if (res.ok) {
                 const data = await res.json();
                 // Filter quests created by this user

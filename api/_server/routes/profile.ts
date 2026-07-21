@@ -127,6 +127,29 @@ router.get('/referral-code', authenticateToken, async (req: AuthRequest, res) =>
     }
 });
 
+// POST /api/profile/season-seen — record the latest finalized season this user has seen
+router.post('/season-seen', authenticateToken, async (req: AuthRequest, res) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+        const { seasonId } = req.body;
+        if (typeof seasonId !== 'string' || seasonId.trim().length === 0) {
+            return res.status(400).json({ error: 'seasonId must be a non-empty string' });
+        }
+
+        await prisma.user.update({
+            where: { id: userId },
+            data: { lastSeenSeasonId: seasonId.trim() }
+        });
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('[PROFILE] POST /season-seen error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 // PUT /api/profile/family — update parent + children details, mark profile complete
 router.put('/family', authenticateToken, async (req: AuthRequest, res) => {
     try {

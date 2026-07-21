@@ -88,15 +88,9 @@ router.post('/signup', async (req, res) => {
         }
 
         res.json({ message: 'Verification code sent to your email', email });
-    } catch (error: any) {
-        console.error(error);
-        res.status(500).json({
-            error: 'Internal server error',
-            details: error.message,
-            code: error.code,
-            meta: error.meta,
-            stack: process.env.NODE_ENV === 'development' || true ? error.stack : undefined
-        });
+    } catch (error) {
+        console.error('[AUTH] signup error:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
 });
 
@@ -159,7 +153,8 @@ router.post('/verify', async (req, res) => {
                 subscribedSyllabus: user.subscribedSyllabus,
                 cancelAtPeriodEnd: user.cancelAtPeriodEnd,
                 questsPlayed: user.questsPlayed,
-                questsCreated: user.questsCreated
+                questsCreated: user.questsCreated,
+                lastSeenSeasonId: user.lastSeenSeasonId
             }
         });
     } catch (error) {
@@ -262,7 +257,8 @@ router.post('/login', async (req, res) => {
                 isAdmin,
                 questsPlayed: user.questsPlayed,
                 questsCreated: user.questsCreated,
-                completedQuizzes: user._count.results
+                completedQuizzes: user._count.results,
+                lastSeenSeasonId: user.lastSeenSeasonId
             }
         });
     } catch (error) {
@@ -317,7 +313,8 @@ router.get('/me', authenticateToken, checkExpiredSubscriptions, async (req: Auth
                 isAdmin,
                 questsPlayed: user.questsPlayed,
                 questsCreated: user.questsCreated,
-                completedQuizzes: user._count.results
+                completedQuizzes: user._count.results,
+                lastSeenSeasonId: user.lastSeenSeasonId
             }
         });
     } catch (error) {

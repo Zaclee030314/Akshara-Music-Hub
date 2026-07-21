@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card } from './Card';
 import { Button } from './Button';
 import { useAuth } from '../contexts/useAuth';
-import { Loader2, CreditCard, CheckCircle2, CalendarClock, ShieldOff, RefreshCw } from 'lucide-react';
+import { Loader2, CreditCard, CheckCircle2, CalendarClock, ShieldOff, RefreshCw, Info } from 'lucide-react';
 
 interface SubStatus {
     isSubscribed: boolean;
@@ -151,6 +151,11 @@ export const BillingPage: React.FC = () => {
                             </div>
                         </div>
 
+                        <div className="flex items-start gap-2 bg-brand-dark/5 border border-brand-dark/10 text-brand-dark/60 p-4 rounded-2xl text-xs font-medium">
+                            <Info size={16} className="shrink-0 mt-0.5 text-brand-dark/40" />
+                            <span>Plans are 30-day passes — access ends on {fmtDate(status.subscriptionEndDate)} unless you renew from the Pricing page.</span>
+                        </div>
+
                         {cancelPending ? (
                             <div className="space-y-4">
                                 <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-2xl text-sm font-medium">
@@ -169,7 +174,7 @@ export const BillingPage: React.FC = () => {
                 ) : (
                     <div className="space-y-4 border-t border-brand-dark/5 pt-6">
                         <ul className="space-y-2 text-sm text-brand-dark/60">
-                            <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-brand-green" /> 3 free quizzes and 3 free create questions</li>
+                            <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-brand-green" /> 3 free AI-generated quizzes</li>
                         </ul>
                         <Button onClick={() => navigate('/pricing')} fullWidth className="bg-brand-orange hover:bg-orange-400">
                             Upgrade Plan

@@ -28,7 +28,7 @@ router.get('/', async (req, res) => {
             xp: user.xp,
             avatar: user.avatar,
             grade: user.grade,
-            level: Math.floor(user.xp / 100) + 1, // Basic level formula
+            level: Math.floor(user.xp / 1000) + 1, // Basic level formula (matches dashboard / /me)
             rank: index + 1
         }));
 

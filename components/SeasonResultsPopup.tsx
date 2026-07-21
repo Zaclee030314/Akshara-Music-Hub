@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Trophy, UserCircle2, X } from 'lucide-react';
+import { useAuth } from '../contexts/useAuth';
 
 interface Winner {
     rank: number;
@@ -22,6 +23,7 @@ interface FinalizedSeason {
 }
 
 export const SeasonResultsPopup: React.FC = () => {
+    const { user } = useAuth();
     const [season, setSeason] = useState<FinalizedSeason | null>(null);
     const token = localStorage.getItem('quest_token') || '';
 
@@ -35,18 +37,33 @@ export const SeasonResultsPopup: React.FC = () => {
             .then(data => {
                 if (!active || !data || !data.season) return;
                 const s: FinalizedSeason = data.season;
+                // Per-account gate: skip if this account already dismissed this season.
+                if (user?.lastSeenSeasonId === s.id) return;
+                // Same-device fast path so the popup doesn't flash before user state loads.
                 if (localStorage.getItem('season_seen_' + s.id)) return;
                 setSeason(s);
             })
             .catch(() => { /* silent */ });
         return () => { active = false; };
-    }, [token]);
+    }, [token, user?.lastSeenSeasonId]);
 
     if (!season) return null;
 
     const close = () => {
-        localStorage.setItem('season_seen_' + season.id, '1');
+        const seasonId = season.id;
+        localStorage.setItem('season_seen_' + seasonId, '1');
         setSeason(null);
+        // Persist per-account so the popup won't reappear on other devices.
+        if (token) {
+            fetch('/api/profile/season-seen', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ seasonId }),
+            }).catch(() => { /* silent — localStorage already covers this device */ });
+        }
     };
 
     // Podium order: 2nd, 1st, 3rd for a classic podium look
