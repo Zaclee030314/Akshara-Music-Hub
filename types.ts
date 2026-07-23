@@ -105,6 +105,7 @@ export interface User {
   seasonXp?: number;      // current-season points (drives displayed XP/level)
   lifetimeXp?: number;    // all-time "banked" XP (== server user.xp)
   level?: number;
+  language?: string | null; // preferred UI language: 'en' | 'ms' | 'zh' | 'ta'
 }
 
 export interface UserStats {

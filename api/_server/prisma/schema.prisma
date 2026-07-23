@@ -79,6 +79,7 @@ model User {
   referredById          String?
   referralCreditCents   Int       @default(0)   // earned, spendable referral credit balance (sen)
   referralRewardGranted Boolean   @default(false) // set on a REFERRED user once their first payment has granted the referrer's reward (fires exactly once)
+  language              String?   // preferred UI language: 'en' | 'ms' | 'zh' | 'ta'
   lastSeenSeasonId      String?
   quests                Quest[]
   results               Result[]

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Rocket, Sparkles, Star } from 'lucide-react';
 import { Button } from './Button';
+import { useT } from '../contexts/LanguageContext';
 
 interface HeroProps {
     onStart: () => void;
@@ -11,6 +12,7 @@ interface HeroProps {
 }
 
 export const Hero: React.FC<HeroProps> = ({ onStart, onViewPricing, isLoggedIn, isSubscribed, currencyConfig }) => {
+    const { t } = useT();
     const priceDisplay = currencyConfig?.code === 'MYR' ? 'RM20' : '$10';
 
     return (
@@ -31,7 +33,7 @@ export const Hero: React.FC<HeroProps> = ({ onStart, onViewPricing, isLoggedIn, 
             {/* Badge */}
             <div className="flex justify-center animate-reveal-up delay-100 mt-8">
                 <div className="bg-white/10 backdrop-blur-md px-5 py-1.5 rounded-full shadow-md border border-white/20 text-white font-bold text-[10px] md:text-xs flex items-center gap-2 hover:scale-105 transition-transform cursor-default">
-                    <Sparkles size={14} className="text-brand-orange animate-pulse" /> The Future of Smart Revision
+                    <Sparkles size={14} className="text-brand-orange animate-pulse" /> {t('hero.badge')}
                 </div>
             </div>
 
@@ -41,12 +43,12 @@ export const Hero: React.FC<HeroProps> = ({ onStart, onViewPricing, isLoggedIn, 
                     Akshara Music Hub
                     <br className="hidden sm:block" />
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue via-brand-orange to-brand-green filter drop-shadow-md text-3xl sm:text-4xl mt-2 inline-block">
-                        Where Music, Education & Smart Practice Meet
+                        {t('hero.subtitle')}
                     </span>
                 </h1>
 
                 <p className="text-sm sm:text-base lg:text-lg text-white/90 max-w-xl mx-auto leading-relaxed font-medium px-2 animate-reveal-up delay-300 drop-shadow-md">
-                    by Akshara Fine Arts
+                    {t('hero.by')}
                 </p>
             </div>
 
@@ -57,7 +59,7 @@ export const Hero: React.FC<HeroProps> = ({ onStart, onViewPricing, isLoggedIn, 
                     onClick={onStart}
                     className="px-16 py-6 text-xl shadow-xl hover:scale-105 transition-transform"
                 >
-                    {isLoggedIn ? 'Continue Practising' : 'Start Practising Today'}
+                    {isLoggedIn ? t('hero.ctaContinue') : t('hero.ctaStart')}
                     <Rocket className="w-5 h-5 ml-2" />
                 </Button>
             </div>
@@ -65,9 +67,9 @@ export const Hero: React.FC<HeroProps> = ({ onStart, onViewPricing, isLoggedIn, 
             {/* Trust badges */}
             <div className="pt-10 flex flex-wrap justify-center gap-6 sm:gap-12 md:gap-16 opacity-80 hover:opacity-100 transition-all duration-500 animate-reveal-up delay-500">
                 {[
-                    'Trusted by 10,000+ Users',
-                    'KSSR/KSSM Aligned',
-                    '4.9/5 Rating',
+                    t('hero.trust.users'),
+                    t('hero.trust.aligned'),
+                    t('hero.trust.rating'),
                 ].map(text => (
                     <div key={text} className="flex items-center gap-2 text-white drop-shadow-md">
                         <Star className="text-brand-orange fill-brand-orange shrink-0" size={18} />

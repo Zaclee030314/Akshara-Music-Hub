@@ -155,6 +155,7 @@ router.post('/verify', async (req, res) => {
                 cancelAtPeriodEnd: user.cancelAtPeriodEnd,
                 questsPlayed: user.questsPlayed,
                 questsCreated: user.questsCreated,
+                language: user.language,
                 lastSeenSeasonId: user.lastSeenSeasonId
             }
         });
@@ -266,6 +267,7 @@ router.post('/login', async (req, res) => {
                 questsPlayed: user.questsPlayed,
                 questsCreated: user.questsCreated,
                 completedQuizzes: user._count.results,
+                language: user.language,
                 lastSeenSeasonId: user.lastSeenSeasonId
             }
         });
@@ -328,6 +330,7 @@ router.get('/me', authenticateToken, checkExpiredSubscriptions, async (req: Auth
                 questsPlayed: user.questsPlayed,
                 questsCreated: user.questsCreated,
                 completedQuizzes: user._count.results,
+                language: user.language,
                 lastSeenSeasonId: user.lastSeenSeasonId
             }
         });

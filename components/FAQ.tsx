@@ -1,26 +1,16 @@
 import React, { useState } from 'react';
 import { ChevronDown, HelpCircle } from 'lucide-react';
+import { useT } from '../contexts/LanguageContext';
 
 const FAQS = [
-    {
-        q: 'Is Akshara Music Hub aligned with the Malaysian syllabus?',
-        a: 'Yes! We cover the national curriculum (KSSR/KSSM), MOE Singapore, and IGCSE for most major subjects.'
-    },
-    {
-        q: 'How does the AI Tutor work?',
-        a: 'Our AI analyzes each question and provides hints or step-by-step explanations if you get stuck, helping you learn the concepts behind the answers.'
-    },
-    {
-        q: 'Do I need a subscription to play?',
-        a: 'You can try one demo quest for free as a guest. To unlock unlimited quests across all subjects, you\'ll need a Pro subscription.'
-    },
-    {
-        q: 'Can parents and teachers track progress?',
-        a: 'Absolutely! Teachers can monitor classroom sessions and Parents can track individual student progress through the Creator Dashboard.'
-    }
+    { qKey: 'faq.q1', aKey: 'faq.a1' },
+    { qKey: 'faq.q2', aKey: 'faq.a2' },
+    { qKey: 'faq.q3', aKey: 'faq.a3' },
+    { qKey: 'faq.q4', aKey: 'faq.a4' }
 ];
 
 export const FAQ: React.FC = () => {
+    const { t } = useT();
     const [openIdx, setOpenIdx] = useState<number | null>(0);
 
     return (
@@ -29,8 +19,8 @@ export const FAQ: React.FC = () => {
                 <div className="w-16 h-16 bg-brand-orange/10 rounded-2xl flex items-center justify-center mx-auto text-brand-orange mb-4">
                     <HelpCircle size={32} />
                 </div>
-                <h2 className="text-4xl font-display font-bold text-brand-dark">Frequently Asked Questions</h2>
-                <p className="text-lg text-brand-dark/60">Everything you need to know about Akshara Music Hub.</p>
+                <h2 className="text-4xl font-display font-bold text-brand-dark">{t('faq.title')}</h2>
+                <p className="text-lg text-brand-dark/60">{t('faq.subtitle')}</p>
             </div>
 
             <div className="space-y-4">
@@ -40,11 +30,11 @@ export const FAQ: React.FC = () => {
                             onClick={() => setOpenIdx(openIdx === idx ? null : idx)}
                             className="w-full flex items-center justify-between p-6 text-left hover:bg-brand-orange/5 transition-colors"
                         >
-                            <span className="text-lg font-bold text-brand-dark">{faq.q}</span>
+                            <span className="text-lg font-bold text-brand-dark">{t(faq.qKey)}</span>
                             <ChevronDown className={`transition-transform duration-300 ${openIdx === idx ? 'rotate-180' : ''}`} />
                         </button>
                         <div className={`transition-all duration-300 ${openIdx === idx ? 'max-h-96 opacity-100 p-6 pt-0' : 'max-h-0 opacity-0 overflow-hidden'}`}>
-                            <p className="text-brand-dark/60 leading-relaxed font-medium">{faq.a}</p>
+                            <p className="text-brand-dark/60 leading-relaxed font-medium">{t(faq.aKey)}</p>
                         </div>
                     </div>
                 ))}

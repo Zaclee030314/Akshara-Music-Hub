@@ -1,6 +1,7 @@
 import React from 'react';
 import { Sparkles, ArrowRight, X } from 'lucide-react';
 import { Button } from './Button';
+import { useT } from '../contexts/LanguageContext';
 
 interface PromotionBannerProps {
     onClose?: () => void;
@@ -8,6 +9,7 @@ interface PromotionBannerProps {
 }
 
 export const PromotionBanner: React.FC<PromotionBannerProps> = ({ onClose, onAction }) => {
+    const { t } = useT();
     return (
         <div className="relative group overflow-hidden animate-in slide-in-from-top duration-700">
             <div className="bg-gradient-to-r from-brand-blue via-brand-orange to-brand-blue bg-[length:200%_auto] animate-gradient p-[1px]">
@@ -17,7 +19,7 @@ export const PromotionBanner: React.FC<PromotionBannerProps> = ({ onClose, onAct
                             <Sparkles size={18} className="text-brand-orange" />
                         </div>
                         <p className="font-bold text-sm sm:text-base text-brand-dark">
-                            New: <span className="text-brand-orange">Pro Plan</span> is here! Unlock full access today.
+                            {t('promo.newBadge')} <span className="text-brand-orange">{t('promo.plan')}</span> {t('promo.tagline')}
                         </p>
                     </div>
 
@@ -26,14 +28,14 @@ export const PromotionBanner: React.FC<PromotionBannerProps> = ({ onClose, onAct
                             onClick={onAction}
                             className="flex items-center gap-2 text-sm font-bold text-brand-blue hover:text-blue-600 transition-colors group/btn"
                         >
-                            Get Discount <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
+                            {t('promo.getDiscount')} <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
                         </button>
 
                         {onClose && (
                             <button
                                 onClick={onClose}
                                 className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-                                aria-label="Close"
+                                aria-label={t('common.close')}
                             >
                                 <X size={14} className="text-brand-dark/40" />
                             </button>

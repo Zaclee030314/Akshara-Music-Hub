@@ -9,6 +9,7 @@ if (!rootElement) {
 }
 
 import { AuthProvider } from './contexts/AuthContext';
+import { LanguageProvider } from './contexts/LanguageContext';
 import { BrowserRouter } from 'react-router-dom';
 
 const root = ReactDOM.createRoot(rootElement);
@@ -16,8 +17,10 @@ root.render(
   <React.StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <App />
-        <Analytics />
+        <LanguageProvider>
+          <App />
+          <Analytics />
+        </LanguageProvider>
       </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>

@@ -1,44 +1,46 @@
 import React from 'react';
 import { BookOpen, Brain, Trophy, ShieldCheck, Zap, Heart } from 'lucide-react';
 import { Card } from './Card';
+import { useT } from '../contexts/LanguageContext';
 
 const BENEFITS = [
     {
         icon: <BookOpen />,
-        title: 'Syllabus Focused',
-        description: 'Strictly aligned with KSSR, KSSM, MOE Singapore & IGCSE standards for school and home.',
+        titleKey: 'benefits.item1.title',
+        descKey: 'benefits.item1.desc',
         color: 'text-brand-blue bg-blue-100'
     },
     {
         icon: <Zap />,
-        title: 'Interactive Classes',
-        description: 'Teachers can conduct live classroom sessions where students play and learn together in real-time.',
+        titleKey: 'benefits.item2.title',
+        descKey: 'benefits.item2.desc',
         color: 'text-brand-orange bg-orange-100'
     },
     {
         icon: <Brain />,
-        title: 'Revision Mastery',
-        description: 'Parents help students focus on weak areas with AI-powered step-by-step explanations and progress tracking.',
+        titleKey: 'benefits.item3.title',
+        descKey: 'benefits.item3.desc',
         color: 'text-brand-green bg-green-100'
     },
     {
         icon: <Trophy />,
-        title: 'Gamified Results',
-        description: 'Turn boring study hours into an engaging adventure with XP, badges, and streaks that drive performance.',
+        titleKey: 'benefits.item4.title',
+        descKey: 'benefits.item4.desc',
         color: 'text-purple-600 bg-purple-100'
     }
 ];
 
 export const Benefits: React.FC = () => {
+    const { t } = useT();
     return (
         <section className="py-20 bg-white/50 backdrop-blur-sm">
             <div className="max-w-7xl mx-auto px-4">
                 <div className="text-center mb-16 space-y-4">
                     <h2 className="text-4xl md:text-6xl font-display font-bold text-brand-dark tracking-tight leading-none text-brand-dark">
-                        The ultimate <span className="text-brand-orange">Akshara Music Hub</span> results
+                        {t('benefits.titlePre')} <span className="text-brand-orange">Akshara Music Hub</span> {t('benefits.titlePost')}
                     </h2>
                     <p className="text-xl text-brand-dark/60 max-w-2xl mx-auto font-medium">
-                        We turn hours of boring study into an engaging adventure that gets results.
+                        {t('benefits.subtitle')}
                     </p>
                 </div>
 
@@ -51,8 +53,8 @@ export const Benefits: React.FC = () => {
                             <div className={`w-16 h-16 ${benefit.color} rounded-2xl flex items-center justify-center scale-110 group-hover:rotate-6 transition-transform`}>
                                 {React.cloneElement(benefit.icon as React.ReactElement, { size: 32 })}
                             </div>
-                            <h3 className="text-2xl font-bold">{benefit.title}</h3>
-                            <p className="text-brand-dark/60 leading-relaxed font-medium">{benefit.description}</p>
+                            <h3 className="text-2xl font-bold">{t(benefit.titleKey)}</h3>
+                            <p className="text-brand-dark/60 leading-relaxed font-medium">{t(benefit.descKey)}</p>
                         </Card>
                     ))}
                 </div>

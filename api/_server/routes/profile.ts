@@ -30,9 +30,13 @@ const shapeProfile = (user: any) => {
         parentPhone: user.parentPhone,
         parentEmail: user.parentEmail,
         profileCompleted: user.profileCompleted,
-        referralCreditCents: user.referralCreditCents ?? 0
+        referralCreditCents: user.referralCreditCents ?? 0,
+        language: user.language ?? null
     };
 };
+
+// Supported UI languages for the language-preference endpoint.
+const SUPPORTED_LANGUAGES = ['en', 'ms', 'zh', 'ta'];
 
 // GET /api/profile — current user's profile
 router.get('/', authenticateToken, async (req: AuthRequest, res) => {
@@ -80,6 +84,25 @@ router.put('/', authenticateToken, async (req: AuthRequest, res) => {
         res.json(shapeProfile(user));
     } catch (error) {
         console.error('[PROFILE] PUT error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// PUT /api/profile/language — persist the user's preferred UI language
+router.put('/language', authenticateToken, async (req: AuthRequest, res) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+        const { language } = req.body;
+        if (typeof language !== 'string' || !SUPPORTED_LANGUAGES.includes(language)) {
+            return res.status(400).json({ error: 'Unsupported language' });
+        }
+
+        await prisma.user.update({ where: { id: userId }, data: { language } });
+        res.json({ success: true, language });
+    } catch (error) {
+        console.error('[PROFILE] PUT /language error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });

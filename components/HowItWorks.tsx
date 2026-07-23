@@ -1,35 +1,37 @@
 import React from 'react';
 import { MousePointerClick, Brain, Trophy } from 'lucide-react';
+import { useT } from '../contexts/LanguageContext';
 
 const STEPS = [
     {
         icon: <MousePointerClick />,
-        title: 'Pick your Subject',
-        description: 'Select your grade and subject. From BM to Physics, we\'ve got you covered.',
+        titleKey: 'howitworks.step1.title',
+        descKey: 'howitworks.step1.desc',
         color: 'bg-blue-500'
     },
     {
         icon: <Brain />,
-        title: 'Master Quests',
-        description: 'Teachers conduct sessions for class play, while Parents help students revise with step-by-step AI guidance.',
+        titleKey: 'howitworks.step2.title',
+        descKey: 'howitworks.step2.desc',
         color: 'bg-brand-orange'
     },
     {
         icon: <Trophy />,
-        title: 'Track Success',
-        description: 'Students level up and earn badges, while Teachers and Parents monitor progress on the dashboard.',
+        titleKey: 'howitworks.step3.title',
+        descKey: 'howitworks.step3.desc',
         color: 'bg-brand-green'
     }
 ];
 
 export const HowItWorks: React.FC = () => {
+    const { t } = useT();
     return (
         <section className="py-24 px-4 bg-brand-dark text-white rounded-[60px] mx-4 my-20">
             <div className="max-w-7xl mx-auto space-y-20">
                 <div className="text-center space-y-4">
-                    <h2 className="text-4xl md:text-6xl font-display font-bold">The path to mastery</h2>
+                    <h2 className="text-4xl md:text-6xl font-display font-bold">{t('howitworks.title')}</h2>
                     <p className="text-xl text-white/60 max-w-xl mx-auto">
-                        Ready to start your adventure? It's as simple as 1, 2, 3.
+                        {t('howitworks.subtitle')}
                     </p>
                 </div>
 
@@ -46,8 +48,8 @@ export const HowItWorks: React.FC = () => {
                                 </div>
                             </div>
                             <div className="space-y-3">
-                                <h3 className="text-2xl font-bold font-display">{step.title}</h3>
-                                <p className="text-white/60 leading-relaxed max-w-xs mx-auto">{step.description}</p>
+                                <h3 className="text-2xl font-bold font-display">{t(step.titleKey)}</h3>
+                                <p className="text-white/60 leading-relaxed max-w-xs mx-auto">{t(step.descKey)}</p>
                             </div>
                         </div>
                     ))}

@@ -11,6 +11,8 @@ import { StudyProgress } from './components/StudyProgress';
 const API_BASE = '/api';
 import { BookOpen, Trophy, Star, Sparkles, Loader2, ArrowLeft, RefreshCw, ScrollText, CheckCircle2, Zap, Brain, Rocket, Lock, LogIn, Mail, GraduationCap, Coins, Gift, LogOut, User as UserIcon, ShieldCheck, Coffee, Plus, Target, Trash2, Save, HelpCircle, Calendar, Home, ArrowRight, ChevronRight, X, CreditCard } from 'lucide-react';
 import { useAuth } from './contexts/useAuth';
+import { useT } from './contexts/LanguageContext';
+import { LanguageSwitcher } from './components/LanguageSwitcher';
 import { PaymentForm } from './components/PaymentForm';
 import { LoginModal } from './components/LoginModal';
 import AdminDashboard from './components/AdminDashboard';
@@ -78,6 +80,7 @@ import { getSyllabusesByCountry, getGradesBySyllabus } from './lib/curriculum';
 
 export default function App() {
   const { user, login, signup, verifyCode, resendCode, logout, subscribe, refreshUser, isLoading: authLoading } = useAuth();
+  const { t } = useT();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -2097,19 +2100,23 @@ export default function App() {
       {showMobileMenu && (
         <div className="md:hidden fixed top-14 left-0 right-0 z-[60] bg-white/95 backdrop-blur-xl border-b border-brand-dark/10 shadow-xl animate-menu-slide-down">
           <div className="flex flex-col p-4 gap-1">
-            <button onClick={() => { setShowMobileMenu(false); if (user && (user.role === 'student' || user.role === 'teacher') && !user.isAdmin) { handleNewQuest(); } else { navigate('/'); setTimeout(() => document.getElementById('courses')?.scrollIntoView({ behavior: 'smooth' }), 200); } }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">{user && (user.role === 'student' || user.role === 'teacher') && !user.isAdmin ? '🚀 New Quest' : '📚 Courses'}</button>
-            <button onClick={() => { setShowMobileMenu(false); if (!user) setShowLoginModal(true); else navigate(user?.isAdmin ? '/admin' : user?.role === 'teacher' ? '/teacher' : '/dashboard'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">📊 Dashboard</button>
-            <button onClick={() => { setShowMobileMenu(false); if (!user) setShowLoginModal(true); else navigate('/classrooms'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">🏫 Classrooms</button>
-            <button onClick={() => { setShowMobileMenu(false); navigate('/leaderboard'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">🏆 Leaderboard</button>
+            <button onClick={() => { setShowMobileMenu(false); if (user && (user.role === 'student' || user.role === 'teacher') && !user.isAdmin) { handleNewQuest(); } else { navigate('/'); setTimeout(() => document.getElementById('courses')?.scrollIntoView({ behavior: 'smooth' }), 200); } }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">{user && (user.role === 'student' || user.role === 'teacher') && !user.isAdmin ? `🚀 ${t('nav.newQuest')}` : `📚 ${t('nav.courses')}`}</button>
+            <button onClick={() => { setShowMobileMenu(false); if (!user) setShowLoginModal(true); else navigate(user?.isAdmin ? '/admin' : user?.role === 'teacher' ? '/teacher' : '/dashboard'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">📊 {t('nav.dashboard')}</button>
+            <button onClick={() => { setShowMobileMenu(false); if (!user) setShowLoginModal(true); else navigate('/classrooms'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">🏫 {t('nav.classrooms')}</button>
+            <button onClick={() => { setShowMobileMenu(false); navigate('/leaderboard'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">🏆 {t('nav.leaderboard')}</button>
             {user && (
-              <button onClick={() => { setShowMobileMenu(false); navigate('/rewards'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-orange hover:bg-brand-orange/5 transition-all text-sm">🛍️ Rewards</button>
+              <button onClick={() => { setShowMobileMenu(false); navigate('/rewards'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-orange hover:bg-brand-orange/5 transition-all text-sm">🛍️ {t('nav.rewards')}</button>
             )}
             {user && (
-              <button onClick={() => { setShowMobileMenu(false); navigate('/profile'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">👤 My Profile</button>
+              <button onClick={() => { setShowMobileMenu(false); navigate('/profile'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">👤 {t('nav.myProfile')}</button>
             )}
             {user && (
-              <button onClick={() => { setShowMobileMenu(false); navigate('/billing'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">💳 My Subscription</button>
+              <button onClick={() => { setShowMobileMenu(false); navigate('/billing'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">💳 {t('nav.mySubscription')}</button>
             )}
+            {/* Language selector */}
+            <div className="pt-1 mt-1 border-t border-brand-dark/5">
+              <LanguageSwitcher variant="block" onSelect={() => setShowMobileMenu(false)} />
+            </div>
           </div>
         </div>
       )}
@@ -2122,10 +2129,10 @@ export default function App() {
         </div>
 
         <div className="hidden md:flex items-center gap-4 lg:gap-8 flex-1 justify-center px-4">
-          <button onClick={() => { if (user && (user.role === 'student' || user.role === 'teacher') && !user.isAdmin) { handleNewQuest(); } else { navigate('/'); setTimeout(() => document.getElementById('courses')?.scrollIntoView({ behavior: 'smooth' }), 100); } }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">{user && (user.role === 'student' || user.role === 'teacher') && !user.isAdmin ? 'New Quest' : 'Courses'}</button>
-          <button onClick={() => { if (!user) setShowLoginModal(true); else navigate(user?.isAdmin ? '/admin' : user?.role === 'teacher' ? '/teacher' : '/dashboard'); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">Dashboard</button>
-          <button onClick={() => { if (!user) setShowLoginModal(true); else navigate('/classrooms'); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">Classrooms</button>
-          <button onClick={() => { navigate('/leaderboard'); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">Leaderboard</button>
+          <button onClick={() => { if (user && (user.role === 'student' || user.role === 'teacher') && !user.isAdmin) { handleNewQuest(); } else { navigate('/'); setTimeout(() => document.getElementById('courses')?.scrollIntoView({ behavior: 'smooth' }), 100); } }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">{user && (user.role === 'student' || user.role === 'teacher') && !user.isAdmin ? t('nav.newQuest') : t('nav.courses')}</button>
+          <button onClick={() => { if (!user) setShowLoginModal(true); else navigate(user?.isAdmin ? '/admin' : user?.role === 'teacher' ? '/teacher' : '/dashboard'); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">{t('nav.dashboard')}</button>
+          <button onClick={() => { if (!user) setShowLoginModal(true); else navigate('/classrooms'); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">{t('nav.classrooms')}</button>
+          <button onClick={() => { navigate('/leaderboard'); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">{t('nav.leaderboard')}</button>
         </div>
 
         <div className="flex items-center gap-2 md:gap-4">
@@ -2140,8 +2147,13 @@ export default function App() {
             <span className={`block w-5 h-0.5 bg-brand-dark rounded-full transition-all ${showMobileMenu ? '-rotate-45 -translate-y-2' : ''}`} />
           </button>
 
+          {/* Language switcher — always visible on desktop */}
+          <div className="hidden md:block">
+            <LanguageSwitcher variant="compact" />
+          </div>
+
           {!user ? (
-            <Button size="sm" onClick={() => setShowLoginModal(true)}>Log In</Button>
+            <Button size="sm" onClick={() => setShowLoginModal(true)}>{t('nav.login')}</Button>
           ) : (
             <>
               {/* Rewards button - all logged-in users */}
@@ -2150,7 +2162,7 @@ export default function App() {
                   onClick={() => { navigate('/rewards'); setShowProfileMenu(false); }}
                   className="hidden md:flex items-center gap-1.5 bg-brand-orange/10 hover:bg-brand-orange/20 border border-brand-orange/20 text-brand-orange px-3 py-1 rounded-full font-bold text-sm transition-all"
                 >
-                  🛍️ Rewards
+                  🛍️ {t('nav.rewards')}
                 </button>
               )}
               {/* Show Coins in Navbar */}
@@ -2188,25 +2200,25 @@ export default function App() {
                       className="w-full text-left px-4 py-3 hover:bg-brand-blue/5 text-sm font-bold text-brand-dark/70 hover:text-brand-blue flex items-center gap-2 transition-colors"
                     >
                       <UserIcon size={16} />
-                      {user?.isAdmin ? 'Admin Dashboard' : user?.role === 'teacher' ? 'Teacher Dashboard' : 'My Dashboard'}
+                      {user?.isAdmin ? t('nav.adminDashboard') : user?.role === 'teacher' ? t('nav.teacherDashboard') : t('nav.myDashboard')}
                     </button>
                     <button
                       onClick={() => { navigate('/profile'); setShowProfileMenu(false); }}
                       className="w-full text-left px-4 py-3 hover:bg-brand-blue/5 text-sm font-bold text-brand-dark/70 hover:text-brand-blue flex items-center gap-2 transition-colors"
                     >
-                      <UserIcon size={16} /> My Profile
+                      <UserIcon size={16} /> {t('nav.myProfile')}
                     </button>
                     <button
                       onClick={() => { navigate('/billing'); setShowProfileMenu(false); }}
                       className="w-full text-left px-4 py-3 hover:bg-brand-blue/5 text-sm font-bold text-brand-dark/70 hover:text-brand-blue flex items-center gap-2 transition-colors"
                     >
-                      <CreditCard size={16} /> My Subscription
+                      <CreditCard size={16} /> {t('nav.mySubscription')}
                     </button>
                     <button
                       onClick={() => { logout(); setShowProfileMenu(false); }}
                       className="w-full text-left px-4 py-3 hover:bg-red-50 text-sm font-bold text-red-500 flex items-center gap-2 transition-colors"
                     >
-                      <LogOut size={16} /> Log Out
+                      <LogOut size={16} /> {t('nav.logout')}
                     </button>
                   </div>
                 )}

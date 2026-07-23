@@ -3,6 +3,7 @@ import { Card } from './Card';
 import { Button } from './Button';
 import { ArrowLeft, LogIn, Mail, Loader2, KeyRound, ShieldCheck, Lock, Eye, EyeOff, CheckCircle2, X } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
+import { useT } from '../contexts/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import { Syllabus } from '../types';
 import { getGradesBySyllabus } from '../lib/curriculum';
@@ -82,6 +83,7 @@ const getStoredUserRole = (): { isAdmin?: boolean; role?: string } | null => {
 
 export const LoginModal = ({ onClose }: LoginModalProps) => {
     const { login, signup, verifyCode, resendCode, user: authUser } = useAuth();
+    const { t } = useT();
     const navigate = useNavigate();
     const [view, setView] = useState<ModalView>('login');
     const [isSignUp, setIsSignUp] = useState(false);
@@ -116,7 +118,7 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
     const wrap = async (fn: () => Promise<void>) => { setLoading(true); try { await fn(); } finally { setLoading(false); } };
 
     const handleVerify = () => wrap(async () => {
-        if (!code) { alert('Please enter the 6-digit code.'); return; }
+        if (!code) { alert(t('login.alertEnterCode')); return; }
         const ok = await verifyCode(email, code);
         if (ok) {
             onClose();
@@ -127,12 +129,12 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
     const handleResend = () => wrap(async () => { await resendCode(email); });
 
     const handleSubmit = () => wrap(async () => {
-        if (!email) { alert('Please enter your email or name.'); return; }
-        if (isSignUp && !validEmail(email)) { alert('Please enter a valid email address.'); return; }
+        if (!email) { alert(t('login.alertEnterEmailOrName')); return; }
+        if (isSignUp && !validEmail(email)) { alert(t('login.alertValidEmail')); return; }
         if (isSignUp) {
-            if (!name || !password) { alert('Please fill in all fields.'); return; }
-            if (!selectedSyllabus) { alert('Please select your syllabus.'); return; }
-            if (!selectedGrade) { alert('Please select your standard/grade.'); return; }
+            if (!name || !password) { alert(t('login.alertFillAll')); return; }
+            if (!selectedSyllabus) { alert(t('login.alertSelectSyllabus')); return; }
+            if (!selectedGrade) { alert(t('login.alertSelectGrade')); return; }
             const r = await signup(name, email, password, 'student', selectedGrade, selectedSyllabus);
             if (typeof r === 'object' && r.needsVerification) { setEmail(r.email); setView('verify'); }
             else if (r === true) {
@@ -140,7 +142,7 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
                 navigate(dashboardFor(getStoredUserRole()));
             }
         } else {
-            if (!password) { alert('Please enter your password.'); return; }
+            if (!password) { alert(t('login.alertEnterPassword')); return; }
             const r = await login(email, password);
             if (typeof r === 'object' && r.needsVerification) { setEmail(r.email); setView('verify'); }
             else if (r === true) {
@@ -152,31 +154,31 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
 
     const fpSendOtp = () => wrap(async () => {
         setFpError('');
-        if (!validEmail(fpEmail)) { setFpError('Please enter a valid email address.'); return; }
+        if (!validEmail(fpEmail)) { setFpError(t('login.alertValidEmail')); return; }
         const res = await fetch('/api/auth/forgot-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: fpEmail }) });
         const data = await res.json();
-        if (!res.ok) setFpError(data.error || 'Failed to send code.');
+        if (!res.ok) setFpError(data.error || t('login.errFailSendCode'));
         else setView('forgot_otp');
     });
 
     const fpVerifyOtp = () => wrap(async () => {
         setFpError('');
-        if (fpOtp.length !== 6) { setFpError('Please enter the full 6-digit code.'); return; }
+        if (fpOtp.length !== 6) { setFpError(t('login.errFullCode')); return; }
         const res = await fetch('/api/auth/verify-reset-otp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: fpEmail, otp: fpOtp }) });
         const data = await res.json();
-        if (!res.ok) setFpError(data.error || 'Invalid code.');
+        if (!res.ok) setFpError(data.error || t('login.errInvalidCode'));
         else { setFpToken(data.resetToken); setView('forgot_newpass'); }
     });
 
     const fpReset = () => wrap(async () => {
         setFpError('');
-        if (fpNewPw.length < 6) { setFpError('Password must be at least 6 characters.'); return; }
-        if (fpNewPw !== fpConfirmPw) { setFpError('Passwords do not match.'); return; }
+        if (fpNewPw.length < 6) { setFpError(t('login.errPasswordMin')); return; }
+        if (fpNewPw !== fpConfirmPw) { setFpError(t('login.errPasswordMatch')); return; }
         const res = await fetch('/api/auth/reset-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ resetToken: fpToken, newPassword: fpNewPw }) });
         const data = await res.json();
-        if (!res.ok) setFpError(data.error || 'Failed to reset password.');
+        if (!res.ok) setFpError(data.error || t('login.errFailReset'));
         else {
-            setFpSuccess('Password reset successfully! Redirecting to login…');
+            setFpSuccess(t('login.passwordResetSuccess'));
             setTimeout(() => {
                 setView('login');
                 setFpEmail(''); setFpOtp(''); setFpToken(''); setFpNewPw(''); setFpConfirmPw('');
@@ -196,23 +198,23 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
                     <div className="w-16 h-16 bg-brand-blue/10 rounded-full flex items-center justify-center mx-auto mb-4 text-brand-blue">
                         <Mail size={32} />
                     </div>
-                    <h3 className="text-2xl font-bold font-display">Verify Your Email</h3>
-                    <p className="text-gray-500 text-sm">We've sent a 6-digit code to <b>{email}</b>. Enter it below to activate your account.</p>
+                    <h3 className="text-2xl font-bold font-display">{t('login.verifyEmail')}</h3>
+                    <p className="text-gray-500 text-sm">{t('login.verifySentPre')} <b>{email}</b>. {t('login.verifySentPost')}</p>
                 </div>
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-1">6-Digit Code</label>
+                        <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-1">{t('login.sixDigitCode')}</label>
                         <OtpInput value={code} onChange={setCode} />
                     </div>
                     <Button fullWidth onClick={handleVerify} disabled={loading}>
-                        {loading ? <Loader2 className="animate-spin" /> : 'Verify & Continue'}
+                        {loading ? <Loader2 className="animate-spin" /> : t('login.verifyContinue')}
                     </Button>
                     <div className="text-center pt-2">
                         <button onClick={handleResend} disabled={loading} className="text-brand-blue text-sm font-bold hover:underline disabled:opacity-50">
-                            Resend Verification Code
+                            {t('login.resendCode')}
                         </button>
                     </div>
-                    <div className="text-center text-xs text-gray-400">Didn't receive code? Check your spam folder.</div>
+                    <div className="text-center text-xs text-gray-400">{t('login.checkSpam')}</div>
                 </div>
             </Card>
         </div>
@@ -229,13 +231,13 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
                     <div className="w-16 h-16 bg-brand-orange/10 rounded-full flex items-center justify-center mx-auto mb-4 text-brand-orange">
                         <KeyRound size={32} />
                     </div>
-                    <h3 className="text-2xl font-bold font-display">Forgot Password?</h3>
-                    <p className="text-gray-500 text-sm">Enter your registered email and we'll send you a reset code.</p>
+                    <h3 className="text-2xl font-bold font-display">{t('login.forgotTitle')}</h3>
+                    <p className="text-gray-500 text-sm">{t('login.forgotDesc')}</p>
                 </div>
                 <StepDots current={1} />
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-1">Email Address</label>
+                        <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-1">{t('login.emailAddress')}</label>
                         <input type="email" value={fpEmail} onChange={e => setFpEmail(e.target.value)}
                             className="w-full p-3 rounded-lg border-2 border-brand-dark/10 focus:outline-none focus:border-brand-orange"
                             placeholder="your@email.com"
@@ -243,7 +245,7 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
                     </div>
                     {fpError && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg font-medium">{fpError}</p>}
                     <Button fullWidth onClick={fpSendOtp} disabled={loading}>
-                        {loading ? <Loader2 className="animate-spin" /> : 'Send Reset Code'}
+                        {loading ? <Loader2 className="animate-spin" /> : t('login.sendResetCode')}
                     </Button>
                 </div>
             </Card>
@@ -261,20 +263,20 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
                     <div className="w-16 h-16 bg-brand-blue/10 rounded-full flex items-center justify-center mx-auto mb-4 text-brand-blue">
                         <ShieldCheck size={32} />
                     </div>
-                    <h3 className="text-2xl font-bold font-display">Enter Reset Code</h3>
-                    <p className="text-gray-500 text-sm">We sent a 6-digit code to <b>{fpEmail}</b>.</p>
+                    <h3 className="text-2xl font-bold font-display">{t('login.enterResetCode')}</h3>
+                    <p className="text-gray-500 text-sm">{t('login.resetCodeSentPre')} <b>{fpEmail}</b>.</p>
                 </div>
                 <StepDots current={2} />
                 <div className="space-y-4">
                     <OtpInput value={fpOtp} onChange={setFpOtp} />
                     {fpError && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg font-medium">{fpError}</p>}
                     <Button fullWidth onClick={fpVerifyOtp} disabled={loading}>
-                        {loading ? <Loader2 className="animate-spin" /> : 'Verify Code'}
+                        {loading ? <Loader2 className="animate-spin" /> : t('login.verifyCodeBtn')}
                     </Button>
                     <div className="text-center pt-1">
                         <button onClick={() => { setFpOtp(''); setView('forgot_email'); setFpError(''); }}
                             className="text-brand-blue text-sm font-bold hover:underline">
-                            Didn't receive it? Try again
+                            {t('login.tryAgain')}
                         </button>
                     </div>
                 </div>
@@ -290,8 +292,8 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
                     <div className="w-16 h-16 bg-brand-green/10 rounded-full flex items-center justify-center mx-auto mb-4 text-brand-green">
                         <Lock size={32} />
                     </div>
-                    <h3 className="text-2xl font-bold font-display">Set New Password</h3>
-                    <p className="text-gray-500 text-sm">Choose a strong password for your account.</p>
+                    <h3 className="text-2xl font-bold font-display">{t('login.setNewPassword')}</h3>
+                    <p className="text-gray-500 text-sm">{t('login.chooseStrong')}</p>
                 </div>
                 <StepDots current={3} />
                 {fpSuccess ? (
@@ -301,16 +303,16 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
                 ) : (
                     <div className="space-y-4">
                         <div>
-                            <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-1">New Password</label>
-                            <PasswordInput value={fpNewPw} onChange={setFpNewPw} placeholder="At least 6 characters" />
+                            <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-1">{t('login.newPassword')}</label>
+                            <PasswordInput value={fpNewPw} onChange={setFpNewPw} placeholder={t('login.passwordPlaceholder')} />
                         </div>
                         <div>
-                            <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-1">Confirm Password</label>
-                            <PasswordInput value={fpConfirmPw} onChange={setFpConfirmPw} placeholder="Repeat your password" onEnter={fpReset} />
+                            <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-1">{t('login.confirmPassword')}</label>
+                            <PasswordInput value={fpConfirmPw} onChange={setFpConfirmPw} placeholder={t('login.repeatPassword')} onEnter={fpReset} />
                         </div>
                         {fpError && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg font-medium">{fpError}</p>}
                         <Button fullWidth onClick={fpReset} disabled={loading}>
-                            {loading ? <Loader2 className="animate-spin" /> : 'Reset Password'}
+                            {loading ? <Loader2 className="animate-spin" /> : t('login.resetPasswordBtn')}
                         </Button>
                     </div>
                 )}
@@ -329,28 +331,28 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
                     <div className="w-16 h-16 bg-brand-orange/10 rounded-full flex items-center justify-center mx-auto mb-4 text-brand-orange">
                         <LogIn size={32} />
                     </div>
-                    <h3 className="text-2xl font-bold font-display">{isSignUp ? 'Create Account' : 'Welcome Back!'}</h3>
-                    <p className="text-gray-500">{isSignUp ? 'Join Akshara Music Hub today!' : 'Log in to continue your quest.'}</p>
+                    <h3 className="text-2xl font-bold font-display">{isSignUp ? t('login.createAccount') : t('login.welcomeBack')}</h3>
+                    <p className="text-gray-500">{isSignUp ? t('login.joinToday') : t('login.loginToContinue')}</p>
                 </div>
 
                 <div className="space-y-4">
                     {isSignUp && (
                         <div>
-                            <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-1">Full Name</label>
+                            <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-1">{t('login.fullName')}</label>
                             <input type="text" value={name} onChange={e => setName(e.target.value)}
-                                className="w-full p-3 rounded-lg border-2 border-brand-dark/10" placeholder="e.g. Ali bin Abu" />
+                                className="w-full p-3 rounded-lg border-2 border-brand-dark/10" placeholder={t('login.fullNamePlaceholder')} />
                         </div>
                     )}
 
                     {isSignUp && (
                         <div>
-                            <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-1">Syllabus</label>
+                            <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-1">{t('login.syllabus')}</label>
                             <select
                                 value={selectedSyllabus}
                                 onChange={e => { setSelectedSyllabus(e.target.value as Syllabus | ''); setSelectedGrade(''); }}
                                 className="w-full p-3 rounded-lg border-2 border-brand-dark/10 bg-white"
                             >
-                                <option value="">Select your syllabus…</option>
+                                <option value="">{t('login.selectSyllabus')}</option>
                                 {Object.values(Syllabus).map(s => (
                                     <option key={s} value={s}>{s}</option>
                                 ))}
@@ -360,14 +362,14 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
 
                     {isSignUp && (
                         <div>
-                            <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-1">My Standard/Grade</label>
+                            <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-1">{t('login.myGrade')}</label>
                             <select
                                 value={selectedGrade}
                                 onChange={e => setSelectedGrade(e.target.value)}
                                 disabled={!selectedSyllabus}
                                 className="w-full p-3 rounded-lg border-2 border-brand-dark/10 bg-white disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                <option value="">{selectedSyllabus ? 'Select your standard/grade…' : 'Choose a syllabus first'}</option>
+                                <option value="">{selectedSyllabus ? t('login.selectGrade') : t('login.chooseSyllabusFirst')}</option>
                                 {gradeOptions.map(g => (
                                     <option key={g} value={g}>{g}</option>
                                 ))}
@@ -377,15 +379,15 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
 
                     <div>
                         <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-1">
-                            {isSignUp ? 'Email Address' : 'Email or Name'}
+                            {isSignUp ? t('login.emailAddress') : t('login.emailOrName')}
                         </label>
                         <input type="text" value={email} onChange={e => setEmail(e.target.value)}
                             className="w-full p-3 rounded-lg border-2 border-brand-dark/10"
-                            placeholder={isSignUp ? 'student@demo.com' : 'Email or Name'} />
+                            placeholder={isSignUp ? t('login.emailSignupPlaceholder') : t('login.emailOrName')} />
                     </div>
 
                     <div>
-                        <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-1">Password</label>
+                        <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-1">{t('login.password')}</label>
                         <PasswordInput value={password} onChange={setPassword} onEnter={handleSubmit} />
                         {/* Forgot password link — below the password field */}
                         {!isSignUp && (
@@ -395,20 +397,20 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
                                     onClick={() => { setFpEmail(email); setFpError(''); setView('forgot_email'); }}
                                     className="text-xs font-bold text-brand-blue hover:underline"
                                 >
-                                    Forgot password?
+                                    {t('login.forgotPassword')}
                                 </button>
                             </div>
                         )}
                     </div>
 
                     <Button fullWidth onClick={handleSubmit} disabled={loading}>
-                        {loading ? <Loader2 className="animate-spin" /> : (isSignUp ? 'Sign Up' : 'Log In')}
+                        {loading ? <Loader2 className="animate-spin" /> : (isSignUp ? t('login.signUp') : t('login.logIn'))}
                     </Button>
 
                     <div className="text-center text-sm pt-2">
-                        <span className="text-brand-dark/50">{isSignUp ? 'Already have an account?' : 'New here?'}</span>
+                        <span className="text-brand-dark/50">{isSignUp ? t('login.alreadyHaveAccount') : t('login.newHere')}</span>
                         <button onClick={() => setIsSignUp(!isSignUp)} className="font-bold text-brand-blue ml-1 hover:underline">
-                            {isSignUp ? 'Log In' : 'Create Account'}
+                            {isSignUp ? t('login.logIn') : t('login.createAccount')}
                         </button>
                     </div>
                 </div>
