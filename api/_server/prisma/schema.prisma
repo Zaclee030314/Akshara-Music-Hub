@@ -100,6 +100,11 @@ model Season {
   prizeDetails      String?
   secondPlacePoints Int      @default(0)
   thirdPlacePoints  Int      @default(0)
+  secondPrizeTitle  String?
+  thirdPrizeTitle   String?
+  firstPrizeCoins   Int      @default(0)
+  secondPrizeCoins  Int      @default(0)
+  thirdPrizeCoins   Int      @default(0)
   startDate         DateTime
   endDate           DateTime
   status            String   @default("upcoming") // upcoming | active | ended | finalized

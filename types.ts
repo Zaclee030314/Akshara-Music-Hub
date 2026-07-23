@@ -100,10 +100,16 @@ export interface User {
   isAdmin?: boolean;
   profileCompleted?: boolean;
   lastSeenSeasonId?: string | null;
+  xp?: number;
+  coins?: number;
+  seasonXp?: number;      // current-season points (drives displayed XP/level)
+  lifetimeXp?: number;    // all-time "banked" XP (== server user.xp)
+  level?: number;
 }
 
 export interface UserStats {
   xp: number;
+  lifetimeXp?: number;
   level: number;
   streak: number;
   badges: string[];

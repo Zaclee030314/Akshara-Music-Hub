@@ -5,6 +5,7 @@ import { authenticateToken, AuthRequest } from '../middleware/authMiddleware.js'
 import { checkExpiredSubscriptions } from '../middleware/checkExpiredSubscriptions.js';
 import prisma from '../db.js';
 import { sendOTPEmail, sendPasswordResetEmail } from '../services/mailService.js';
+import { getUserSeasonXp } from '../utils/seasonScore.js';
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkeyshouldbeenv';
@@ -234,6 +235,10 @@ router.post('/login', async (req, res) => {
 
         const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
 
+        // Displayed XP/level reflect the CURRENT season only (resets between seasons);
+        // user.xp is preserved as lifetime "banked" XP.
+        const seasonXp = await getUserSeasonXp(user.id, new Date());
+
         res.json({
             token,
             user: {
@@ -246,6 +251,9 @@ router.post('/login', async (req, res) => {
                 avatar: user.avatar,
                 profileCompleted: user.profileCompleted,
                 xp: user.xp,
+                seasonXp,
+                lifetimeXp: user.xp,
+                level: Math.floor(seasonXp / 1000) + 1,
                 coins: user.coins,
                 isSubscribed: user.isSubscribed,
                 subscriptionInterval: user.subscriptionInterval,
@@ -290,6 +298,10 @@ router.get('/me', authenticateToken, checkExpiredSubscriptions, async (req: Auth
             isAdmin = true;
         }
 
+        // Displayed XP/level reflect the CURRENT season only (resets between seasons);
+        // user.xp is preserved as lifetime "banked" XP.
+        const seasonXp = await getUserSeasonXp(user.id, new Date());
+
         res.json({
             user: {
                 id: user.id,
@@ -301,8 +313,10 @@ router.get('/me', authenticateToken, checkExpiredSubscriptions, async (req: Auth
                 avatar: user.avatar,
                 profileCompleted: user.profileCompleted,
                 xp: user.xp,
+                seasonXp,
+                lifetimeXp: user.xp,
                 coins: user.coins,
-                level: Math.floor(user.xp / 1000) + 1,
+                level: Math.floor(seasonXp / 1000) + 1,
                 isSubscribed: user.isSubscribed,
                 subscriptionInterval: user.subscriptionInterval,
                 subscriptionStartDate: user.subscriptionStartDate,

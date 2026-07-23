@@ -21,6 +21,11 @@ interface Season {
     prizeDetails: string | null;
     secondPlacePoints: number;
     thirdPlacePoints: number;
+    secondPrizeTitle: string | null;
+    thirdPrizeTitle: string | null;
+    firstPrizeCoins: number;
+    secondPrizeCoins: number;
+    thirdPrizeCoins: number;
     startDate: string;
     endDate: string;
     status: string;
@@ -42,7 +47,10 @@ interface Props {
 
 const emptyForm = {
     name: '', description: '', prizeTitle: '', prizeDetails: '',
-    secondPlacePoints: '50', thirdPlacePoints: '25', startDate: '', endDate: '',
+    firstPrizeCoins: '0',
+    secondPrizeTitle: '', secondPrizeCoins: '50',
+    thirdPrizeTitle: '', thirdPrizeCoins: '25',
+    startDate: '', endDate: '',
 };
 
 // Convert an ISO string to the value a datetime-local input expects.
@@ -112,8 +120,11 @@ export const SeasonManager: React.FC<Props> = ({ token }) => {
             description: s.description || '',
             prizeTitle: s.prizeTitle,
             prizeDetails: s.prizeDetails || '',
-            secondPlacePoints: String(s.secondPlacePoints),
-            thirdPlacePoints: String(s.thirdPlacePoints),
+            firstPrizeCoins: String(s.firstPrizeCoins ?? 0),
+            secondPrizeTitle: s.secondPrizeTitle || '',
+            secondPrizeCoins: String(s.secondPrizeCoins ?? 0),
+            thirdPrizeTitle: s.thirdPrizeTitle || '',
+            thirdPrizeCoins: String(s.thirdPrizeCoins ?? 0),
             startDate: toLocalInput(s.startDate),
             endDate: toLocalInput(s.endDate),
         });
@@ -137,8 +148,11 @@ export const SeasonManager: React.FC<Props> = ({ token }) => {
                     description: form.description,
                     prizeTitle: form.prizeTitle,
                     prizeDetails: form.prizeDetails,
-                    secondPlacePoints: parseInt(form.secondPlacePoints, 10) || 0,
-                    thirdPlacePoints: parseInt(form.thirdPlacePoints, 10) || 0,
+                    firstPrizeCoins: parseInt(form.firstPrizeCoins, 10) || 0,
+                    secondPrizeTitle: form.secondPrizeTitle,
+                    secondPrizeCoins: parseInt(form.secondPrizeCoins, 10) || 0,
+                    thirdPrizeTitle: form.thirdPrizeTitle,
+                    thirdPrizeCoins: parseInt(form.thirdPrizeCoins, 10) || 0,
                     startDate: new Date(form.startDate).toISOString(),
                     endDate: new Date(form.endDate).toISOString(),
                 }),
@@ -243,7 +257,7 @@ export const SeasonManager: React.FC<Props> = ({ token }) => {
                                     <p className="text-xs text-brand-dark/60 flex items-center gap-1.5">
                                         <Award size={13} className="text-brand-orange" />
                                         <span className="font-bold">{s.prizeTitle}</span>
-                                        <span className="text-brand-dark/30">· 2nd +{s.secondPlacePoints} · 3rd +{s.thirdPlacePoints}</span>
+                                        <span className="text-brand-dark/30">· 1st {s.firstPrizeCoins}🪙 · 2nd {s.secondPrizeCoins}🪙 · 3rd {s.thirdPrizeCoins}🪙</span>
                                     </p>
                                 </div>
                                 <div className="flex items-center gap-2 shrink-0">
@@ -273,7 +287,9 @@ export const SeasonManager: React.FC<Props> = ({ token }) => {
                                             <div>
                                                 <p className="text-xs font-bold text-brand-dark">{w.name}</p>
                                                 <p className="text-[10px] text-brand-dark/40 font-bold">
-                                                    {w.points} pts{w.rank === 1 ? ` · ${w.prizeTitle}` : ` · +${w.awardedPoints} XP`}
+                                                    {w.points} pts
+                                                    {w.prizeTitle ? ` · ${w.prizeTitle}` : ''}
+                                                    {w.awardedPoints > 0 ? ` · +${w.awardedPoints} coins` : ''}
                                                 </p>
                                             </div>
                                         </div>
@@ -302,24 +318,44 @@ export const SeasonManager: React.FC<Props> = ({ token }) => {
                                     <label className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest">Description</label>
                                     <textarea value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} rows={2} className="w-full bg-gray-50 rounded-xl px-4 py-3 font-medium text-sm outline-none focus:ring-2 ring-brand-orange/20 mt-1" placeholder="Compete for the top spot!" />
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest">Prize Title (1st) *</label>
-                                        <input value={form.prizeTitle} onChange={e => setForm(p => ({ ...p, prizeTitle: e.target.value }))} className="w-full bg-gray-50 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:ring-2 ring-brand-orange/20 mt-1" placeholder="Bluetooth Speaker" />
+                                {/* 1st place: prize text + coin bonus */}
+                                <div className="rounded-2xl border border-brand-dark/5 bg-gray-50/60 p-3 space-y-3">
+                                    <p className="text-[11px] font-black text-brand-orange uppercase tracking-widest">🥇 1st Place</p>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest">Prize Title *</label>
+                                            <input value={form.prizeTitle} onChange={e => setForm(p => ({ ...p, prizeTitle: e.target.value }))} className="w-full bg-white rounded-xl px-4 py-3 font-bold text-sm outline-none focus:ring-2 ring-brand-orange/20 mt-1" placeholder="Bluetooth Speaker" />
+                                        </div>
+                                        <div>
+                                            <label className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest">Coin Bonus 🪙</label>
+                                            <input type="number" min="0" value={form.firstPrizeCoins} onChange={e => setForm(p => ({ ...p, firstPrizeCoins: e.target.value }))} className="w-full bg-white rounded-xl px-4 py-3 font-bold text-sm outline-none focus:ring-2 ring-brand-orange/20 mt-1" />
+                                        </div>
                                     </div>
                                     <div>
                                         <label className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest">Prize Details</label>
-                                        <input value={form.prizeDetails} onChange={e => setForm(p => ({ ...p, prizeDetails: e.target.value }))} className="w-full bg-gray-50 rounded-xl px-4 py-3 font-medium text-sm outline-none focus:ring-2 ring-brand-orange/20 mt-1" placeholder="Collect at reception" />
+                                        <input value={form.prizeDetails} onChange={e => setForm(p => ({ ...p, prizeDetails: e.target.value }))} className="w-full bg-white rounded-xl px-4 py-3 font-medium text-sm outline-none focus:ring-2 ring-brand-orange/20 mt-1" placeholder="Collect at reception" />
                                     </div>
                                 </div>
+                                {/* 2nd place */}
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest">2nd Place Bonus XP</label>
-                                        <input type="number" value={form.secondPlacePoints} onChange={e => setForm(p => ({ ...p, secondPlacePoints: e.target.value }))} className="w-full bg-gray-50 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:ring-2 ring-brand-orange/20 mt-1" />
+                                        <label className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest">🥈 2nd Prize Title</label>
+                                        <input value={form.secondPrizeTitle} onChange={e => setForm(p => ({ ...p, secondPrizeTitle: e.target.value }))} className="w-full bg-gray-50 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:ring-2 ring-brand-orange/20 mt-1" placeholder="Gift Voucher" />
                                     </div>
                                     <div>
-                                        <label className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest">3rd Place Bonus XP</label>
-                                        <input type="number" value={form.thirdPlacePoints} onChange={e => setForm(p => ({ ...p, thirdPlacePoints: e.target.value }))} className="w-full bg-gray-50 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:ring-2 ring-brand-orange/20 mt-1" />
+                                        <label className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest">2nd Coin Bonus 🪙</label>
+                                        <input type="number" min="0" value={form.secondPrizeCoins} onChange={e => setForm(p => ({ ...p, secondPrizeCoins: e.target.value }))} className="w-full bg-gray-50 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:ring-2 ring-brand-orange/20 mt-1" />
+                                    </div>
+                                </div>
+                                {/* 3rd place */}
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest">🥉 3rd Prize Title</label>
+                                        <input value={form.thirdPrizeTitle} onChange={e => setForm(p => ({ ...p, thirdPrizeTitle: e.target.value }))} className="w-full bg-gray-50 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:ring-2 ring-brand-orange/20 mt-1" placeholder="Sticker Pack" />
+                                    </div>
+                                    <div>
+                                        <label className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest">3rd Coin Bonus 🪙</label>
+                                        <input type="number" min="0" value={form.thirdPrizeCoins} onChange={e => setForm(p => ({ ...p, thirdPrizeCoins: e.target.value }))} className="w-full bg-gray-50 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:ring-2 ring-brand-orange/20 mt-1" />
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
@@ -354,7 +390,7 @@ export const SeasonManager: React.FC<Props> = ({ token }) => {
                             <div className="text-center mb-6">
                                 <Trophy size={40} className="text-brand-orange mx-auto mb-2" />
                                 <h2 className="text-xl font-display font-bold">Finalize “{finalizeSeason.name}”?</h2>
-                                <p className="text-xs text-brand-dark/50 mt-1">This locks the season, awards bonus XP to 2nd & 3rd, and announces winners. This cannot be undone.</p>
+                                <p className="text-xs text-brand-dark/50 mt-1">This locks the season, pays out prize coins to the top 3, and announces winners. This cannot be undone.</p>
                             </div>
 
                             <div className="bg-gray-50 rounded-2xl p-4 mb-6">

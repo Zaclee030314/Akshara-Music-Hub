@@ -10,6 +10,11 @@ interface Season {
     prizeDetails: string | null;
     secondPlacePoints: number;
     thirdPlacePoints: number;
+    secondPrizeTitle: string | null;
+    thirdPrizeTitle: string | null;
+    firstPrizeCoins: number;
+    secondPrizeCoins: number;
+    thirdPrizeCoins: number;
     startDate: string;
     endDate: string;
     status: string;
@@ -100,7 +105,7 @@ export const SeasonShowcase: React.FC<Props> = ({ onJoin }) => {
                                     </div>
                                 </div>
                                 <p className="text-sm text-brand-dark/60 font-medium pl-7">
-                                    Plus bonus XP for runners-up · 2nd +{season.secondPlacePoints} · 3rd +{season.thirdPlacePoints}
+                                    Plus prize coins for runners-up · 🥈 2nd {season.secondPrizeTitle ? `${season.secondPrizeTitle} ` : ''}+{season.secondPrizeCoins}🪙 · 🥉 3rd {season.thirdPrizeTitle ? `${season.thirdPrizeTitle} ` : ''}+{season.thirdPrizeCoins}🪙
                                 </p>
                             </div>
 

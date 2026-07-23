@@ -40,6 +40,7 @@ import { SeasonResultsPopup } from './components/SeasonResultsPopup';
 
 const INITIAL_STATS: UserStats = {
   xp: 0,
+  lifetimeXp: 0,
   level: 1,
   streak: 0,
   badges: [],
@@ -76,7 +77,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { getSyllabusesByCountry, getGradesBySyllabus } from './lib/curriculum';
 
 export default function App() {
-  const { user, login, signup, verifyCode, resendCode, logout, subscribe, isLoading: authLoading } = useAuth();
+  const { user, login, signup, verifyCode, resendCode, logout, subscribe, refreshUser, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -265,13 +266,22 @@ export default function App() {
   useEffect(() => {
     if (user) {
       setStats(prev => {
-        const syncedXp = (user as any).xp !== undefined ? (user as any).xp : prev.xp;
-        // Level is derived from XP (1000 XP per level); the DB has no level column,
+        // Displayed XP is CURRENT-SEASON points (resets between seasons). Fall back to
+        // lifetime xp only for older payloads that predate the seasonXp field.
+        const syncedXp = (user as any).seasonXp !== undefined
+          ? (user as any).seasonXp
+          : ((user as any).xp !== undefined ? (user as any).xp : prev.xp);
+        // Lifetime "banked" XP — the all-time total, shown as a secondary stat.
+        const lifetimeXp = (user as any).lifetimeXp !== undefined
+          ? (user as any).lifetimeXp
+          : ((user as any).xp !== undefined ? (user as any).xp : (prev.lifetimeXp ?? 0));
+        // Level is derived from season XP (1000 XP per level); the DB has no level column,
         // so recompute it here to avoid showing a stale localStorage level.
         const derivedLevel = Math.floor(Math.max(0, syncedXp) / 1000) + 1;
         return {
           ...prev,
           xp: syncedXp,
+          lifetimeXp,
           coins: (user as any).coins !== undefined ? (user as any).coins : prev.coins,
           completedQuizzes: user.completedQuizzes !== undefined ? user.completedQuizzes : prev.completedQuizzes,
           questsPlayed: user.questsPlayed !== undefined ? user.questsPlayed : prev.questsPlayed,
@@ -963,15 +973,11 @@ export default function App() {
       streak: prev.streak + 1
     }));
 
-    // Re-fetch user profile (background) to ensure sync
+    // Re-fetch user profile (background) to reconcile the optimistic bump with the
+    // authoritative season XP / lifetime XP / coins. refreshUser updates AuthContext,
+    // which re-runs the stats sync effect above.
     if (user) {
-      fetch('/api/auth/me', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('quest_token')}` }
-      }).then(res => {
-        if (res.ok) return res.json();
-      }).then(data => {
-        // Ideally we update AuthContext user here
-      });
+      refreshUser().catch(() => { /* silent — optimistic values already applied */ });
     }
 
     // Clear session on completion
@@ -1517,6 +1523,12 @@ export default function App() {
         </div>
         <div className="h-2 bg-brand-dark/5 rounded-full overflow-hidden">
           <div className="h-full bg-brand-blue transition-all duration-1000" style={{ width: `${expPercent}%` }} />
+        </div>
+        <div className="flex items-center justify-between mt-2 px-1">
+          <span className="text-[10px] font-bold text-brand-dark/30">Season XP resets each competition</span>
+          <span className="text-[10px] font-black text-brand-dark/40 uppercase tracking-widest">
+            Banked XP: {(stats.lifetimeXp ?? 0).toLocaleString()}
+          </span>
         </div>
       </div>
 

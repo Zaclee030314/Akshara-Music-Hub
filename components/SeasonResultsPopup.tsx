@@ -19,6 +19,11 @@ interface FinalizedSeason {
     prizeDetails: string | null;
     secondPlacePoints: number;
     thirdPlacePoints: number;
+    secondPrizeTitle: string | null;
+    thirdPrizeTitle: string | null;
+    firstPrizeCoins: number;
+    secondPrizeCoins: number;
+    thirdPrizeCoins: number;
     winners: Winner[];
 }
 
@@ -119,7 +124,10 @@ export const SeasonResultsPopup: React.FC = () => {
                                             {season.prizeDetails && <p className="text-[10px] text-brand-dark/50 mt-0.5">{season.prizeDetails}</p>}
                                         </div>
                                     ) : (
-                                        <p className="text-[11px] font-bold text-brand-dark/60 mt-2 text-center">+{w.awardedPoints} bonus points</p>
+                                        <div className="text-center mt-2">
+                                            {w.prizeTitle && <p className="text-[11px] font-black text-brand-orange uppercase tracking-wide">Won: {w.prizeTitle}</p>}
+                                            {w.awardedPoints > 0 && <p className="text-[11px] font-bold text-brand-dark/60">+{w.awardedPoints} coins</p>}
+                                        </div>
                                     )}
                                 </div>
                             );
@@ -129,7 +137,9 @@ export const SeasonResultsPopup: React.FC = () => {
 
                 <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 text-center mb-6">
                     <p className="text-xs font-bold text-brand-dark/60">
-                        🏆 1st: {season.prizeTitle} · 🥈 2nd: +{season.secondPlacePoints} pts · 🥉 3rd: +{season.thirdPlacePoints} pts
+                        🏆 1st: {season.prizeTitle}{season.firstPrizeCoins > 0 ? ` (+${season.firstPrizeCoins}🪙)` : ''}
+                        {' · '}🥈 2nd: {season.secondPrizeTitle || `+${season.secondPrizeCoins}🪙`}
+                        {' · '}🥉 3rd: {season.thirdPrizeTitle || `+${season.thirdPrizeCoins}🪙`}
                     </p>
                 </div>
 

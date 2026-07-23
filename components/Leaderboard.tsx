@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from './Card';
-import { Trophy, Medal, Star, UserCircle2, Loader2, Award } from 'lucide-react';
+import { Trophy, Medal, Star, UserCircle2, Loader2, Award, CalendarClock } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
 
 interface LeaderboardUser {
@@ -11,6 +11,22 @@ interface LeaderboardUser {
     rank: number;
     avatar?: string | null;
     grade?: string | null;
+}
+
+// Row shape returned by /api/seasons/current/leaderboard (hydrateUsers with grade).
+interface SeasonRow {
+    userId: string;
+    name: string;
+    avatar: string | null;
+    grade?: string | null;
+    points: number;
+    rank: number;
+}
+
+interface SeasonInfo {
+    id: string;
+    name: string;
+    status: string;
 }
 
 interface PastWinner {
@@ -30,29 +46,59 @@ interface PastSeason {
     winners: PastWinner[];
 }
 
+type Tab = 'season' | 'alltime';
+
+// A normalized row so both leaderboards share one renderer.
+interface DisplayRow {
+    id: string;
+    name: string;
+    avatar?: string | null;
+    grade?: string | null;
+    rank: number;
+    value: number;
+    level: number;
+}
+
 export const Leaderboard: React.FC = () => {
     const { user } = useAuth();
-    const [leaderboardData, setLeaderboardData] = useState<LeaderboardUser[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
+    // Default to the season-first model.
+    const [tab, setTab] = useState<Tab>('season');
+
+    // All-time (lifetime XP)
+    const [allTimeData, setAllTimeData] = useState<LeaderboardUser[]>([]);
+    const [allTimeLoading, setAllTimeLoading] = useState(true);
+    const [allTimeError, setAllTimeError] = useState('');
+
+    // Current season
+    const [seasonInfo, setSeasonInfo] = useState<SeasonInfo | null>(null);
+    const [seasonRows, setSeasonRows] = useState<SeasonRow[]>([]);
+    const [seasonMe, setSeasonMe] = useState<SeasonRow | null>(null);
+    const [seasonLoading, setSeasonLoading] = useState(true);
+    const [seasonError, setSeasonError] = useState('');
+
     const [pastSeasons, setPastSeasons] = useState<PastSeason[]>([]);
 
     useEffect(() => {
-        const fetchLeaderboard = async () => {
-            try {
-                const response = await fetch('/api/leaderboard');
-                if (!response.ok) throw new Error('Failed to fetch leaderboard');
-                const data = await response.json();
-                setLeaderboardData(data);
-            } catch (err) {
-                console.error(err);
-                setError('Could not load leaderboard data.');
-            } finally {
-                setLoading(false);
-            }
-        };
+        // All-time leaderboard (public)
+        fetch('/api/leaderboard')
+            .then(r => { if (!r.ok) throw new Error('Failed'); return r.json(); })
+            .then(data => setAllTimeData(Array.isArray(data) ? data : []))
+            .catch(() => setAllTimeError('Could not load leaderboard data.'))
+            .finally(() => setAllTimeLoading(false));
 
-        fetchLeaderboard();
+        // Current-season leaderboard (auth optional — send token so "me" resolves)
+        const token = localStorage.getItem('quest_token');
+        fetch('/api/seasons/current/leaderboard', {
+            headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        })
+            .then(r => { if (!r.ok) throw new Error('Failed'); return r.json(); })
+            .then(data => {
+                setSeasonInfo(data.season || null);
+                setSeasonRows(Array.isArray(data.leaderboard) ? data.leaderboard : []);
+                setSeasonMe(data.me || null);
+            })
+            .catch(() => setSeasonError('Could not load season leaderboard.'))
+            .finally(() => setSeasonLoading(false));
 
         fetch('/api/seasons/history')
             .then(r => (r.ok ? r.json() : []))
@@ -63,7 +109,88 @@ export const Leaderboard: React.FC = () => {
     const medalFor = (rank: number) => (rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉');
     const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
-    const displayData = [...leaderboardData];
+    const allTimeRows: DisplayRow[] = allTimeData.map(p => ({
+        id: p.id, name: p.name, avatar: p.avatar, grade: p.grade,
+        rank: p.rank, value: p.xp, level: p.level,
+    }));
+
+    const seasonToRow = (r: SeasonRow): DisplayRow => ({
+        id: r.userId, name: r.name, avatar: r.avatar, grade: r.grade,
+        rank: r.rank, value: r.points, level: Math.floor(r.points / 1000) + 1,
+    });
+    const seasonDisplayRows: DisplayRow[] = seasonRows.map(seasonToRow);
+    // Append the caller's own standing when they sit outside the visible list.
+    const seasonMeRow = seasonMe && !seasonRows.some(r => r.userId === seasonMe.userId)
+        ? seasonToRow(seasonMe)
+        : null;
+
+    const isActiveTab = tab;
+    const loading = isActiveTab === 'alltime' ? allTimeLoading : seasonLoading;
+    const error = isActiveTab === 'alltime' ? allTimeError : seasonError;
+    const valueLabel = isActiveTab === 'alltime' ? 'Total XP' : 'Season XP';
+
+    const renderRow = (player: DisplayRow, keySuffix = '') => {
+        const isCurrentUser = user && player.id === user.id;
+        let RankIcon = null;
+        if (player.rank === 1) RankIcon = <Trophy size={24} className="text-yellow-400 fill-yellow-400" />;
+        else if (player.rank === 2) RankIcon = <Medal size={24} className="text-gray-400 fill-gray-400" />;
+        else if (player.rank === 3) RankIcon = <Medal size={24} className="text-amber-600 fill-amber-600" />;
+
+        return (
+            <div
+                key={player.id + keySuffix}
+                className={`flex items-center justify-between p-4 rounded-xl transition-all ${
+                    isCurrentUser
+                        ? 'bg-brand-blue/10 border-2 border-brand-blue shadow-sm scale-[1.02]'
+                        : 'bg-gray-50 hover:bg-gray-100 border border-gray-100'
+                }`}
+            >
+                <div className="flex items-center gap-4">
+                    <div className="w-10 text-center font-bold text-xl text-brand-dark/50">
+                        {RankIcon ? RankIcon : `#${player.rank}`}
+                    </div>
+                    <div className="flex items-center gap-3">
+                        {player.avatar ? (
+                            <img
+                                src={player.avatar}
+                                alt={player.name}
+                                className={`w-10 h-10 rounded-full object-cover border-2 ${isCurrentUser ? 'border-brand-blue' : 'border-gray-200'}`}
+                            />
+                        ) : (
+                            <div className={`p-2 rounded-full ${isCurrentUser ? 'bg-brand-blue/20 text-brand-blue' : 'bg-gray-200 text-gray-500'}`}>
+                                <UserCircle2 size={24} />
+                            </div>
+                        )}
+                        <div>
+                            <div className="flex items-center gap-2">
+                                <p className={`font-bold ${isCurrentUser ? 'text-brand-blue' : 'text-brand-dark'}`}>
+                                    {player.name}{isCurrentUser ? ' (You)' : ''}
+                                </p>
+                                {player.grade && (
+                                    <span className="text-[10px] font-bold bg-brand-orange/10 text-brand-orange px-2 py-0.5 rounded-full">
+                                        {player.grade}
+                                    </span>
+                                )}
+                            </div>
+                            <div className="flex items-center gap-1 text-sm text-brand-dark/50">
+                                <Star size={14} className="text-brand-orange fill-brand-orange" />
+                                Level {player.level}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="text-right">
+                    <p className="font-bold text-lg text-brand-dark">{player.value}</p>
+                    <p className="text-xs font-bold text-brand-dark/50 uppercase tracking-wider">
+                        {isActiveTab === 'alltime' ? 'XP' : 'Season XP'}
+                    </p>
+                </div>
+            </div>
+        );
+    };
+
+    const pillBase = 'flex-1 px-4 py-2.5 rounded-xl text-sm font-bold transition-all';
 
     return (
         <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500">
@@ -71,11 +198,35 @@ export const Leaderboard: React.FC = () => {
                 <div className="inline-flex items-center justify-center p-4 bg-brand-orange/10 rounded-full mb-4">
                     <Trophy size={48} className="text-brand-orange" />
                 </div>
-                <h2 className="text-3xl md:text-4xl font-display font-bold text-brand-dark">Global Leaderboard</h2>
+                <h2 className="text-3xl md:text-4xl font-display font-bold text-brand-dark">Leaderboard</h2>
                 <p className="text-brand-dark/70 max-w-lg mx-auto">
                     Compete with other students and climb to the top! Earn XP by completing quizzes and quests.
                 </p>
             </div>
+
+            {/* Tab toggle */}
+            <div className="flex items-center gap-2 bg-gray-100 p-1.5 rounded-2xl max-w-md mx-auto">
+                <button
+                    onClick={() => setTab('season')}
+                    className={`${pillBase} ${tab === 'season' ? 'bg-white text-brand-dark shadow-sm' : 'text-brand-dark/40 hover:text-brand-dark/70'}`}
+                >
+                    Current Season
+                </button>
+                <button
+                    onClick={() => setTab('alltime')}
+                    className={`${pillBase} ${tab === 'alltime' ? 'bg-white text-brand-dark shadow-sm' : 'text-brand-dark/40 hover:text-brand-dark/70'}`}
+                >
+                    All-Time
+                </button>
+            </div>
+
+            {/* Season header (only on season tab, when active) */}
+            {tab === 'season' && seasonInfo && (
+                <div className="flex items-center justify-center gap-2 text-sm font-bold text-brand-orange -mt-2">
+                    <CalendarClock size={16} />
+                    {seasonInfo.name}
+                </div>
+            )}
 
             <Card className="p-4 md:p-6 shadow-xl border-t-4 border-t-brand-accent">
                 {loading ? (
@@ -84,69 +235,28 @@ export const Leaderboard: React.FC = () => {
                     </div>
                 ) : error ? (
                     <div className="text-center p-8 text-red-500 font-bold">{error}</div>
-                ) : displayData.length === 0 ? (
+                ) : tab === 'season' && !seasonInfo ? (
+                    <div className="text-center p-10 text-brand-dark/50 space-y-3">
+                        <CalendarClock size={40} className="mx-auto text-brand-dark/20" />
+                        <p className="font-bold">No active season right now.</p>
+                        <p className="text-sm text-brand-dark/40">Check back when the next competition begins, or view the All-Time board.</p>
+                    </div>
+                ) : tab === 'alltime' && allTimeRows.length === 0 ? (
                     <div className="text-center p-8 text-brand-dark/50">No users found on the leaderboard yet.</div>
+                ) : tab === 'season' && seasonDisplayRows.length === 0 ? (
+                    <div className="text-center p-8 text-brand-dark/50">No one has scored this season yet. Be the first!</div>
                 ) : (
                     <div className="space-y-4">
-                        {displayData.map((player) => {
-                            const isCurrentUser = user && player.id === user.id;
-                            let RankIcon = null;
-                            
-                            if (player.rank === 1) RankIcon = <Trophy size={24} className="text-yellow-400 fill-yellow-400" />;
-                            else if (player.rank === 2) RankIcon = <Medal size={24} className="text-gray-400 fill-gray-400" />;
-                            else if (player.rank === 3) RankIcon = <Medal size={24} className="text-amber-600 fill-amber-600" />;
-
-                            return (
-                                <div 
-                                    key={player.id} 
-                                    className={`flex items-center justify-between p-4 rounded-xl transition-all ${
-                                        isCurrentUser 
-                                        ? 'bg-brand-blue/10 border-2 border-brand-blue shadow-sm scale-[1.02]' 
-                                        : 'bg-gray-50 hover:bg-gray-100 border border-gray-100'
-                                    }`}
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 text-center font-bold text-xl text-brand-dark/50">
-                                            {RankIcon ? RankIcon : `#${player.rank}`}
-                                        </div>
-                                        <div className="flex items-center gap-3">
-                                            {player.avatar ? (
-                                                <img
-                                                    src={player.avatar}
-                                                    alt={player.name}
-                                                    className={`w-10 h-10 rounded-full object-cover border-2 ${isCurrentUser ? 'border-brand-blue' : 'border-gray-200'}`}
-                                                />
-                                            ) : (
-                                                <div className={`p-2 rounded-full ${isCurrentUser ? 'bg-brand-blue/20 text-brand-blue' : 'bg-gray-200 text-gray-500'}`}>
-                                                    <UserCircle2 size={24} />
-                                                </div>
-                                            )}
-                                            <div>
-                                                <div className="flex items-center gap-2">
-                                                    <p className={`font-bold ${isCurrentUser ? 'text-brand-blue' : 'text-brand-dark'}`}>
-                                                        {player.name}{isCurrentUser ? ' (You)' : ''}
-                                                    </p>
-                                                    {player.grade && (
-                                                        <span className="text-[10px] font-bold bg-brand-orange/10 text-brand-orange px-2 py-0.5 rounded-full">
-                                                            {player.grade}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                <div className="flex items-center gap-1 text-sm text-brand-dark/50">
-                                                    <Star size={14} className="text-brand-orange fill-brand-orange" />
-                                                    Level {player.level}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="text-right">
-                                        <p className="font-bold text-lg text-brand-dark">{player.xp}</p>
-                                        <p className="text-xs font-bold text-brand-dark/50 uppercase tracking-wider">XP</p>
-                                    </div>
-                                </div>
-                            );
-                        })}
+                        <div className="flex justify-end px-1">
+                            <span className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest">{valueLabel}</span>
+                        </div>
+                        {(tab === 'alltime' ? allTimeRows : seasonDisplayRows).map(p => renderRow(p))}
+                        {tab === 'season' && seasonMeRow && (
+                            <>
+                                <div className="text-center text-[10px] font-black text-brand-dark/20 uppercase tracking-widest">Your Standing</div>
+                                {renderRow(seasonMeRow, '-me')}
+                            </>
+                        )}
                     </div>
                 )}
             </Card>
@@ -182,7 +292,7 @@ export const Leaderboard: React.FC = () => {
                                             <div className="min-w-0">
                                                 <p className="font-bold text-sm text-brand-dark truncate">{w.name}</p>
                                                 <p className="text-[11px] text-brand-dark/50 font-bold">
-                                                    {w.points} pts{w.rank === 1 ? ` · ${w.prizeTitle}` : ''}
+                                                    {w.points} pts{w.rank === 1 && w.prizeTitle ? ` · ${w.prizeTitle}` : ''}
                                                 </p>
                                             </div>
                                         </div>
