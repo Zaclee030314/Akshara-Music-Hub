@@ -4,8 +4,9 @@ import { Subject, Syllabus, GradeLevel } from '../types';
 import { geminiService, StudyPlanResponse } from '../services/geminiService';
 import { Button } from './Button';
 import { Card } from './Card';
-import { 
-    Calendar, 
+import { useT } from '../contexts/LanguageContext';
+import {
+    Calendar,
     Loader2, 
     Sparkles, 
     Target, 
@@ -19,6 +20,7 @@ import {
 
 export const StudyPlanGenerator: React.FC = () => {
     const navigate = useNavigate();
+    const { t } = useT();
     const [subjects, setSubjects] = useState<string[]>([]);
     const [grade, setGrade] = useState<string>('');
     const [syllabus, setSyllabus] = useState<string>('');
@@ -37,7 +39,7 @@ export const StudyPlanGenerator: React.FC = () => {
 
     const handleGenerate = async () => {
         if (subjects.length === 0 || !grade || !syllabus || !timeframe) {
-            setError('Please select at least one subject, a grade, a syllabus and a duration.');
+            setError(t('studyplan.errSelect'));
             return;
         }
 
@@ -58,7 +60,7 @@ export const StudyPlanGenerator: React.FC = () => {
                 setGeneratedId((plan as any).id);
             }
         } catch (err: any) {
-            setError(err.message || 'Failed to generate study plan. Please try again.');
+            setError(err.message || t('studyplan.errGenerate'));
         } finally {
             setLoading(false);
         }
@@ -87,22 +89,22 @@ export const StudyPlanGenerator: React.FC = () => {
                         <CheckCircle2 size={48} />
                     </div>
                     <div className="space-y-3">
-                        <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Plan Ready!</h2>
-                        <p className="text-slate-500 text-lg">Your study roadmap for <b>{subjects.join(', ')}</b> has been generated.</p>
+                        <h2 className="text-3xl font-bold text-slate-900 tracking-tight">{t('studyplan.planReady')}</h2>
+                        <p className="text-slate-500 text-lg">{t('studyplan.roadmapGenerated', { subjects: subjects.join(', ') })}</p>
                     </div>
                     <div className="pt-4 space-y-3">
-                        <Button 
-                            onClick={handleContinue} 
-                            size="lg" 
+                        <Button
+                            onClick={handleContinue}
+                            size="lg"
                             className="w-full rounded-2xl py-6 text-lg font-bold bg-brand-blue"
                         >
-                            Open Roadmap
+                            {t('studyplan.openRoadmap')}
                         </Button>
-                        <button 
+                        <button
                             onClick={handleReset}
                             className="text-slate-400 font-semibold text-sm hover:text-slate-600 transition-colors"
                         >
-                            Create Another Plan
+                            {t('studyplan.createAnother')}
                         </button>
                     </div>
                 </Card>
@@ -119,16 +121,16 @@ export const StudyPlanGenerator: React.FC = () => {
                         className="flex items-center gap-2 px-4 py-2 rounded-xl text-slate-500 hover:text-slate-900 bg-white border border-slate-200 shadow-sm transition-all"
                     >
                         <ArrowLeft size={18} />
-                        <span className="text-sm font-bold">Back</span>
+                        <span className="text-sm font-bold">{t('common.back')}</span>
                     </button>
                     <div className="px-4 py-2 bg-brand-blue/10 border border-brand-blue/20 rounded-xl text-[10px] font-bold text-brand-blue uppercase tracking-widest">
-                        Study Assistant
+                        {t('studyplan.assistant')}
                     </div>
                 </div>
 
                 <div className="space-y-2 text-center md:text-left">
-                    <h1 className="text-4xl font-bold text-slate-900 tracking-tight">Create Study Plan</h1>
-                    <p className="text-slate-500 font-medium">Define your goals and we'll map out a custom syllabus for you.</p>
+                    <h1 className="text-4xl font-bold text-slate-900 tracking-tight">{t('studyplan.createTitle')}</h1>
+                    <p className="text-slate-500 font-medium">{t('studyplan.createDesc')}</p>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -136,35 +138,35 @@ export const StudyPlanGenerator: React.FC = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-3">
                                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 flex items-center gap-2">
-                                    <BookOpen size={14} className="text-brand-blue" /> Exam Syllabus
+                                    <BookOpen size={14} className="text-brand-blue" /> {t('studyplan.examSyllabus')}
                                 </label>
                                 <select
                                     value={syllabus}
                                     onChange={(e) => setSyllabus(e.target.value)}
                                     className="w-full p-4 rounded-2xl border-2 border-slate-100 focus:border-brand-blue outline-none transition-all font-bold text-slate-700 bg-slate-50/50"
                                 >
-                                    <option value="" disabled>Select Syllabus</option>
+                                    <option value="" disabled>{t('studyplan.selectSyllabus')}</option>
                                     {Object.values(Syllabus).map(s => <option key={s} value={s}>{s}</option>)}
                                 </select>
                             </div>
 
                             <div className="space-y-3">
                                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 flex items-center gap-2">
-                                    <GraduationCap size={14} className="text-brand-blue" /> Grade Level
+                                    <GraduationCap size={14} className="text-brand-blue" /> {t('studyplan.gradeLevel')}
                                 </label>
                                 <select
                                     value={grade}
                                     onChange={(e) => setGrade(e.target.value)}
                                     className="w-full p-4 rounded-2xl border-2 border-slate-100 focus:border-brand-blue outline-none transition-all font-bold text-slate-700 bg-slate-50/50"
                                 >
-                                    <option value="" disabled>Select Grade</option>
+                                    <option value="" disabled>{t('studyplan.selectGrade')}</option>
                                     {Object.values(GradeLevel).map(g => <option key={g} value={g}>{g}</option>)}
                                 </select>
                             </div>
 
                             <div className="space-y-4 md:col-span-2">
                                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 flex items-center gap-2">
-                                    <Target size={14} className="text-brand-blue" /> Focus Subjects <span className="text-slate-300 normal-case tracking-normal">(select one or more)</span>
+                                    <Target size={14} className="text-brand-blue" /> {t('studyplan.focusSubjects')} <span className="text-slate-300 normal-case tracking-normal">{t('studyplan.selectOneOrMore')}</span>
                                 </label>
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                     {Object.values(Subject).map(s => (
@@ -194,17 +196,17 @@ export const StudyPlanGenerator: React.FC = () => {
                             >
                                 {loading ? (
                                     <span className="flex items-center gap-3">
-                                        <Loader2 className="animate-spin" size={24} /> Generating Plan...
+                                        <Loader2 className="animate-spin" size={24} /> {t('studyplan.generating')}
                                     </span>
                                 ) : (
                                     <span className="flex items-center gap-2">
-                                        <Sparkles size={20} /> Create Roadmap
+                                        <Sparkles size={20} /> {t('studyplan.createRoadmap')}
                                     </span>
                                 )}
                             </Button>
                             {error && (
                                 <p className="mt-4 text-center text-red-500 font-bold text-xs uppercase tracking-widest bg-red-50 p-3 rounded-xl border border-red-100">
-                                    Error: {error}
+                                    {t('studyplan.errorPrefix', { msg: error })}
                                 </p>
                             )}
                         </div>
@@ -213,7 +215,7 @@ export const StudyPlanGenerator: React.FC = () => {
                     <Card className="p-8 border-slate-200 shadow-sm rounded-3xl bg-white space-y-8">
                         <div className="space-y-4">
                             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 flex items-center gap-2">
-                                <Clock size={14} className="text-brand-blue" /> Duration
+                                <Clock size={14} className="text-brand-blue" /> {t('studyplan.duration')}
                             </label>
                             <div className="grid grid-cols-1 gap-2">
                                 {['1 Week', '4 Weeks', '8 Weeks'].map(t => (
@@ -229,11 +231,11 @@ export const StudyPlanGenerator: React.FC = () => {
                         </div>
 
                         <div className="space-y-4">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Specific Goals</label>
-                            <textarea 
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">{t('studyplan.specificGoals')}</label>
+                            <textarea
                                 value={goals}
                                 onChange={(e) => setGoals(e.target.value)}
-                                placeholder="E.g. Focus on Algebra..."
+                                placeholder={t('studyplan.goalsPlaceholder')}
                                 className="w-full bg-slate-50 border-2 border-transparent rounded-2xl p-4 text-sm text-slate-700 placeholder:text-slate-300 outline-none focus:border-brand-blue focus:bg-white h-32 resize-none transition-all"
                             />
                         </div>

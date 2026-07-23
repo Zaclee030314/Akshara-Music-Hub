@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card } from './Card';
 import { Vote, CheckCircle2, Loader2, MessageSquarePlus } from 'lucide-react';
+import { useT } from '../contexts/LanguageContext';
 
 interface PollData {
     id: string;
@@ -25,6 +26,7 @@ interface ActivePollResponse {
 }
 
 export const PrizePollCard: React.FC = () => {
+    const { t } = useT();
     const [data, setData] = useState<ActivePollResponse | null>(null);
     const [selected, setSelected] = useState<number | null>(null);
     const [suggestion, setSuggestion] = useState('');
@@ -58,12 +60,12 @@ export const PrizePollCard: React.FC = () => {
         setError('');
         const body: { optionIndex?: number; suggestion?: string } = {};
         if (useSuggestion) {
-            if (suggestion.trim() === '') { setError('Please enter a suggestion.'); return; }
+            if (suggestion.trim() === '') { setError(t('poll.errSuggestion')); return; }
             body.suggestion = suggestion.trim();
         } else if (selected !== null) {
             body.optionIndex = selected;
         } else {
-            setError('Please pick an option.');
+            setError(t('poll.errPickOption'));
             return;
         }
         setSubmitting(true);
@@ -77,10 +79,10 @@ export const PrizePollCard: React.FC = () => {
                 await fetchPoll();
             } else {
                 const err = await res.json().catch(() => ({}));
-                setError(err.error || 'Failed to submit vote.');
+                setError(err.error || t('poll.errFailVote'));
             }
         } catch {
-            setError('Failed to submit vote.');
+            setError(t('poll.errFailVote'));
         }
         setSubmitting(false);
     };
@@ -98,7 +100,7 @@ export const PrizePollCard: React.FC = () => {
                     <Vote size={20} />
                 </div>
                 <div>
-                    <p className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest">Prize Poll</p>
+                    <p className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest">{t('poll.prizePoll')}</p>
                     <h3 className="font-bold text-brand-dark text-lg leading-tight">{poll.question}</h3>
                 </div>
             </div>
@@ -108,10 +110,10 @@ export const PrizePollCard: React.FC = () => {
                 <div className="mt-3">
                     <div className="flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 rounded-2xl px-4 py-3 font-bold text-sm">
                         <CheckCircle2 size={18} className="shrink-0" />
-                        <span>You voted: {votedLabel}</span>
+                        <span>{t('poll.youVoted', { choice: votedLabel })}</span>
                     </div>
                     <p className="text-xs text-brand-dark/40 font-bold mt-2 text-center">
-                        {data.totalVotes ?? 0} total vote{(data.totalVotes ?? 0) === 1 ? '' : 's'} so far
+                        {t('poll.totalVotes', { count: data.totalVotes ?? 0 })}
                     </p>
                 </div>
             ) : (
@@ -151,7 +153,7 @@ export const PrizePollCard: React.FC = () => {
                                     className="accent-indigo-600 w-4 h-4"
                                 />
                                 <span className="font-bold text-sm text-brand-dark flex items-center gap-1.5">
-                                    <MessageSquarePlus size={16} /> Suggest your own…
+                                    <MessageSquarePlus size={16} /> {t('poll.suggestOwn')}
                                 </span>
                             </label>
                             {useSuggestion && (
@@ -160,7 +162,7 @@ export const PrizePollCard: React.FC = () => {
                                     value={suggestion}
                                     maxLength={200}
                                     onChange={e => setSuggestion(e.target.value)}
-                                    placeholder="Type your idea…"
+                                    placeholder={t('poll.typeIdea')}
                                     className="w-full bg-white border border-brand-dark/10 rounded-xl px-3 py-2 text-sm font-medium outline-none focus:ring-2 ring-indigo-200"
                                 />
                             )}
@@ -174,7 +176,7 @@ export const PrizePollCard: React.FC = () => {
                         disabled={submitting}
                         className="w-full mt-2 bg-indigo-600 text-white font-bold rounded-2xl py-3 text-sm hover:bg-indigo-700 active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                     >
-                        {submitting ? <Loader2 size={18} className="animate-spin" /> : 'Submit Vote'}
+                        {submitting ? <Loader2 size={18} className="animate-spin" /> : t('poll.submitVote')}
                     </button>
                 </div>
             )}

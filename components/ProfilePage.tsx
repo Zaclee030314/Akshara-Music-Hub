@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Card } from './Card';
 import { Button } from './Button';
 import { useAuth } from '../contexts/useAuth';
+import { useT } from '../contexts/LanguageContext';
 import { Loader2, Camera, User as UserIcon, Save, CheckCircle2, Gift, Copy, Check } from 'lucide-react';
 
 interface Profile {
@@ -26,6 +27,7 @@ const authHeaders = () => ({
 
 export const ProfilePage: React.FC = () => {
     const { refreshUser } = useAuth();
+    const { t } = useT();
     const [profile, setProfile] = useState<Profile | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -64,7 +66,7 @@ export const ProfilePage: React.FC = () => {
             if (data.parentEmail && data.parentEmail === data.email) setSameAsEmail(true);
         } catch (err) {
             console.error(err);
-            setError('Could not load your profile.');
+            setError(t('profile.loadError'));
         } finally {
             setLoading(false);
         }
@@ -134,7 +136,7 @@ export const ProfilePage: React.FC = () => {
                     });
                     if (!res.ok) {
                         const err = await res.json().catch(() => ({}));
-                        alert(err.error || 'Failed to update photo.');
+                        alert(err.error || t('profile.failUpdatePhoto'));
                     } else {
                         const updated: Profile = await res.json();
                         setProfile(updated);
@@ -142,7 +144,7 @@ export const ProfilePage: React.FC = () => {
                     }
                 } catch (err) {
                     console.error(err);
-                    alert('Failed to update photo.');
+                    alert(t('profile.failUpdatePhoto'));
                 } finally {
                     setUploadingAvatar(false);
                     if (fileInputRef.current) fileInputRef.current.value = '';
@@ -154,7 +156,7 @@ export const ProfilePage: React.FC = () => {
     };
 
     const handleSaveName = async () => {
-        if (!displayName.trim()) { alert('Name cannot be empty.'); return; }
+        if (!displayName.trim()) { alert(t('profile.nameEmpty')); return; }
         setSavingName(true);
         setNameSaved(false);
         try {
@@ -165,7 +167,7 @@ export const ProfilePage: React.FC = () => {
             });
             if (!res.ok) {
                 const err = await res.json().catch(() => ({}));
-                alert(err.error || 'Failed to save name.');
+                alert(err.error || t('profile.failSaveName'));
             } else {
                 const updated: Profile = await res.json();
                 setProfile(updated);
@@ -175,7 +177,7 @@ export const ProfilePage: React.FC = () => {
             }
         } catch (err) {
             console.error(err);
-            alert('Failed to save name.');
+            alert(t('profile.failSaveName'));
         } finally {
             setSavingName(false);
         }
@@ -197,7 +199,7 @@ export const ProfilePage: React.FC = () => {
             });
             if (!res.ok) {
                 const err = await res.json().catch(() => ({}));
-                alert(err.error || 'Failed to save family details.');
+                alert(err.error || t('profile.failSaveFamily'));
             } else {
                 const updated: Profile = await res.json();
                 setProfile(updated);
@@ -207,7 +209,7 @@ export const ProfilePage: React.FC = () => {
             }
         } catch (err) {
             console.error(err);
-            alert('Failed to save family details.');
+            alert(t('profile.failSaveFamily'));
         } finally {
             setSavingFamily(false);
         }
@@ -222,14 +224,14 @@ export const ProfilePage: React.FC = () => {
     }
 
     if (error || !profile) {
-        return <div className="text-center p-16 text-red-500 font-bold">{error || 'Profile unavailable.'}</div>;
+        return <div className="text-center p-16 text-red-500 font-bold">{error || t('profile.unavailable')}</div>;
     }
 
     return (
         <div className="max-w-3xl mx-auto space-y-8 pt-8 pb-16 animate-in fade-in duration-500 px-4">
             <div className="text-center space-y-2">
-                <h2 className="text-3xl md:text-4xl font-display font-bold text-brand-dark">My Profile</h2>
-                <p className="text-brand-dark/60">Manage your photo, name and family details.</p>
+                <h2 className="text-3xl md:text-4xl font-display font-bold text-brand-dark">{t('nav.myProfile')}</h2>
+                <p className="text-brand-dark/60">{t('profile.manageDesc')}</p>
             </div>
 
             {/* Avatar + Name */}
@@ -261,14 +263,14 @@ export const ProfilePage: React.FC = () => {
                             onClick={() => fileInputRef.current?.click()}
                             disabled={uploadingAvatar}
                         >
-                            <Camera size={16} /> Change photo
+                            <Camera size={16} /> {t('profile.changePhoto')}
                         </Button>
-                        <p className="text-xs text-brand-dark/40">JPG or PNG. It will be cropped to a square.</p>
+                        <p className="text-xs text-brand-dark/40">{t('profile.photoHint')}</p>
                     </div>
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-xs font-bold text-brand-dark/40 uppercase">Display Name</label>
+                    <label className="text-xs font-bold text-brand-dark/40 uppercase">{t('profile.displayName')}</label>
                     <div className="flex gap-2">
                         <input
                             type="text"
@@ -277,12 +279,12 @@ export const ProfilePage: React.FC = () => {
                             className="flex-1 p-3 rounded-xl border-2 border-brand-dark/10 focus:border-brand-blue focus:outline-none font-bold"
                         />
                         <Button onClick={handleSaveName} disabled={savingName} className="bg-brand-blue hover:bg-blue-600">
-                            {savingName ? <Loader2 className="animate-spin" size={18} /> : <><Save size={16} /> Save</>}
+                            {savingName ? <Loader2 className="animate-spin" size={18} /> : <><Save size={16} /> {t('common.save')}</>}
                         </Button>
                     </div>
                     {nameSaved && (
                         <p className="text-sm text-brand-green font-bold flex items-center gap-1">
-                            <CheckCircle2 size={14} /> Name updated
+                            <CheckCircle2 size={14} /> {t('profile.nameUpdated')}
                         </p>
                     )}
                 </div>
@@ -290,18 +292,18 @@ export const ProfilePage: React.FC = () => {
 
             {/* Read-only account info */}
             <Card className="p-6 md:p-8 shadow-sm space-y-4 bg-white/80">
-                <h3 className="font-bold text-brand-dark flex items-center gap-2"><UserIcon size={18} /> Account</h3>
+                <h3 className="font-bold text-brand-dark flex items-center gap-2"><UserIcon size={18} /> {t('profile.account')}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                     <div>
-                        <p className="text-xs font-bold text-brand-dark/40 uppercase">Email</p>
+                        <p className="text-xs font-bold text-brand-dark/40 uppercase">{t('profile.email')}</p>
                         <p className="font-medium text-brand-dark break-all">{profile.email}</p>
                     </div>
                     <div>
-                        <p className="text-xs font-bold text-brand-dark/40 uppercase">Registered Standard / Grade</p>
+                        <p className="text-xs font-bold text-brand-dark/40 uppercase">{t('profile.registeredGrade')}</p>
                         <p className="font-medium text-brand-dark">{profile.grade || '—'}</p>
                     </div>
                     <div>
-                        <p className="text-xs font-bold text-brand-dark/40 uppercase">Syllabus</p>
+                        <p className="text-xs font-bold text-brand-dark/40 uppercase">{t('login.syllabus')}</p>
                         <p className="font-medium text-brand-dark">{profile.gradeSyllabus || '—'}</p>
                     </div>
                 </div>
@@ -310,12 +312,12 @@ export const ProfilePage: React.FC = () => {
             {/* Refer & Earn */}
             <Card className="p-6 md:p-8 shadow-sm space-y-4 bg-gradient-to-br from-brand-orange/5 to-yellow-50/50">
                 <div className="flex items-center justify-between gap-3 flex-wrap">
-                    <h3 className="font-bold text-brand-dark flex items-center gap-2"><Gift size={18} className="text-brand-orange" /> Refer &amp; Earn</h3>
+                    <h3 className="font-bold text-brand-dark flex items-center gap-2"><Gift size={18} className="text-brand-orange" /> {t('profile.referEarn')}</h3>
                     <span className="text-sm font-bold text-brand-orange bg-brand-orange/10 px-3 py-1 rounded-full">
-                        RM{((profile.referralCreditCents ?? 0) / 100).toFixed(2)} earned so far
+                        {t('profile.earnedSoFar', { amount: ((profile.referralCreditCents ?? 0) / 100).toFixed(2) })}
                     </span>
                 </div>
-                <p className="text-sm text-brand-dark/60">Earn RM5 off your own subscription for every friend who subscribes to a paid plan.</p>
+                <p className="text-sm text-brand-dark/60">{t('profile.referDesc')}</p>
                 {referralCode ? (
                     <div className="flex flex-col sm:flex-row gap-2">
                         <input
@@ -326,23 +328,23 @@ export const ProfilePage: React.FC = () => {
                             className="flex-1 p-3 rounded-xl border-2 border-brand-dark/10 bg-white font-medium text-sm text-brand-dark/70 focus:outline-none focus:border-brand-orange"
                         />
                         <Button onClick={handleCopyReferral} className="bg-brand-orange hover:bg-orange-400 shrink-0">
-                            {copied ? <><Check size={16} /> Copied!</> : <><Copy size={16} /> Copy</>}
+                            {copied ? <><Check size={16} /> {t('profile.copied')}</> : <><Copy size={16} /> {t('profile.copy')}</>}
                         </Button>
                     </div>
                 ) : (
                     <div className="flex items-center gap-2 text-brand-dark/40 text-sm">
-                        <Loader2 className="animate-spin" size={16} /> Generating your link…
+                        <Loader2 className="animate-spin" size={16} /> {t('profile.generatingLink')}
                     </div>
                 )}
             </Card>
 
             {/* Family details */}
             <Card className="p-6 md:p-8 shadow-sm space-y-5">
-                <h3 className="font-bold text-brand-dark">Family Details</h3>
+                <h3 className="font-bold text-brand-dark">{t('profile.familyDetails')}</h3>
                 <form onSubmit={handleSaveFamily} className="space-y-5">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-1">
-                            <label className="text-xs font-bold text-brand-dark/40 uppercase">Parent / Guardian Name</label>
+                            <label className="text-xs font-bold text-brand-dark/40 uppercase">{t('profile.parentGuardianName')}</label>
                             <input
                                 type="text"
                                 value={parentName}
@@ -351,7 +353,7 @@ export const ProfilePage: React.FC = () => {
                             />
                         </div>
                         <div className="space-y-1">
-                            <label className="text-xs font-bold text-brand-dark/40 uppercase">Parent Phone</label>
+                            <label className="text-xs font-bold text-brand-dark/40 uppercase">{t('profile.parentPhone')}</label>
                             <input
                                 type="tel"
                                 value={parentPhone}
@@ -362,7 +364,7 @@ export const ProfilePage: React.FC = () => {
                     </div>
 
                     <div className="space-y-1">
-                        <label className="text-xs font-bold text-brand-dark/40 uppercase">Parent Email</label>
+                        <label className="text-xs font-bold text-brand-dark/40 uppercase">{t('profile.parentEmail')}</label>
                         <input
                             type="email"
                             value={sameAsEmail ? profile.email : parentEmail}
@@ -377,17 +379,17 @@ export const ProfilePage: React.FC = () => {
                                 onChange={(e) => setSameAsEmail(e.target.checked)}
                                 className="rounded"
                             />
-                            Same as my registered email
+                            {t('profile.sameAsEmail')}
                         </label>
                     </div>
 
                     <div className="flex items-center gap-3">
                         <Button type="submit" disabled={savingFamily} className="bg-brand-orange hover:bg-orange-400">
-                            {savingFamily ? <Loader2 className="animate-spin" size={18} /> : <><Save size={16} /> Save Family Details</>}
+                            {savingFamily ? <Loader2 className="animate-spin" size={18} /> : <><Save size={16} /> {t('profile.saveFamily')}</>}
                         </Button>
                         {familySaved && (
                             <span className="text-sm text-brand-green font-bold flex items-center gap-1">
-                                <CheckCircle2 size={14} /> Saved
+                                <CheckCircle2 size={14} /> {t('profile.saved')}
                             </span>
                         )}
                     </div>

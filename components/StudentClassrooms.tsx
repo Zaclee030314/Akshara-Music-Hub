@@ -7,6 +7,7 @@ import {
     GraduationCap, ClipboardList, Star, FileText
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useT } from '../contexts/LanguageContext';
 
 const StatusCard: React.FC<{ label: string; value: number; color: string; icon: React.ReactNode }> = ({ label, value, color, icon }) => (
     <div className={`flex items-center gap-3 px-4 py-3 rounded-xl ${color}`}>
@@ -19,6 +20,7 @@ const StatusCard: React.FC<{ label: string; value: number; color: string; icon: 
 );
 
 export const StudentClassrooms: React.FC = () => {
+    const { t } = useT();
     const [classrooms, setClassrooms] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [joinCode, setJoinCode] = useState('');
@@ -54,9 +56,9 @@ export const StudentClassrooms: React.FC = () => {
                 fetchClassrooms();
             } else {
                 const err = await res.json();
-                alert(`Error: ${err.error}`);
+                alert(t('classroom.errorPrefix', { msg: err.error }));
             }
-        } catch (e) { console.error(e); alert('Failed to join classroom.'); }
+        } catch (e) { console.error(e); alert(t('classroom.failJoin')); }
         setIsLoading(false);
     };
 
@@ -67,7 +69,7 @@ export const StudentClassrooms: React.FC = () => {
     if (isLoading && classrooms.length === 0) {
         return <div className="flex flex-col items-center justify-center py-20 gap-3">
             <Loader2 className="animate-spin text-indigo-500" size={36} />
-            <p className="text-sm font-semibold text-slate-400">Loading your classrooms…</p>
+            <p className="text-sm font-semibold text-slate-400">{t('classroom.loading')}</p>
         </div>;
     }
 
@@ -79,9 +81,9 @@ export const StudentClassrooms: React.FC = () => {
                 <div className="relative">
                     <div className="flex items-center gap-2 mb-1">
                         <GraduationCap size={20} />
-                        <h3 className="text-lg font-extrabold">Join a Classroom</h3>
+                        <h3 className="text-lg font-extrabold">{t('classroom.joinTitle')}</h3>
                     </div>
-                    <p className="text-indigo-200 text-sm font-medium mb-4">Enter the 6-character code from your teacher</p>
+                    <p className="text-indigo-200 text-sm font-medium mb-4">{t('classroom.enterCode')}</p>
                     <div className="flex gap-3">
                         <input
                             type="text"
@@ -97,12 +99,12 @@ export const StudentClassrooms: React.FC = () => {
                             disabled={isLoading || joinCode.length < 6}
                             className="px-6 py-2.5 bg-white text-indigo-700 hover:bg-indigo-50 disabled:opacity-50 rounded-xl font-extrabold text-sm shadow-md transition-all flex items-center gap-2"
                         >
-                            {isLoading ? <Loader2 className="animate-spin" size={16} /> : <><ChevronRight size={16} /> Join</>}
+                            {isLoading ? <Loader2 className="animate-spin" size={16} /> : <><ChevronRight size={16} /> {t('classroom.join')}</>}
                         </button>
                     </div>
                     {joinSuccess && (
                         <div className="mt-3 flex items-center gap-2 text-emerald-300 text-sm font-bold">
-                            <CheckCircle size={16} /> Successfully joined classroom!
+                            <CheckCircle size={16} /> {t('classroom.joinSuccess')}
                         </div>
                     )}
                 </div>
@@ -114,12 +116,12 @@ export const StudentClassrooms: React.FC = () => {
                     <div className="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
                         <Users size={30} className="text-indigo-400" />
                     </div>
-                    <h4 className="font-bold text-slate-600 mb-1">No classrooms joined yet</h4>
-                    <p className="text-sm text-slate-400">Ask your teacher for a join code to get started.</p>
+                    <h4 className="font-bold text-slate-600 mb-1">{t('classroom.noneTitle')}</h4>
+                    <p className="text-sm text-slate-400">{t('classroom.noneDesc')}</p>
                 </div>
             ) : (
                 <div className="space-y-5">
-                    <h3 className="text-xl font-extrabold text-slate-800">My Classrooms & Assignments</h3>
+                    <h3 className="text-xl font-extrabold text-slate-800">{t('classroom.myClassrooms')}</h3>
                     {classrooms.map(cls => (
                         <div key={cls.id} className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
                             {/* Class Header */}
@@ -129,7 +131,7 @@ export const StudentClassrooms: React.FC = () => {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <h4 className="font-extrabold text-slate-800 text-lg leading-tight truncate">{cls.name}</h4>
-                                    <p className="text-xs font-bold text-slate-400">Teacher: {cls.teacher?.name || 'Unknown'}</p>
+                                    <p className="text-xs font-bold text-slate-400">{t('classroom.teacher', { name: cls.teacher?.name || t('classroom.unknown') })}</p>
                                 </div>
                             </div>
                             {/* Assignments */}
@@ -143,6 +145,7 @@ export const StudentClassrooms: React.FC = () => {
 };
 
 const ClassroomAssignments: React.FC<{ classroomId: string; onStart: (a: any) => void }> = ({ classroomId, onStart }) => {
+    const { t } = useT();
     const [assignments, setAssignments] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [uploadingId, setUploadingId] = useState<string | null>(null);
@@ -172,7 +175,7 @@ const ClassroomAssignments: React.FC<{ classroomId: string; onStart: (a: any) =>
                         ? { ...a, submissions: [...(a.submissions || []), { status: 'submitted', proofUrl: proofDataUrl }] }
                         : a
                 ));
-            } else alert('Failed to submit');
+            } else alert(t('classroom.failSubmit'));
         } catch (e) { console.error(e); }
         setUploadingId(null);
     };
@@ -180,14 +183,14 @@ const ClassroomAssignments: React.FC<{ classroomId: string; onStart: (a: any) =>
     if (loading) return (
         <div className="flex items-center justify-center py-6 gap-2">
             <Loader2 className="animate-spin text-indigo-400" size={18} />
-            <span className="text-sm text-slate-400 font-medium">Loading assignments…</span>
+            <span className="text-sm text-slate-400 font-medium">{t('classroom.loadingAssignments')}</span>
         </div>
     );
 
     if (assignments.length === 0) return (
         <div className="px-5 py-6 text-center">
             <ClipboardList size={24} className="mx-auto mb-2 text-slate-300" />
-            <p className="text-sm text-slate-400 font-semibold">No assignments yet. Check back later!</p>
+            <p className="text-sm text-slate-400 font-semibold">{t('classroom.noAssignments')}</p>
         </div>
     );
 
@@ -199,9 +202,9 @@ const ClassroomAssignments: React.FC<{ classroomId: string; onStart: (a: any) =>
         <div className="p-5 space-y-4">
             {/* Summary Stats */}
             <div className="flex flex-wrap gap-2">
-                <StatusCard label="Pending" value={pending.length} color="bg-slate-100 text-slate-600" icon={<Clock size={18} className="opacity-60" />} />
-                <StatusCard label="Submitted" value={submitted.length} color="bg-amber-50 text-amber-700" icon={<AlertCircle size={18} className="opacity-70" />} />
-                <StatusCard label="Graded" value={graded.length} color="bg-emerald-50 text-emerald-700" icon={<Star size={18} className="opacity-70" />} />
+                <StatusCard label={t('classroom.pending')} value={pending.length} color="bg-slate-100 text-slate-600" icon={<Clock size={18} className="opacity-60" />} />
+                <StatusCard label={t('classroom.submitted')} value={submitted.length} color="bg-amber-50 text-amber-700" icon={<AlertCircle size={18} className="opacity-70" />} />
+                <StatusCard label={t('classroom.graded')} value={graded.length} color="bg-emerald-50 text-emerald-700" icon={<Star size={18} className="opacity-70" />} />
             </div>
 
             {/* Assignment List */}
@@ -234,7 +237,7 @@ const ClassroomAssignments: React.FC<{ classroomId: string; onStart: (a: any) =>
                                         <p className="font-bold text-slate-800 text-sm truncate">{a.title}</p>
                                         {a.dueDate && (
                                             <p className="text-[10px] font-bold text-slate-400 flex items-center gap-1">
-                                                <Clock size={9} /> Due: {new Date(a.dueDate).toLocaleDateString()}
+                                                <Clock size={9} /> {t('classroom.due', { date: new Date(a.dueDate).toLocaleDateString() })}
                                             </p>
                                         )}
                                     </div>
@@ -245,19 +248,19 @@ const ClassroomAssignments: React.FC<{ classroomId: string; onStart: (a: any) =>
                                     {isCompleted ? (
                                         <div className="text-right">
                                             <span className="text-xs font-extrabold text-emerald-700 bg-emerald-100 px-3 py-1.5 rounded-lg border border-emerald-200 block">
-                                                {score != null ? `${score}% 🎉` : '✓ Done'}
+                                                {score != null ? `${score}% 🎉` : t('classroom.done')}
                                             </span>
                                         </div>
                                     ) : isSubmitted ? (
                                         <span className="text-xs font-bold text-amber-700 bg-amber-100 px-3 py-1.5 rounded-lg border border-amber-200 block">
-                                            ⏳ Awaiting Grade
+                                            {t('classroom.awaitingGrade')}
                                         </span>
                                     ) : a.questId ? (
                                         <button
                                             onClick={() => onStart(a)}
                                             className="flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-extrabold shadow-sm shadow-indigo-200 transition-all"
                                         >
-                                            <Play size={12} /> Start Quest
+                                            <Play size={12} /> {t('classroom.startQuest')}
                                         </button>
                                     ) : (
                                         <div className="flex items-center gap-2">
@@ -282,14 +285,14 @@ const ClassroomAssignments: React.FC<{ classroomId: string; onStart: (a: any) =>
                                                     className="flex items-center gap-1.5 px-3 py-2 border-2 border-indigo-200 text-indigo-600 rounded-lg text-xs font-bold cursor-pointer hover:bg-indigo-50 transition-all"
                                                 >
                                                     {isUploading ? <Loader2 size={12} className="animate-spin" /> : <Upload size={12} />}
-                                                    {isUploading ? 'Uploading…' : 'Upload Proof'}
+                                                    {isUploading ? t('classroom.uploading') : t('classroom.uploadProof')}
                                                 </label>
                                             </>
                                             <button
                                                 onClick={() => handleMarkDone(a.id)}
                                                 className="px-3 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-xs font-bold transition-all"
                                             >
-                                                Mark Done
+                                                {t('classroom.markDone')}
                                             </button>
                                         </div>
                                     )}
@@ -304,7 +307,7 @@ const ClassroomAssignments: React.FC<{ classroomId: string; onStart: (a: any) =>
                                     )}
                                     {proof && (
                                         <div>
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Submitted Proof</p>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">{t('classroom.submittedProof')}</p>
                                             <img
                                                 src={proof}
                                                 alt="Proof"

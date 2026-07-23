@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Trophy, UserCircle2, Medal, CalendarClock } from 'lucide-react';
+import { useT } from '../contexts/LanguageContext';
 
 interface TopUser {
     userId: string;
@@ -36,6 +37,7 @@ const formatRange = (startISO: string, endISO: string) => {
 };
 
 export const SeasonBanner: React.FC = () => {
+    const { t } = useT();
     const [season, setSeason] = useState<SeasonInfo | null>(null);
     const [top3, setTop3] = useState<TopUser[]>([]);
 
@@ -64,7 +66,7 @@ export const SeasonBanner: React.FC = () => {
             <div className="relative z-10">
                 <div className="flex items-center gap-2 mb-1">
                     <span className="text-[10px] font-black uppercase tracking-widest bg-white/20 px-2.5 py-1 rounded-full">
-                        {isUpcoming ? 'Upcoming Season' : 'Live Competition'}
+                        {isUpcoming ? t('season.upcoming') : t('season.live')}
                     </span>
                 </div>
                 <div className="flex items-center gap-3 mb-2">
@@ -75,7 +77,7 @@ export const SeasonBanner: React.FC = () => {
                 <div className="flex items-center gap-2 text-white/80 text-sm font-bold mb-3">
                     <CalendarClock size={16} />
                     {isUpcoming
-                        ? <span>Starts {fmtFull(new Date(season.startDate))}</span>
+                        ? <span>{t('season.starts', { date: fmtFull(new Date(season.startDate)) })}</span>
                         : <span>{formatRange(season.startDate, season.endDate)}</span>}
                 </div>
 
@@ -84,14 +86,14 @@ export const SeasonBanner: React.FC = () => {
                 )}
 
                 <div className="flex flex-wrap gap-2 mb-4">
-                    <span className="text-sm font-bold bg-white/15 rounded-xl px-3 py-1.5">🏆 1st: {season.prizeTitle}</span>
-                    <span className="text-sm font-bold bg-white/15 rounded-xl px-3 py-1.5">🥈 2nd: +{season.secondPlacePoints} pts</span>
-                    <span className="text-sm font-bold bg-white/15 rounded-xl px-3 py-1.5">🥉 3rd: +{season.thirdPlacePoints} pts</span>
+                    <span className="text-sm font-bold bg-white/15 rounded-xl px-3 py-1.5">{t('season.firstPlace', { prize: season.prizeTitle })}</span>
+                    <span className="text-sm font-bold bg-white/15 rounded-xl px-3 py-1.5">{t('season.secondPlacePts', { pts: season.secondPlacePoints })}</span>
+                    <span className="text-sm font-bold bg-white/15 rounded-xl px-3 py-1.5">{t('season.thirdPlacePts', { pts: season.thirdPlacePoints })}</span>
                 </div>
 
                 {!isUpcoming && top3.length > 0 && (
                     <div className="mt-2">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-white/60 mb-2">Current Leaders</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-white/60 mb-2">{t('season.currentLeaders')}</p>
                         <div className="flex flex-col sm:flex-row gap-2">
                             {top3.map(u => {
                                 const medal = u.rank === 1 ? '🥇' : u.rank === 2 ? '🥈' : '🥉';
@@ -108,7 +110,7 @@ export const SeasonBanner: React.FC = () => {
                                         <div className="min-w-0 flex-1">
                                             <p className="font-bold text-sm truncate">{u.name}</p>
                                             <p className="text-[11px] text-white/70 font-bold flex items-center gap-1">
-                                                <Medal size={11} /> {u.points} pts
+                                                <Medal size={11} /> {t('leaderboard.pts', { count: u.points })}
                                             </p>
                                         </div>
                                     </div>

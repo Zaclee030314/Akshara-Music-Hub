@@ -1002,12 +1002,12 @@ export default function App() {
 
   // Level title
   const getLevelTitle = (level: number) => {
-    if (level < 3) return 'Rookie Scholar';
-    if (level < 6) return 'Rising Star';
-    if (level < 10) return 'Knowledge Seeker';
-    if (level < 15) return 'Quest Master';
-    if (level < 20) return 'Legendary Mind';
-    return 'Grand Champion';
+    if (level < 3) return t('level.title.rookie');
+    if (level < 6) return t('level.title.rising');
+    if (level < 10) return t('level.title.seeker');
+    if (level < 15) return t('level.title.questMaster');
+    if (level < 20) return t('level.title.legendary');
+    return t('level.title.champion');
   };
 
   // Level-up overlay
@@ -1027,17 +1027,17 @@ export default function App() {
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 animate-[shimmer_1.5s_ease-in-out_infinite]" />
 
           <div className="text-7xl mb-4 relative">⚡</div>
-          <p className="text-white/80 font-bold text-sm uppercase tracking-widest mb-1">Level Up!</p>
+          <p className="text-white/80 font-bold text-sm uppercase tracking-widest mb-1">{t('levelup.badge')}</p>
           <div className="text-white font-display font-bold text-7xl leading-none mb-2">
             {levelUpData?.newLevel}
           </div>
           <p className="text-white/90 font-bold text-lg mb-1">{getLevelTitle(levelUpData?.newLevel ?? 1)}</p>
-          <p className="text-white/70 text-sm mb-6">+{levelUpData?.xpGained} XP earned</p>
+          <p className="text-white/70 text-sm mb-6">{t('levelup.xpEarned', { xp: levelUpData?.xpGained ?? 0 })}</p>
           <button
             onClick={() => setShowLevelUp(false)}
             className="bg-white/20 hover:bg-white/30 text-white font-bold px-8 py-3 rounded-full transition-all border border-white/30"
           >
-            Awesome! 🎉
+            {t('levelup.awesome')}
           </button>
         </div>
       </div>
@@ -1056,13 +1056,12 @@ export default function App() {
           </div>
 
           <h3 className="text-3xl font-display font-bold text-brand-dark mb-4 tracking-tight">
-            Quest Limit Reached!
+            {t('limit.title')}
           </h3>
 
           <div className="bg-orange-50/50 p-4 rounded-2xl mb-6 border border-brand-orange/10">
             <p className="text-brand-dark/70 leading-relaxed font-medium">
-              You've completed your <span className="text-brand-orange font-bold">3 free quizzes</span>.
-              Upgrade to Pro for unlimited quest creation and play to unlock your full potential!
+              {t('limit.body', { count: 3 })}
             </p>
           </div>
 
@@ -1076,14 +1075,14 @@ export default function App() {
               }}
               className="bg-brand-orange hover:bg-orange-400 py-6 text-lg shadow-lg shadow-brand-orange/20"
             >
-              Upgrade to Pro <Sparkles size={18} className="ml-2" />
+              {t('limit.upgradeCta')} <Sparkles size={18} className="ml-2" />
             </Button>
 
             <button
               onClick={() => setShowLimitModal(false)}
               className="text-brand-dark/40 hover:text-brand-dark font-bold text-sm transition-colors py-2"
             >
-              Maybe Later
+              {t('limit.maybeLater')}
             </button>
           </div>
         </div>
@@ -1102,16 +1101,15 @@ export default function App() {
           </div>
 
           <h3 className="text-3xl font-display font-bold text-brand-dark mb-4 tracking-tight">
-            AI is Taking a Break!
+            {t('quota.title')}
           </h3>
 
           <div className="bg-orange-50/50 p-4 rounded-2xl mb-6 border border-brand-orange/10">
             <p className="text-brand-dark/70 leading-relaxed font-medium">
-              We've hit the <span className="text-brand-orange font-bold">daily AI limit</span> for today.
-              Our AI teacher needs some rest (and we need to wait for the quota to reset)!
+              {t('quota.body')}
             </p>
             <p className="text-xs text-brand-dark/40 mt-4 italic">
-              Try again in a few hours or tomorrow morning.
+              {t('quota.retry')}
             </p>
           </div>
 
@@ -1122,11 +1120,11 @@ export default function App() {
               onClick={() => setShowQuotaModal(false)}
               className="bg-brand-orange hover:bg-orange-400 py-6 text-lg shadow-lg"
             >
-              Understand
+              {t('quota.understand')}
             </Button>
 
             <p className="text-xs text-brand-dark/30 font-medium">
-              Daily limits help keep Akshara Music Hub free for everyone.
+              {t('quota.footer')}
             </p>
           </div>
         </div>
@@ -1306,10 +1304,10 @@ export default function App() {
       <div className="max-w-6xl mx-auto px-4 pb-20 animate-float-slow">
         <div className="text-center mb-16 space-y-4">
           <Button variant="outline" size="sm" onClick={() => navigate('/')} className="mb-4 mx-auto">
-            <ArrowLeft size={16} /> Back to Home
+            <ArrowLeft size={16} /> {t('pricing.backHome')}
           </Button>
-          <h2 className="text-5xl font-display font-bold text-brand-dark">Choose Your Plan</h2>
-          <p className="text-xl opacity-60">Unlock unlimited access to the entire curriculum.</p>
+          <h2 className="text-5xl font-display font-bold text-brand-dark">{t('pricing.title')}</h2>
+          <p className="text-xl opacity-60">{t('pricing.subtitle')}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
@@ -1334,7 +1332,7 @@ export default function App() {
               {/* Free Starter */}
               <Card className="p-8 md:p-10 flex flex-col items-center gap-8 border-2 border-transparent hover:border-brand-dark/10 opacity-60 transition-all bg-white/50">
                 <div className="text-center space-y-3">
-                  <h3 className="font-display font-bold text-3xl text-brand-dark/60">Starter</h3>
+                  <h3 className="font-display font-bold text-3xl text-brand-dark/60">{t('pricing.starter')}</h3>
                   <div className="text-5xl font-display font-bold text-brand-dark/60">
                     {currencyConfig.symbol} 0
                   </div>
@@ -1343,41 +1341,41 @@ export default function App() {
                 <ul className="space-y-5 w-full flex-1">
                   <li className="flex items-start gap-3 text-sm font-medium text-brand-dark/60">
                     <CheckCircle2 size={18} className="text-brand-green shrink-0" />
-                    <span>3 free quizzes</span>
+                    <span>{t('pricing.freeQuizzes')}</span>
                   </li>
                 </ul>
 
                 <Button variant="outline" fullWidth onClick={() => navigate('/practice')} className="py-4">
-                  Get Started
+                  {t('pricing.getStarted')}
                 </Button>
               </Card>
 
               {/* Single Syllabus Plan */}
               <Card className="p-8 md:p-10 flex flex-col items-center gap-8 border-2 border-brand-dark/5 shadow-xl relative bg-white rounded-3xl group hover:border-brand-orange/20 transition-all">
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-brand-green text-white px-5 py-1.5 rounded-full font-bold text-xs shadow-lg whitespace-nowrap">
-                  PROMO
+                  {t('pricing.promo')}
                 </div>
                 <div className="text-center space-y-3">
-                  <h3 className="font-display font-bold text-3xl text-brand-dark">Single Syllabus</h3>
+                  <h3 className="font-display font-bold text-3xl text-brand-dark">{t('pricing.single')}</h3>
                   <div className="text-5xl font-display font-bold text-brand-dark flex flex-col items-center">
                     <span className="text-2xl text-brand-dark/40 line-through mb-1">
                       {currencyConfig.symbol} 99.90
                     </span>
                     <div>
                       {currencyConfig.symbol} {currencyConfig.amount.toFixed(2)}
-                      <span className="text-lg font-normal opacity-40">/mo</span>
+                      <span className="text-lg font-normal opacity-40">{t('pricing.perMonth')}</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="w-full space-y-2">
-                  <label className="text-xs font-bold text-brand-dark/40 uppercase">Choose Your Syllabus</label>
+                  <label className="text-xs font-bold text-brand-dark/40 uppercase">{t('pricing.chooseSyllabus')}</label>
                   <select
                     className="w-full p-3 rounded-xl border border-gray-100 bg-gray-50 text-sm font-medium focus:ring-2 focus:ring-brand-orange/20 outline-none"
                     onChange={(e) => setSelectedSubscriptionSyllabus(e.target.value as Syllabus)}
                     value={selectedSubscriptionSyllabus || ''}
                   >
-                    <option value="" disabled>Select Syllabus...</option>
+                    <option value="" disabled>{t('pricing.selectSyllabusOpt')}</option>
                     {getSyllabusesByCountry(detectedCountry).map(s => (
                       <option key={s} value={s}>{s}</option>
                     ))}
@@ -1387,15 +1385,15 @@ export default function App() {
                 <ul className="space-y-5 w-full flex-1">
                   <li className="flex items-start gap-3 text-sm font-bold text-brand-dark/80 bg-brand-orange/5 p-4 rounded-xl border border-brand-orange/10">
                     <CheckCircle2 size={20} className="text-brand-orange shrink-0" />
-                    <span>Unlimited Question & Answer</span>
+                    <span>{t('pricing.single.feat1')}</span>
                   </li>
                   <li className="flex items-start gap-3 text-sm font-medium text-brand-dark/60">
                     <CheckCircle2 size={18} className="text-brand-green shrink-0" />
-                    <span>One Selected Syllabus</span>
+                    <span>{t('pricing.single.feat2')}</span>
                   </li>
                   <li className="flex items-start gap-3 text-sm font-medium text-brand-dark/60">
                     <CheckCircle2 size={18} className="text-brand-green shrink-0" />
-                    <span>Includes Western Music &amp; Indian Music syllabi</span>
+                    <span>{t('pricing.single.feat3')}</span>
                   </li>
                 </ul>
 
@@ -1407,25 +1405,25 @@ export default function App() {
                   disabled={authLoading || user?.isSubscribed}
                   className="bg-brand-orange hover:bg-orange-400 py-6 text-lg shadow-xl shadow-brand-orange/20"
                 >
-                  {user?.isSubscribed ? 'Active Subscription' : 'Choose Single Plan'}
+                  {user?.isSubscribed ? t('pricing.activeSubscription') : t('pricing.chooseSingle')}
                 </Button>
               </Card>
 
               {/* All Syllabus Plan */}
               <Card className="p-8 md:p-10 flex flex-col items-center gap-8 border-4 border-brand-orange relative shadow-2xl bg-white rounded-3xl scale-105 z-10 group">
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-brand-orange text-white px-6 py-2 rounded-full font-bold text-sm shadow-xl whitespace-nowrap animate-bounce">
-                  BEST VALUE · ALL ACCESS
+                  {t('pricing.bestValue')}
                 </div>
 
                 <div className="text-center space-y-3">
-                  <h3 className="font-display font-bold text-3xl text-brand-dark">Max Package</h3>
+                  <h3 className="font-display font-bold text-3xl text-brand-dark">{t('pricing.max')}</h3>
                   <div className="text-5xl font-display font-bold text-brand-dark flex flex-col items-center">
                     <span className="text-2xl text-brand-dark/40 line-through mb-1">
                       {currencyConfig.symbol} 149.90
                     </span>
                     <div>
                       {currencyConfig.symbol} {currencyConfig.amountAll.toFixed(2)}
-                      <span className="text-lg font-normal opacity-40">/mo</span>
+                      <span className="text-lg font-normal opacity-40">{t('pricing.perMonth')}</span>
                     </div>
                   </div>
                 </div>
@@ -1433,11 +1431,11 @@ export default function App() {
                 <ul className="space-y-5 w-full flex-1">
                   <li className="flex items-start gap-4 text-sm font-bold text-brand-dark/80 px-2">
                     <CheckCircle2 size={18} className="text-brand-green shrink-0" />
-                    <span>Unlimited Generate Question & Quiz</span>
+                    <span>{t('pricing.max.feat1')}</span>
                   </li>
                   <li className="flex items-start gap-4 text-sm font-bold text-brand-dark/80 px-2">
                     <CheckCircle2 size={18} className="text-brand-green shrink-0" />
-                    <span>All syllabi & subjects included</span>
+                    <span>{t('pricing.max.feat2')}</span>
                   </li>
                 </ul>
 
@@ -1449,7 +1447,7 @@ export default function App() {
                   disabled={authLoading || user?.isSubscribed}
                   className="bg-brand-orange hover:bg-orange-400 py-6 text-lg shadow-xl shadow-brand-orange/30 group-hover:scale-[1.02] transition-transform"
                 >
-                  {user?.isSubscribed ? 'Active Subscription' : 'Upgrade to All Access'}
+                  {user?.isSubscribed ? t('pricing.activeSubscription') : t('pricing.upgradeAllAccess')}
                 </Button>
               </Card>
             </>
@@ -1466,12 +1464,12 @@ export default function App() {
       {lastGameGated && (
         <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-2xl font-medium text-sm">
           <span className="flex-1">
-            No XP earned — this quiz was below your registered standard{user?.grade ? ` (${user.grade})` : ''}. Play your standard or higher to earn points!
+            {t('dash.gatingBanner', { grade: user?.grade ? ` (${user.grade})` : '' })}
           </span>
           <button
             onClick={() => setLastGameGated(false)}
             className="shrink-0 text-amber-600 hover:text-amber-800 transition-colors"
-            aria-label="Dismiss"
+            aria-label={t('common.dismiss')}
           >
             <X size={16} />
           </button>
@@ -1488,8 +1486,8 @@ export default function App() {
           <div className="absolute inset-0 bg-yellow-400 blur-2xl opacity-20 animate-pulse rounded-full"></div>
           <Trophy size={80} className="text-brand-accent relative z-10 mx-auto" />
         </div>
-        <h2 className="text-4xl font-display font-bold text-brand-dark">Student Dashboard</h2>
-        <p className="text-brand-dark/60 font-medium mb-8">Keep up the great work, {user?.name}!</p>
+        <h2 className="text-4xl font-display font-bold text-brand-dark">{t('dash.title')}</h2>
+        <p className="text-brand-dark/60 font-medium mb-8">{t('dash.greeting', { name: user?.name ?? '' })}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-2">
@@ -1499,7 +1497,7 @@ export default function App() {
             {stats.level}
           </div>
           <div>
-            <p className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest">Lvl {stats.level}</p>
+            <p className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest">{t('dash.lvl', { level: stats.level })}</p>
             <p className="font-bold text-brand-dark truncate">{getLevelTitle(stats.level)}</p>
           </div>
         </Card>
@@ -1507,15 +1505,15 @@ export default function App() {
         <Card className="p-4 flex items-center gap-3 border shadow-sm bg-white/80">
           <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-brand-orange text-xl"><Zap size={20} fill="#f97316" /></div>
           <div>
-            <p className="text-[10px] font-black opacity-30 uppercase tracking-widest">Streak</p>
-            <p className="font-bold text-brand-dark">{stats.streak} Days</p>
+            <p className="text-[10px] font-black opacity-30 uppercase tracking-widest">{t('dash.streak')}</p>
+            <p className="font-bold text-brand-dark">{t('dash.days', { count: stats.streak })}</p>
           </div>
         </Card>
 
         <Card className="p-4 flex items-center gap-3 border shadow-sm bg-white/80">
           <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600 text-xl"><Coins size={20} fill="#ca8a04" /></div>
           <div>
-            <p className="text-[10px] font-black opacity-30 uppercase tracking-widest">Coins</p>
+            <p className="text-[10px] font-black opacity-30 uppercase tracking-widest">{t('dash.coins')}</p>
             <p className="font-bold text-brand-dark">{stats.coins}</p>
           </div>
         </Card>
@@ -1524,16 +1522,16 @@ export default function App() {
       {/* EXP bar simplified */}
       <div className="px-1 mb-8">
         <div className="flex items-center justify-between mb-1.5 px-1">
-          <span className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest">Experience Progress</span>
+          <span className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest">{t('dash.experienceProgress')}</span>
           <span className="text-[10px] font-black text-brand-blue italic">{xpIntoLevel}/{xpToNextLevel} XP</span>
         </div>
         <div className="h-2 bg-brand-dark/5 rounded-full overflow-hidden">
           <div className="h-full bg-brand-blue transition-all duration-1000" style={{ width: `${expPercent}%` }} />
         </div>
         <div className="flex items-center justify-between mt-2 px-1">
-          <span className="text-[10px] font-bold text-brand-dark/30">Season XP resets each competition</span>
+          <span className="text-[10px] font-bold text-brand-dark/30">{t('dash.seasonXpResets')}</span>
           <span className="text-[10px] font-black text-brand-dark/40 uppercase tracking-widest">
-            Banked XP: {(stats.lifetimeXp ?? 0).toLocaleString()}
+            {t('dash.bankedXp', { xp: (stats.lifetimeXp ?? 0).toLocaleString() })}
           </span>
         </div>
       </div>
@@ -1546,16 +1544,16 @@ export default function App() {
               <Calendar size={28} />
             </div>
             <div>
-              <h3 className="font-bold text-slate-900 text-2xl tracking-tight">Active Roadmap</h3>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Your Daily Learning Path</p>
+              <h3 className="font-bold text-slate-900 text-2xl tracking-tight">{t('dash.activeRoadmap')}</h3>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('dash.dailyPath')}</p>
             </div>
           </div>
           {currentStudyPlan && (
-            <button 
+            <button
               onClick={() => navigate('/study-progress')}
               className="px-4 py-2 rounded-xl bg-slate-50 text-slate-600 hover:text-brand-blue hover:bg-brand-blue/5 transition-all text-xs font-bold border border-slate-100 flex items-center gap-2"
             >
-              Full Plan <ChevronRight size={16} />
+              {t('dash.fullPlan')} <ChevronRight size={16} />
             </button>
           )}
         </div>
@@ -1566,18 +1564,18 @@ export default function App() {
               <Plus size={40} />
             </div>
             <div className="space-y-2">
-              <h3 className="text-2xl font-black text-slate-800 tracking-tight">Ready to start your journey?</h3>
-              <p className="text-slate-400 font-medium max-w-[280px] mx-auto">Create a personalized study plan to track and master your daily missions.</p>
+              <h3 className="text-2xl font-black text-slate-800 tracking-tight">{t('dash.readyStart')}</h3>
+              <p className="text-slate-400 font-medium max-w-[280px] mx-auto">{t('dash.createPlanDesc')}</p>
             </div>
             <Button size="lg" variant="primary" onClick={() => navigate('/study-plan')} className="rounded-2xl font-black bg-brand-blue shadow-xl shadow-brand-blue/30 px-10 py-6 transform hover:scale-105 transition-all">
-              <Plus size={20} className="mr-2" /> CREATE NEW PLAN
+              <Plus size={20} className="mr-2" /> {t('dash.createNewPlan')}
             </Button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
             <div className="md:col-span-4 space-y-4">
                <div className="p-6 bg-emerald-50 rounded-3xl border border-emerald-100 text-center">
-                  <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">Current Progress</p>
+                  <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">{t('dash.currentProgress')}</p>
                   <p className="text-4xl font-black text-emerald-700 mb-2">{Math.round((currentStudyPlan.tasks.filter((t: any) => t.isCompleted).length / currentStudyPlan.tasks.length) * 100)}%</p>
                   <div className="w-full h-2 bg-emerald-200/50 rounded-full overflow-hidden">
                     <div 
@@ -1589,7 +1587,7 @@ export default function App() {
             </div>
             
             <div className="md:col-span-8 space-y-4">
-              <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest ml-1">Today's Priority Missions</p>
+              <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest ml-1">{t('dash.priorityMissions')}</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {currentStudyPlan.tasks.filter((t: any) => !t.isCompleted).slice(0, 2).map((task: any) => (
                   <div key={task.id} className="p-5 rounded-[2rem] bg-slate-50 border border-slate-100 flex flex-col justify-between transition-all hover:border-brand-blue/30 group bg-white shadow-sm hover:shadow-md">
@@ -1616,13 +1614,13 @@ export default function App() {
                         navigate(`/practice?${params.toString()}`);
                       }}
                     >
-                      EXECUTE
+                      {t('dash.execute')}
                     </Button>
                   </div>
                 ))}
                 {currentStudyPlan.tasks.filter((t: any) => !t.isCompleted).length === 0 && (
                   <div className="sm:col-span-2 p-10 rounded-[2rem] bg-emerald-50 border-2 border-dashed border-emerald-200 text-center">
-                    <p className="text-sm font-black text-emerald-600 uppercase tracking-widest">Mastery Achieved for Today! ✨</p>
+                    <p className="text-sm font-black text-emerald-600 uppercase tracking-widest">{t('dash.masteryToday')}</p>
                   </div>
                 )}
               </div>
@@ -1646,11 +1644,11 @@ export default function App() {
             </div>
             <div className="text-left">
               <div className="flex items-center gap-2 mb-1">
-                <span className="bg-brand-blue text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse">In Progress</span>
-                <p className="font-display font-bold text-brand-dark text-2xl leading-tight">Your Adventure Awaits!</p>
+                <span className="bg-brand-blue text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse">{t('dash.inProgress')}</span>
+                <p className="font-display font-bold text-brand-dark text-2xl leading-tight">{t('dash.adventureAwaits')}</p>
               </div>
               <p className="text-brand-dark/60 font-medium">
-                {activeSession?.subject} • {activeSession?.grade} • <span className="text-brand-blue font-bold">Question {(activeSession?.currentIndex || 0) + 1}</span> of {activeSession?.questions?.length || 0}
+                {t('dash.resumeMeta', { subject: activeSession?.subject ?? '', grade: activeSession?.grade ?? '', num: (activeSession?.currentIndex || 0) + 1, total: activeSession?.questions?.length || 0 })}
               </p>
             </div>
           </div>
@@ -1658,14 +1656,14 @@ export default function App() {
           <div className="flex items-center gap-4 w-full md:w-auto relative z-10">
             <button 
               onClick={() => {
-                if(window.confirm("Discard this quest? Your progress will be lost.")) {
+                if(window.confirm(t('dash.discardConfirm'))) {
                   localStorage.removeItem('quest_active_session');
                   setActiveSession(null);
                 }
               }}
               className="flex-1 md:flex-none text-sm font-bold text-brand-dark/30 hover:text-red-500 transition-colors py-3 px-6 hover:bg-red-50 rounded-xl"
             >
-              Discard
+              {t('dash.discard')}
             </button>
             <Button 
               size="lg"
@@ -1680,7 +1678,7 @@ export default function App() {
                 navigate('/practice/session');
               }}
             >
-              Continue Quest <ArrowRight size={20} className="ml-2" />
+              {t('common.continueQuest')} <ArrowRight size={20} className="ml-2" />
             </Button>
           </div>
         </div>
@@ -1690,7 +1688,7 @@ export default function App() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-20 mt-4">
         {stats.badges.length > 0 && (
           <div className="bg-white/50 p-6 rounded-3xl col-span-1 md:col-span-2">
-            <h3 className="font-bold text-xl mb-4 text-center">Your Badges</h3>
+            <h3 className="font-bold text-xl mb-4 text-center">{t('dash.yourBadges')}</h3>
             <div className="flex flex-wrap gap-4 justify-center">
               {stats.badges.map((badge, idx) => (
                 <div key={idx} className="bg-white p-3 rounded-xl shadow-sm flex items-center gap-2 border border-brand-dark/5 px-4">
@@ -1717,14 +1715,14 @@ export default function App() {
           onClick={() => navigate('/')}
           className="rounded-2xl px-10 py-4 font-bold border-brand-dark/10 text-brand-dark/60 hover:text-brand-dark hover:bg-slate-50 transition-all flex items-center gap-2 bg-white/50 backdrop-blur-sm"
         >
-          <Home size={20} /> Home
+          <Home size={20} /> {t('common.home')}
         </Button>
-        <Button 
-          variant="primary" 
+        <Button
+          variant="primary"
           onClick={handleNewQuest}
           className="rounded-2xl px-10 py-4 font-bold bg-brand-blue shadow-xl shadow-brand-blue/20 flex items-center gap-2 transform active:scale-95 transition-all"
         >
-          <Plus size={20} /> New Quest
+          <Plus size={20} /> {t('nav.newQuest')}
         </Button>
       </div>
     </div>
@@ -1735,9 +1733,9 @@ export default function App() {
     <div className="max-w-4xl mx-auto pb-28 md:pb-8">
       <div className="flex items-center gap-3 mb-6">
         <Button variant="outline" size="sm" onClick={() => navigate('/')}>
-          <ArrowLeft size={18} /> Back
+          <ArrowLeft size={18} /> {t('common.back')}
         </Button>
-        <h2 className="text-2xl md:text-3xl font-display font-bold text-brand-dark">Setup Your Quest</h2>
+        <h2 className="text-2xl md:text-3xl font-display font-bold text-brand-dark">{t('setup.title')}</h2>
       </div>
 
       <Card className="p-4 md:p-8">
@@ -1747,26 +1745,26 @@ export default function App() {
             onClick={() => setGameMode('AI')}
             className={`py-3 px-2 rounded-xl font-bold flex items-center justify-center gap-1.5 transition-all text-xs sm:text-sm ${gameMode === 'AI' ? 'bg-brand-blue text-white shadow-lg' : 'bg-brand-dark/5 hover:bg-brand-dark/10'}`}
           >
-            <Sparkles size={16} /> Quest
+            <Sparkles size={16} /> {t('mode.quest')}
           </button>
           <button
             disabled
             className="py-3 px-2 rounded-xl font-bold flex items-center justify-center gap-1.5 transition-all text-xs sm:text-sm bg-gray-100 text-gray-400 cursor-not-allowed opacity-50 relative"
           >
-            <Lock size={16} /> Past Year
-            <span className="absolute -top-2 -right-2 bg-brand-orange text-white text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase">Soon</span>
+            <Lock size={16} /> {t('mode.pastYear')}
+            <span className="absolute -top-2 -right-2 bg-brand-orange text-white text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase">{t('setup.soon')}</span>
           </button>
           <button
             onClick={() => setGameMode('CUSTOM')}
             className={`py-3 px-2 rounded-xl font-bold flex items-center justify-center gap-1.5 transition-all text-xs sm:text-sm ${gameMode === 'CUSTOM' ? 'bg-brand-orange text-white shadow-lg' : 'bg-brand-dark/5 hover:bg-brand-dark/10'}`}
           >
-            <GraduationCap size={16} /> Custom
+            <GraduationCap size={16} /> {t('mode.custom')}
           </button>
           <button
             onClick={() => navigate('/study-plan')}
             className="py-3 px-2 rounded-xl font-bold flex items-center justify-center gap-1.5 transition-all text-xs sm:text-sm bg-brand-dark/5 hover:bg-indigo-50 border-2 border-transparent hover:border-indigo-200 text-indigo-600 hover:shadow-md hover:-translate-y-0.5"
           >
-            <Calendar size={16} className="text-indigo-500" /> Study Plan
+            <Calendar size={16} className="text-indigo-500" /> {t('setup.modeStudyPlan')}
           </button>
         </div>
 
@@ -1774,7 +1772,7 @@ export default function App() {
           <>
             {/* Step 1: Syllabus Selection */}
             <div className="mb-6">
-              <label className="block text-sm font-bold text-brand-dark/60 uppercase tracking-wider mb-3">1. Select Syllabus</label>
+              <label className="block text-sm font-bold text-brand-dark/60 uppercase tracking-wider mb-3">{t('setup.step1')}</label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {getSyllabusesByCountry(detectedCountry).map((syll) => {
                   const isPro = user?.isSubscribed;
@@ -1795,7 +1793,7 @@ export default function App() {
                       </div>
                       {isLocked && (
                         <div className="bg-brand-orange/10 text-brand-orange text-[10px] px-2 py-1 rounded-lg flex items-center gap-1 shrink-0">
-                          <Lock size={10} /> LOCKED
+                          <Lock size={10} /> {t('setup.locked')}
                         </div>
                       )}
                     </button>
@@ -1806,7 +1804,7 @@ export default function App() {
 
             {/* Step 2: Grade Selection */}
             <div className="mb-8">
-              <label className="block text-sm font-bold text-brand-dark/60 uppercase tracking-wider mb-3">2. Select Grade / Level</label>
+              <label className="block text-sm font-bold text-brand-dark/60 uppercase tracking-wider mb-3">{t('setup.step2')}</label>
               <div className="space-y-4">
                 {selectedSyllabus && (() => {
                   const grades = getGradesBySyllabus(selectedSyllabus);
@@ -1814,7 +1812,7 @@ export default function App() {
                     <>
                       {grades.primary.length > 0 && (
                         <div>
-                          <span className="text-xs font-bold text-brand-dark/40 mb-2 block uppercase">Primary / Elementary</span>
+                          <span className="text-xs font-bold text-brand-dark/40 mb-2 block uppercase">{t('setup.primary')}</span>
                           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
                             {grades.primary.map((grade) => (
                               <button
@@ -1830,7 +1828,7 @@ export default function App() {
                       )}
                       {grades.secondary.length > 0 && (
                         <div>
-                          <span className="text-xs font-bold text-brand-dark/40 mb-2 block uppercase">Secondary / Middle School</span>
+                          <span className="text-xs font-bold text-brand-dark/40 mb-2 block uppercase">{t('setup.secondary')}</span>
                           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
                             {grades.secondary.map((grade) => (
                               <button
@@ -1846,7 +1844,7 @@ export default function App() {
                       )}
                       {grades.advanced && grades.advanced.length > 0 && (
                         <div>
-                          <span className="text-xs font-bold text-brand-dark/40 mb-2 block uppercase">Advanced / Pre-U</span>
+                          <span className="text-xs font-bold text-brand-dark/40 mb-2 block uppercase">{t('setup.advanced')}</span>
                           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-2">
                             {grades.advanced.map((grade) => (
                               <button
@@ -1868,11 +1866,11 @@ export default function App() {
 
             {/* Step 3: Subject Selection */}
             <div className="mb-8">
-              <label className="block text-sm font-bold text-brand-dark/60 uppercase tracking-wider mb-3">3. Choose Subject</label>
+              <label className="block text-sm font-bold text-brand-dark/60 uppercase tracking-wider mb-3">{t('setup.step3')}</label>
               {!selectedGrade ? (
                 <div className="flex flex-col items-center justify-center h-24 border-2 border-dashed border-brand-dark/20 rounded-xl text-brand-dark/40">
                   <BookOpen size={24} className="mb-1" />
-                  <p className="text-sm">Select a grade first to see available subjects</p>
+                  <p className="text-sm">{t('setup.selectGradeFirst')}</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
@@ -1892,14 +1890,14 @@ export default function App() {
 
             {/* Step 4: Topic Selection */}
             <div className="flex justify-between items-center mb-3">
-              <label className="block text-sm font-bold text-brand-dark/60 uppercase tracking-wider">4. Select Topic</label>
+              <label className="block text-sm font-bold text-brand-dark/60 uppercase tracking-wider">{t('setup.step4')}</label>
               {selectedSubject && selectedGrade && (
-                <button 
-                  onClick={() => fetchSyllabus(true)} 
+                <button
+                  onClick={() => fetchSyllabus(true)}
                   className={`text-xs text-brand-blue flex items-center gap-1 hover:underline disabled:opacity-50`}
                   disabled={loadingTopics}
                 >
-                  <RefreshCw size={12} className={loadingTopics ? 'animate-spin' : ''} /> Refresh Topics
+                  <RefreshCw size={12} className={loadingTopics ? 'animate-spin' : ''} /> {t('setup.refreshTopics')}
                 </button>
               )}
             </div>
@@ -1908,12 +1906,12 @@ export default function App() {
               {!selectedSubject || !selectedSyllabus || !selectedGrade ? (
                 <div className="flex flex-col items-center justify-center h-32 border-2 border-dashed border-brand-dark/20 rounded-xl text-brand-dark/40">
                   <BookOpen size={32} className="mb-2" />
-                  <p>Select syllabus, grade and subject first</p>
+                  <p>{t('setup.selectSGSFirst')}</p>
                 </div>
               ) : loadingTopics ? (
                 <div className="flex flex-col items-center justify-center h-32 space-y-3">
                   <Loader2 className="animate-spin text-brand-blue" size={32} />
-                  <p className="text-sm font-bold text-brand-blue animate-pulse">Scanning {selectedSyllabus} Syllabus...</p>
+                  <p className="text-sm font-bold text-brand-blue animate-pulse">{t('setup.scanning', { syllabus: selectedSyllabus ?? '' })}</p>
                 </div>
               ) : topics.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1929,7 +1927,7 @@ export default function App() {
                 </div>
               ) : (
                 <div className="text-center p-8 text-brand-dark/50">
-                  <p>No topics found. Try refreshing.</p>
+                  <p>{t('setup.noTopics')}</p>
                 </div>
               )}
             </div>
@@ -1956,24 +1954,24 @@ export default function App() {
         {gameMode === 'CUSTOM' && (
           <div className="mb-8">
             <div className="flex justify-between items-center mb-4">
-              <label className="block text-sm font-bold text-brand-dark/60 uppercase tracking-wider">Select a Custom Quest</label>
+              <label className="block text-sm font-bold text-brand-dark/60 uppercase tracking-wider">{t('setup.selectCustomQuest')}</label>
               {user && (
                 <button
                   onClick={() => navigate('/teacher')}
                   className="text-xs font-bold text-brand-orange flex items-center gap-1 hover:underline bg-brand-orange/5 px-3 py-1.5 rounded-lg border border-brand-orange/20 transition-all hover:bg-brand-orange/10"
                 >
-                  <Plus size={14} /> Manage / Create Quests
+                  <Plus size={14} /> {t('setup.manageQuests')}
                 </button>
               )}
             </div>
 
             {customQuests.length === 0 ? (
               <div className="text-center p-12 border-2 border-dashed border-brand-dark/10 rounded-xl">
-                <p className="text-brand-dark/60 mb-4">No custom quests found.</p>
+                <p className="text-brand-dark/60 mb-4">{t('setup.noCustomQuests')}</p>
                 {user ? (
-                  <p className="text-sm text-brand-dark/40 italic">Create your quests in the Teacher Dashboard</p>
+                  <p className="text-sm text-brand-dark/40 italic">{t('setup.createInTeacher')}</p>
                 ) : (
-                  <p className="text-sm text-brand-dark/40 italic">Ask your teacher or parent to create one!</p>
+                  <p className="text-sm text-brand-dark/40 italic">{t('setup.askTeacher')}</p>
                 )}
               </div>
             ) : (
@@ -1986,7 +1984,7 @@ export default function App() {
                   >
                     <div className="font-bold text-lg mb-1">{quest.title}</div>
                     <div className="text-xs font-bold text-brand-dark/50">
-                      {quest.questions.length} Questions • {new Date(quest.createdAt).toLocaleDateString()}
+                      {t('setup.questionsCount', { count: quest.questions.length, date: new Date(quest.createdAt).toLocaleDateString() })}
                     </div>
                   </button>
                 ))}
@@ -2007,7 +2005,7 @@ export default function App() {
             }
             onClick={handleStartGame}
           >
-            {loadingGame ? <><Loader2 className="animate-spin" /> Preparing Quest...</> : 'Start Adventure'}
+            {loadingGame ? <><Loader2 className="animate-spin" /> {t('setup.preparing')}</> : t('setup.startAdventure')}
           </Button>
         </div>
       </Card>
@@ -2025,7 +2023,7 @@ export default function App() {
           onClick={handleStartGame}
           className="shadow-2xl shadow-brand-blue/30 py-5 text-base"
         >
-          {loadingGame ? <><Loader2 className="animate-spin" /> Preparing Quest...</> : '🚀 Start Adventure'}
+          {loadingGame ? <><Loader2 className="animate-spin" /> {t('setup.preparing')}</> : t('setup.startAdventureMobile')}
         </Button>
       </div>
     </div>

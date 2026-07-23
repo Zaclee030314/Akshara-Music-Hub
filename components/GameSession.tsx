@@ -3,6 +3,7 @@ import { GameState, Question, UserStats } from '../types';
 import { Button } from './Button';
 import { Card } from './Card';
 import { CheckCircle, XCircle, Award, ArrowRight, Brain, Lightbulb, Volume2, Coins } from 'lucide-react';
+import { useT } from '../contexts/LanguageContext';
 
 
 interface GameSessionProps {
@@ -30,6 +31,7 @@ export const GameSession: React.FC<GameSessionProps> = ({
   initialState,
   onStateChange
 }) => {
+  const { t } = useT();
   const [currentIndex, setCurrentIndex] = useState(initialState?.currentIndex || 0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [score, setScore] = useState(initialState?.score || 0);
@@ -114,14 +116,14 @@ export const GameSession: React.FC<GameSessionProps> = ({
     <div className="max-w-3xl mx-auto w-full p-4 space-y-6">
       {/* Header Stats */}
       <div className="flex justify-between items-center mb-6">
-        <Button variant="outline" size="sm" onClick={onExit}>Quit</Button>
+        <Button variant="outline" size="sm" onClick={onExit}>{t('game.quit')}</Button>
         <div className="flex items-center gap-4">
           <div className="bg-brand-cream px-4 py-2 rounded-xl font-bold text-brand-orange flex items-center gap-2 animate-bounce-sm">
             <Coins className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-            <span>{correctAnswersCount} coin{correctAnswersCount !== 1 ? 's' : ''}</span>
+            <span>{t('game.coins', { count: correctAnswersCount })}</span>
           </div>
           <div className="bg-brand-cream px-4 py-2 rounded-xl font-bold text-brand-green">
-            Streak: {streak} 🔥
+            {t('game.streak', { count: streak })}
           </div>
         </div>
       </div>
@@ -141,7 +143,7 @@ export const GameSession: React.FC<GameSessionProps> = ({
         </div>
 
         <div className="flex justify-between items-start mb-6">
-          <span className="text-xs font-bold uppercase tracking-widest text-brand-dark/40 bg-brand-dark/5 px-2 py-1 rounded">Question {currentIndex + 1}</span>
+          <span className="text-xs font-bold uppercase tracking-widest text-brand-dark/40 bg-brand-dark/5 px-2 py-1 rounded">{t('game.question', { num: currentIndex + 1 })}</span>
           <button className="text-brand-dark/20 hover:text-brand-dark"><Volume2 size={20} /></button>
         </div>
 
@@ -192,17 +194,17 @@ export const GameSession: React.FC<GameSessionProps> = ({
               <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
                 <h3 className="font-bold text-2xl flex items-center gap-2">
                   {selectedOption === currentQuestion.correctAnswerIndex ?
-                    <><span className="text-3xl">🎉</span> Awesome Job!</> :
-                    <><span className="text-3xl">💪</span> Nice try! Keep going!</>}
+                    <><span className="text-3xl">🎉</span> {t('game.awesomeJob')}</> :
+                    <><span className="text-3xl">💪</span> {t('game.niceTry')}</>}
                 </h3>
                 <Button onClick={handleNext} variant="primary" className="shrink-0 w-full md:w-auto shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all animate-pulse-glow">
-                  {isLastQuestion ? 'Finish Quest' : 'Continue Quest'} <ArrowRight size={18} />
+                  {isLastQuestion ? t('game.finishQuest') : t('common.continueQuest')} <ArrowRight size={18} />
                 </Button>
               </div>
 
               {selectedOption !== currentQuestion.correctAnswerIndex && (
                 <div className="bg-red-100/50 p-4 rounded-xl border border-red-200 icon-shake">
-                  <span className="text-xs font-bold text-red-600 uppercase tracking-wide">Correct Answer:</span>
+                  <span className="text-xs font-bold text-red-600 uppercase tracking-wide">{t('game.correctAnswer')}</span>
                   <p className="font-bold text-lg text-brand-dark mt-1">
                     {currentQuestion.options[currentQuestion.correctAnswerIndex]}
                   </p>
@@ -214,12 +216,12 @@ export const GameSession: React.FC<GameSessionProps> = ({
                   {selectedOption !== currentQuestion.correctAnswerIndex ? (
                     <>
                       <XCircle size={20} className="text-red-500" />
-                      <span className="font-bold text-sm uppercase tracking-wide text-red-500">Why was that wrong?</span>
+                      <span className="font-bold text-sm uppercase tracking-wide text-red-500">{t('game.whyWrong')}</span>
                     </>
                   ) : (
                     <>
                       <Lightbulb size={20} className="fill-brand-blue text-brand-blue" />
-                      <span className="font-bold text-sm uppercase tracking-wide text-brand-blue">Did You Know?</span>
+                      <span className="font-bold text-sm uppercase tracking-wide text-brand-blue">{t('game.didYouKnow')}</span>
                     </>
                   )}
                 </div>

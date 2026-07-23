@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card } from './Card';
 import { Trophy, Medal, Star, UserCircle2, Loader2, Award, CalendarClock } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
+import { useT } from '../contexts/LanguageContext';
 
 interface LeaderboardUser {
     id: string;
@@ -61,6 +62,7 @@ interface DisplayRow {
 
 export const Leaderboard: React.FC = () => {
     const { user } = useAuth();
+    const { t } = useT();
     // Default to the season-first model.
     const [tab, setTab] = useState<Tab>('season');
 
@@ -83,7 +85,7 @@ export const Leaderboard: React.FC = () => {
         fetch('/api/leaderboard')
             .then(r => { if (!r.ok) throw new Error('Failed'); return r.json(); })
             .then(data => setAllTimeData(Array.isArray(data) ? data : []))
-            .catch(() => setAllTimeError('Could not load leaderboard data.'))
+            .catch(() => setAllTimeError(t('leaderboard.errAllTime')))
             .finally(() => setAllTimeLoading(false));
 
         // Current-season leaderboard (auth optional — send token so "me" resolves)
@@ -97,7 +99,7 @@ export const Leaderboard: React.FC = () => {
                 setSeasonRows(Array.isArray(data.leaderboard) ? data.leaderboard : []);
                 setSeasonMe(data.me || null);
             })
-            .catch(() => setSeasonError('Could not load season leaderboard.'))
+            .catch(() => setSeasonError(t('leaderboard.errSeason')))
             .finally(() => setSeasonLoading(false));
 
         fetch('/api/seasons/history')
@@ -127,7 +129,7 @@ export const Leaderboard: React.FC = () => {
     const isActiveTab = tab;
     const loading = isActiveTab === 'alltime' ? allTimeLoading : seasonLoading;
     const error = isActiveTab === 'alltime' ? allTimeError : seasonError;
-    const valueLabel = isActiveTab === 'alltime' ? 'Total XP' : 'Season XP';
+    const valueLabel = isActiveTab === 'alltime' ? t('leaderboard.totalXp') : t('leaderboard.seasonXp');
 
     const renderRow = (player: DisplayRow, keySuffix = '') => {
         const isCurrentUser = user && player.id === user.id;
@@ -164,7 +166,7 @@ export const Leaderboard: React.FC = () => {
                         <div>
                             <div className="flex items-center gap-2">
                                 <p className={`font-bold ${isCurrentUser ? 'text-brand-blue' : 'text-brand-dark'}`}>
-                                    {player.name}{isCurrentUser ? ' (You)' : ''}
+                                    {player.name}{isCurrentUser ? ` (${t('leaderboard.you')})` : ''}
                                 </p>
                                 {player.grade && (
                                     <span className="text-[10px] font-bold bg-brand-orange/10 text-brand-orange px-2 py-0.5 rounded-full">
@@ -174,7 +176,7 @@ export const Leaderboard: React.FC = () => {
                             </div>
                             <div className="flex items-center gap-1 text-sm text-brand-dark/50">
                                 <Star size={14} className="text-brand-orange fill-brand-orange" />
-                                Level {player.level}
+                                {t('leaderboard.level', { level: player.level })}
                             </div>
                         </div>
                     </div>
@@ -183,7 +185,7 @@ export const Leaderboard: React.FC = () => {
                 <div className="text-right">
                     <p className="font-bold text-lg text-brand-dark">{player.value}</p>
                     <p className="text-xs font-bold text-brand-dark/50 uppercase tracking-wider">
-                        {isActiveTab === 'alltime' ? 'XP' : 'Season XP'}
+                        {isActiveTab === 'alltime' ? t('leaderboard.xp') : t('leaderboard.seasonXp')}
                     </p>
                 </div>
             </div>
@@ -198,9 +200,9 @@ export const Leaderboard: React.FC = () => {
                 <div className="inline-flex items-center justify-center p-4 bg-brand-orange/10 rounded-full mb-4">
                     <Trophy size={48} className="text-brand-orange" />
                 </div>
-                <h2 className="text-3xl md:text-4xl font-display font-bold text-brand-dark">Leaderboard</h2>
+                <h2 className="text-3xl md:text-4xl font-display font-bold text-brand-dark">{t('nav.leaderboard')}</h2>
                 <p className="text-brand-dark/70 max-w-lg mx-auto">
-                    Compete with other students and climb to the top! Earn XP by completing quizzes and quests.
+                    {t('leaderboard.subtitle')}
                 </p>
             </div>
 
@@ -210,13 +212,13 @@ export const Leaderboard: React.FC = () => {
                     onClick={() => setTab('season')}
                     className={`${pillBase} ${tab === 'season' ? 'bg-white text-brand-dark shadow-sm' : 'text-brand-dark/40 hover:text-brand-dark/70'}`}
                 >
-                    Current Season
+                    {t('leaderboard.currentSeason')}
                 </button>
                 <button
                     onClick={() => setTab('alltime')}
                     className={`${pillBase} ${tab === 'alltime' ? 'bg-white text-brand-dark shadow-sm' : 'text-brand-dark/40 hover:text-brand-dark/70'}`}
                 >
-                    All-Time
+                    {t('leaderboard.allTime')}
                 </button>
             </div>
 
@@ -238,13 +240,13 @@ export const Leaderboard: React.FC = () => {
                 ) : tab === 'season' && !seasonInfo ? (
                     <div className="text-center p-10 text-brand-dark/50 space-y-3">
                         <CalendarClock size={40} className="mx-auto text-brand-dark/20" />
-                        <p className="font-bold">No active season right now.</p>
-                        <p className="text-sm text-brand-dark/40">Check back when the next competition begins, or view the All-Time board.</p>
+                        <p className="font-bold">{t('leaderboard.noSeason')}</p>
+                        <p className="text-sm text-brand-dark/40">{t('leaderboard.noSeasonDesc')}</p>
                     </div>
                 ) : tab === 'alltime' && allTimeRows.length === 0 ? (
-                    <div className="text-center p-8 text-brand-dark/50">No users found on the leaderboard yet.</div>
+                    <div className="text-center p-8 text-brand-dark/50">{t('leaderboard.noUsers')}</div>
                 ) : tab === 'season' && seasonDisplayRows.length === 0 ? (
-                    <div className="text-center p-8 text-brand-dark/50">No one has scored this season yet. Be the first!</div>
+                    <div className="text-center p-8 text-brand-dark/50">{t('leaderboard.noSeasonScores')}</div>
                 ) : (
                     <div className="space-y-4">
                         <div className="flex justify-end px-1">
@@ -253,7 +255,7 @@ export const Leaderboard: React.FC = () => {
                         {(tab === 'alltime' ? allTimeRows : seasonDisplayRows).map(p => renderRow(p))}
                         {tab === 'season' && seasonMeRow && (
                             <>
-                                <div className="text-center text-[10px] font-black text-brand-dark/20 uppercase tracking-widest">Your Standing</div>
+                                <div className="text-center text-[10px] font-black text-brand-dark/20 uppercase tracking-widest">{t('leaderboard.yourStanding')}</div>
                                 {renderRow(seasonMeRow, '-me')}
                             </>
                         )}
@@ -265,18 +267,18 @@ export const Leaderboard: React.FC = () => {
                 <div className="space-y-4">
                     <div className="flex items-center gap-2 px-1">
                         <Award size={22} className="text-brand-orange" />
-                        <h3 className="text-xl font-display font-bold text-brand-dark">Past Season Winners</h3>
+                        <h3 className="text-xl font-display font-bold text-brand-dark">{t('leaderboard.pastWinners')}</h3>
                     </div>
                     {pastSeasons.map(season => (
                         <Card key={season.id} className="p-5 md:p-6 bg-white/80 border border-brand-dark/5">
                             <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
                                 <h4 className="font-bold text-brand-dark">{season.name}</h4>
                                 <span className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest">
-                                    ended {fmtDate(season.endDate)}
+                                    {t('leaderboard.ended', { date: fmtDate(season.endDate) })}
                                 </span>
                             </div>
                             {season.winners.length === 0 ? (
-                                <p className="text-brand-dark/40 text-sm font-bold italic">No winners recorded.</p>
+                                <p className="text-brand-dark/40 text-sm font-bold italic">{t('leaderboard.noWinners')}</p>
                             ) : (
                                 <div className="flex flex-col sm:flex-row gap-3">
                                     {season.winners.map(w => (
@@ -292,7 +294,7 @@ export const Leaderboard: React.FC = () => {
                                             <div className="min-w-0">
                                                 <p className="font-bold text-sm text-brand-dark truncate">{w.name}</p>
                                                 <p className="text-[11px] text-brand-dark/50 font-bold">
-                                                    {w.points} pts{w.rank === 1 && w.prizeTitle ? ` · ${w.prizeTitle}` : ''}
+                                                    {t('leaderboard.pts', { count: w.points })}{w.rank === 1 && w.prizeTitle ? ` · ${w.prizeTitle}` : ''}
                                                 </p>
                                             </div>
                                         </div>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Card } from './Card';
 import { Button } from './Button';
 import { useAuth } from '../contexts/useAuth';
+import { useT } from '../contexts/LanguageContext';
 import { Loader2, X, Sparkles } from 'lucide-react';
 
 interface ProfileCompletionModalProps {
@@ -15,6 +16,7 @@ const authHeaders = () => ({
 
 export const ProfileCompletionModal: React.FC<ProfileCompletionModalProps> = ({ onClose }) => {
     const { user, refreshUser } = useAuth();
+    const { t } = useT();
     const [parentName, setParentName] = useState('');
     const [parentPhone, setParentPhone] = useState('');
     const [parentEmail, setParentEmail] = useState('');
@@ -24,7 +26,7 @@ export const ProfileCompletionModal: React.FC<ProfileCompletionModalProps> = ({ 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!parentName.trim()) {
-            alert('Please enter a parent / guardian name.');
+            alert(t('profile.enterParentName'));
             return;
         }
         setSaving(true);
@@ -40,7 +42,7 @@ export const ProfileCompletionModal: React.FC<ProfileCompletionModalProps> = ({ 
             });
             if (!res.ok) {
                 const err = await res.json().catch(() => ({}));
-                alert(err.error || 'Failed to save details.');
+                alert(err.error || t('profile.failSaveDetails'));
                 setSaving(false);
                 return;
             }
@@ -48,7 +50,7 @@ export const ProfileCompletionModal: React.FC<ProfileCompletionModalProps> = ({ 
             onClose();
         } catch (err) {
             console.error(err);
-            alert('Failed to save details.');
+            alert(t('profile.failSaveDetails'));
             setSaving(false);
         }
     };
@@ -59,7 +61,7 @@ export const ProfileCompletionModal: React.FC<ProfileCompletionModalProps> = ({ 
                 <button
                     onClick={onClose}
                     className="absolute top-4 right-4 text-brand-dark/40 hover:text-brand-dark transition-colors"
-                    aria-label="Close"
+                    aria-label={t('common.close')}
                 >
                     <X size={20} />
                 </button>
@@ -68,14 +70,14 @@ export const ProfileCompletionModal: React.FC<ProfileCompletionModalProps> = ({ 
                     <div className="inline-flex items-center justify-center p-3 bg-brand-orange/10 rounded-full">
                         <Sparkles size={28} className="text-brand-orange" />
                     </div>
-                    <h3 className="text-2xl font-display font-bold text-brand-dark">Complete Your Profile</h3>
-                    <p className="text-sm text-brand-dark/60">Tell us a little about your family so we can personalize your learning.</p>
+                    <h3 className="text-2xl font-display font-bold text-brand-dark">{t('profile.completeTitle')}</h3>
+                    <p className="text-sm text-brand-dark/60">{t('profile.completeDesc')}</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="space-y-1">
-                            <label className="text-xs font-bold text-brand-dark/40 uppercase">Parent Name</label>
+                            <label className="text-xs font-bold text-brand-dark/40 uppercase">{t('profile.parentName')}</label>
                             <input
                                 type="text"
                                 value={parentName}
@@ -84,7 +86,7 @@ export const ProfileCompletionModal: React.FC<ProfileCompletionModalProps> = ({ 
                             />
                         </div>
                         <div className="space-y-1">
-                            <label className="text-xs font-bold text-brand-dark/40 uppercase">Parent Phone</label>
+                            <label className="text-xs font-bold text-brand-dark/40 uppercase">{t('profile.parentPhone')}</label>
                             <input
                                 type="tel"
                                 value={parentPhone}
@@ -95,7 +97,7 @@ export const ProfileCompletionModal: React.FC<ProfileCompletionModalProps> = ({ 
                     </div>
 
                     <div className="space-y-1">
-                        <label className="text-xs font-bold text-brand-dark/40 uppercase">Parent Email</label>
+                        <label className="text-xs font-bold text-brand-dark/40 uppercase">{t('profile.parentEmail')}</label>
                         <input
                             type="email"
                             value={sameAsEmail ? (user?.email || '') : parentEmail}
@@ -110,12 +112,12 @@ export const ProfileCompletionModal: React.FC<ProfileCompletionModalProps> = ({ 
                                 onChange={(e) => setSameAsEmail(e.target.checked)}
                                 className="rounded"
                             />
-                            Same as my registered email
+                            {t('profile.sameAsEmail')}
                         </label>
                     </div>
 
                     <Button type="submit" disabled={saving} fullWidth className="bg-brand-orange hover:bg-orange-400 py-4">
-                        {saving ? <Loader2 className="animate-spin" size={18} /> : 'Save & Continue'}
+                        {saving ? <Loader2 className="animate-spin" size={18} /> : t('profile.saveContinue')}
                     </Button>
                 </form>
             </Card>

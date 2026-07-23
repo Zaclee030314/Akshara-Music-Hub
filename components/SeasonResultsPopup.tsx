@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Trophy, UserCircle2, X } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
+import { useT } from '../contexts/LanguageContext';
 
 interface Winner {
     rank: number;
@@ -29,6 +30,7 @@ interface FinalizedSeason {
 
 export const SeasonResultsPopup: React.FC = () => {
     const { user } = useAuth();
+    const { t } = useT();
     const [season, setSeason] = useState<FinalizedSeason | null>(null);
     const token = localStorage.getItem('quest_token') || '';
 
@@ -84,7 +86,7 @@ export const SeasonResultsPopup: React.FC = () => {
                 <button
                     onClick={close}
                     className="absolute top-5 right-5 text-brand-dark/30 hover:text-brand-dark transition-colors"
-                    aria-label="Close"
+                    aria-label={t('common.close')}
                 >
                     <X size={22} />
                 </button>
@@ -94,12 +96,12 @@ export const SeasonResultsPopup: React.FC = () => {
                         <div className="absolute inset-0 bg-yellow-400 blur-2xl opacity-30 animate-pulse rounded-full" />
                         <Trophy size={56} className="text-brand-accent relative z-10 mx-auto" />
                     </div>
-                    <h2 className="text-2xl md:text-3xl font-display font-bold text-brand-dark">🏆 {season.name} Results!</h2>
-                    <p className="text-brand-dark/50 font-medium text-sm mt-1">The season has ended — here are the champions.</p>
+                    <h2 className="text-2xl md:text-3xl font-display font-bold text-brand-dark">{t('season.resultsTitle', { name: season.name })}</h2>
+                    <p className="text-brand-dark/50 font-medium text-sm mt-1">{t('season.resultsSubtitle')}</p>
                 </div>
 
                 {season.winners.length === 0 ? (
-                    <p className="text-center text-brand-dark/40 font-bold italic py-8">No participants this season.</p>
+                    <p className="text-center text-brand-dark/40 font-bold italic py-8">{t('season.noParticipants')}</p>
                 ) : (
                     <div className="flex items-end justify-center gap-3 md:gap-4 mb-6">
                         {podium.map((w, idx) => {
@@ -120,13 +122,13 @@ export const SeasonResultsPopup: React.FC = () => {
                                     </div>
                                     {w.rank === 1 ? (
                                         <div className="text-center mt-2">
-                                            <p className="text-[11px] font-black text-brand-orange uppercase tracking-wide">Won: {w.prizeTitle}</p>
+                                            <p className="text-[11px] font-black text-brand-orange uppercase tracking-wide">{t('season.won', { prize: w.prizeTitle })}</p>
                                             {season.prizeDetails && <p className="text-[10px] text-brand-dark/50 mt-0.5">{season.prizeDetails}</p>}
                                         </div>
                                     ) : (
                                         <div className="text-center mt-2">
-                                            {w.prizeTitle && <p className="text-[11px] font-black text-brand-orange uppercase tracking-wide">Won: {w.prizeTitle}</p>}
-                                            {w.awardedPoints > 0 && <p className="text-[11px] font-bold text-brand-dark/60">+{w.awardedPoints} coins</p>}
+                                            {w.prizeTitle && <p className="text-[11px] font-black text-brand-orange uppercase tracking-wide">{t('season.won', { prize: w.prizeTitle })}</p>}
+                                            {w.awardedPoints > 0 && <p className="text-[11px] font-bold text-brand-dark/60">{t('season.coinsPlus', { count: w.awardedPoints })}</p>}
                                         </div>
                                     )}
                                 </div>
@@ -147,7 +149,7 @@ export const SeasonResultsPopup: React.FC = () => {
                     onClick={close}
                     className="w-full bg-brand-dark text-white font-bold rounded-2xl py-4 text-sm hover:bg-brand-dark/90 active:scale-95 transition-all"
                 >
-                    Awesome, close
+                    {t('season.awesomeClose')}
                 </button>
             </div>
         </div>

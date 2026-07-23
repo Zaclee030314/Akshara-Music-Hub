@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ResultEntry } from '../types';
 import { BarChart3, TrendingUp, BookOpen, Target, Loader2, History, Sparkles, ScrollText, FileClock, ChevronDown, ChevronUp } from 'lucide-react';
 import { Card } from './Card';
+import { useT } from '../contexts/LanguageContext';
 
 interface DataAnalysisProps {
     token: string;
@@ -13,15 +14,15 @@ interface SubjectStat {
     correctAnswers: number;
 }
 
-// Friendly label + styling for each quiz mode
-const MODE_META: Record<string, { label: string; className: string; icon: React.ReactNode }> = {
-    AI: { label: 'Quest', className: 'bg-brand-blue/10 text-brand-blue', icon: <Sparkles size={11} /> },
-    CUSTOM: { label: 'Custom', className: 'bg-purple-100 text-purple-600', icon: <ScrollText size={11} /> },
-    PAST_YEAR: { label: 'Past Year', className: 'bg-amber-100 text-amber-600', icon: <FileClock size={11} /> },
+// Friendly label key + styling for each quiz mode
+const MODE_META: Record<string, { labelKey: string; className: string; icon: React.ReactNode }> = {
+    AI: { labelKey: 'mode.quest', className: 'bg-brand-blue/10 text-brand-blue', icon: <Sparkles size={11} /> },
+    CUSTOM: { labelKey: 'mode.custom', className: 'bg-purple-100 text-purple-600', icon: <ScrollText size={11} /> },
+    PAST_YEAR: { labelKey: 'mode.pastYear', className: 'bg-amber-100 text-amber-600', icon: <FileClock size={11} /> },
 };
 
 const getModeMeta = (mode: string) =>
-    MODE_META[mode] || { label: mode || 'Quiz', className: 'bg-brand-dark/5 text-brand-dark/50', icon: <BookOpen size={11} /> };
+    MODE_META[mode] || { labelKey: 'mode.quiz', className: 'bg-brand-dark/5 text-brand-dark/50', icon: <BookOpen size={11} /> };
 
 // Format an ISO date string as e.g. "6 Jul 2026"
 const formatDate = (value: string): string => {
@@ -36,6 +37,7 @@ const accuracyColor = (accuracy: number): string =>
 const HISTORY_PREVIEW_COUNT = 5;
 
 export const DataAnalysis: React.FC<DataAnalysisProps> = ({ token }) => {
+    const { t } = useT();
     const [results, setResults] = useState<ResultEntry[]>([]);
     const [loading, setLoading] = useState(true);
     const [showAllHistory, setShowAllHistory] = useState(false);
@@ -77,9 +79,9 @@ export const DataAnalysis: React.FC<DataAnalysisProps> = ({ token }) => {
                     <div className="w-16 h-16 bg-brand-dark/5 rounded-full flex items-center justify-center mx-auto mb-4">
                         <BarChart3 className="text-brand-dark/40" size={32} />
                     </div>
-                    <h3 className="text-xl font-display font-bold text-brand-dark mb-2">No Data Yet</h3>
+                    <h3 className="text-xl font-display font-bold text-brand-dark mb-2">{t('analysis.noDataTitle')}</h3>
                     <p className="text-brand-dark/60 text-sm">
-                        Complete some quests to see your performance analysis here!
+                        {t('analysis.noDataDesc')}
                     </p>
                 </div>
             </Card>
@@ -89,7 +91,7 @@ export const DataAnalysis: React.FC<DataAnalysisProps> = ({ token }) => {
     // Aggregate results by subject
     const subjectStatsMap = results.reduce<Record<string, SubjectStat>>((acc, result) => {
         // If subject is missing, group under 'General' or based on mode
-        const subj: string = result.subject || (result.mode === 'CUSTOM' ? 'Custom Quest' : 'General');
+        const subj: string = result.subject || (result.mode === 'CUSTOM' ? t('analysis.customQuest') : t('analysis.general'));
         if (!acc[subj]) {
             acc[subj] = { subject: subj, totalQuestions: 0, correctAnswers: 0 };
         }
@@ -114,8 +116,8 @@ export const DataAnalysis: React.FC<DataAnalysisProps> = ({ token }) => {
                     <TrendingUp size={24} />
                 </div>
                 <div>
-                    <h3 className="text-2xl font-display font-bold text-brand-dark">Performance Analysis</h3>
-                    <p className="text-sm text-brand-dark/60">See how you're doing across different subjects</p>
+                    <h3 className="text-2xl font-display font-bold text-brand-dark">{t('analysis.title')}</h3>
+                    <p className="text-sm text-brand-dark/60">{t('analysis.subtitle')}</p>
                 </div>
             </div>
 
@@ -125,7 +127,7 @@ export const DataAnalysis: React.FC<DataAnalysisProps> = ({ token }) => {
                         <BookOpen className="text-brand-dark/60" size={24} />
                     </div>
                     <div>
-                        <p className="text-xs font-bold text-brand-dark/40 uppercase tracking-wider mb-1">Total Questions</p>
+                        <p className="text-xs font-bold text-brand-dark/40 uppercase tracking-wider mb-1">{t('analysis.totalQuestions')}</p>
                         <p className="text-3xl font-display font-bold text-brand-dark">{totalQuestionsAll}</p>
                     </div>
                 </div>
@@ -134,14 +136,14 @@ export const DataAnalysis: React.FC<DataAnalysisProps> = ({ token }) => {
                         <Target className="text-brand-green" size={24} />
                     </div>
                     <div>
-                        <p className="text-xs font-bold text-brand-dark/40 uppercase tracking-wider mb-1">Overall Accuracy</p>
+                        <p className="text-xs font-bold text-brand-dark/40 uppercase tracking-wider mb-1">{t('analysis.overallAccuracy')}</p>
                         <p className="text-3xl font-display font-bold text-brand-green">{overallAccuracy}%</p>
                     </div>
                 </div>
             </div>
 
             <div className="space-y-4">
-                <h4 className="font-bold text-brand-dark mb-4 px-1">Subject Breakdown</h4>
+                <h4 className="font-bold text-brand-dark mb-4 px-1">{t('analysis.subjectBreakdown')}</h4>
                 {subjectStats.map((stat, idx) => {
                     const accuracy = stat.totalQuestions > 0 ? Math.round((stat.correctAnswers / stat.totalQuestions) * 100) : 0;
                     return (
@@ -150,7 +152,7 @@ export const DataAnalysis: React.FC<DataAnalysisProps> = ({ token }) => {
                                 <div>
                                     <h5 className="font-bold text-brand-dark text-lg">{stat.subject}</h5>
                                     <p className="text-xs text-brand-dark/50 font-medium">
-                                        {stat.correctAnswers} / {stat.totalQuestions} Correct
+                                        {t('analysis.correctOf', { correct: stat.correctAnswers, total: stat.totalQuestions })}
                                     </p>
                                 </div>
                                 <div className="text-right">
@@ -176,9 +178,9 @@ export const DataAnalysis: React.FC<DataAnalysisProps> = ({ token }) => {
             <div className="mt-8 pt-6 border-t border-brand-dark/5">
                 <div className="flex items-center justify-between mb-4 px-1">
                     <h4 className="font-bold text-brand-dark flex items-center gap-2">
-                        <History size={18} className="text-brand-blue" /> Quiz History
+                        <History size={18} className="text-brand-blue" /> {t('analysis.quizHistory')}
                     </h4>
-                    <span className="text-xs font-bold text-brand-dark/40">{results.length} completed</span>
+                    <span className="text-xs font-bold text-brand-dark/40">{t('analysis.completed', { count: results.length })}</span>
                 </div>
 
                 <div className="space-y-2.5">
@@ -187,14 +189,14 @@ export const DataAnalysis: React.FC<DataAnalysisProps> = ({ token }) => {
                         const correct = result.correctAnswers || 0;
                         const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
                         const mode = getModeMeta(result.mode);
-                        const title = result.quest?.title || result.subject || (result.mode === 'CUSTOM' ? 'Custom Quest' : 'General Practice');
+                        const title = result.quest?.title || result.subject || (result.mode === 'CUSTOM' ? t('analysis.customQuest') : t('analysis.generalPractice'));
 
                         return (
                             <div key={result.id} className="bg-white p-4 rounded-xl shadow-sm border border-brand-dark/5 flex items-center gap-4 hover:border-brand-blue/30 transition-colors">
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 mb-1 flex-wrap">
                                         <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full ${mode.className}`}>
-                                            {mode.icon} {mode.label}
+                                            {mode.icon} {t(mode.labelKey)}
                                         </span>
                                         {result.grade && (
                                             <span className="inline-flex items-center text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full bg-brand-dark/5 text-brand-dark/50">
@@ -205,14 +207,14 @@ export const DataAnalysis: React.FC<DataAnalysisProps> = ({ token }) => {
                                     </div>
                                     <h5 className="font-bold text-brand-dark truncate">{title}</h5>
                                     <p className="text-xs text-brand-dark/50 font-medium">
-                                        {correct} / {total} correct · {result.grade && result.xpAwarded === 0 && result.score > 0
-                                            ? <span className="text-amber-600">0 XP · below your standard</span>
-                                            : <>+{result.xpAwarded && result.xpAwarded > 0 ? result.xpAwarded : result.score} XP</>}
+                                        {t('analysis.correctOfLower', { correct, total })} · {result.grade && result.xpAwarded === 0 && result.score > 0
+                                            ? <span className="text-amber-600">{t('analysis.belowStandard')}</span>
+                                            : <>{t('analysis.xpGain', { xp: result.xpAwarded && result.xpAwarded > 0 ? result.xpAwarded : result.score })}</>}
                                     </p>
                                 </div>
                                 <div className="text-right shrink-0">
                                     <span className={`text-2xl font-display font-bold ${accuracyColor(accuracy)}`}>{accuracy}%</span>
-                                    <p className="text-[10px] font-bold text-brand-dark/30 uppercase tracking-wider">Accuracy</p>
+                                    <p className="text-[10px] font-bold text-brand-dark/30 uppercase tracking-wider">{t('analysis.accuracy')}</p>
                                 </div>
                             </div>
                         );
@@ -225,8 +227,8 @@ export const DataAnalysis: React.FC<DataAnalysisProps> = ({ token }) => {
                         className="mt-4 w-full flex items-center justify-center gap-1.5 py-3 rounded-xl bg-white border border-brand-dark/5 text-sm font-bold text-brand-blue hover:bg-brand-blue/5 transition-colors"
                     >
                         {showAllHistory
-                            ? <>Show less <ChevronUp size={16} /></>
-                            : <>Show all {results.length} quizzes <ChevronDown size={16} /></>}
+                            ? <>{t('analysis.showLess')} <ChevronUp size={16} /></>
+                            : <>{t('analysis.showAll', { count: results.length })} <ChevronDown size={16} /></>}
                     </button>
                 )}
             </div>

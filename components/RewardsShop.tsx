@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Coins, ShoppingBag, Clock, CheckCircle, XCircle, Star, Package } from 'lucide-react';
+import { useT } from '../contexts/LanguageContext';
 
 interface Reward {
     id: string;
@@ -27,6 +28,7 @@ interface RewardsShopProps {
 const API_BASE = '/api';
 
 const RewardsShop: React.FC<RewardsShopProps> = ({ userCoins, token, onCoinsUpdated }) => {
+    const { t } = useT();
     const [rewards, setRewards] = useState<Reward[]>([]);
     const [redemptions, setRedemptions] = useState<Redemption[]>([]);
     const [tab, setTab] = useState<'shop' | 'history'>('shop');
@@ -68,7 +70,7 @@ const RewardsShop: React.FC<RewardsShopProps> = ({ userCoins, token, onCoinsUpda
 
         // Basic Validation
         if (!receiverName.trim() || !receiverPhone.trim() || !receiverAddress.trim()) {
-            showToast('Please fill in all delivery details', 'error');
+            showToast(t('rewards.fillDelivery'), 'error');
             return;
         }
 
@@ -85,7 +87,7 @@ const RewardsShop: React.FC<RewardsShopProps> = ({ userCoins, token, onCoinsUpda
             });
             const data = await res.json();
             if (!res.ok) {
-                showToast(data.error || 'Redemption failed', 'error');
+                showToast(data.error || t('rewards.redemptionFailed'), 'error');
             } else {
                 const newCoins = userCoins - confirmReward.coinCost;
                 onCoinsUpdated(newCoins);
@@ -102,7 +104,7 @@ const RewardsShop: React.FC<RewardsShopProps> = ({ userCoins, token, onCoinsUpda
                     reward: confirmReward
                 };
                 setRedemptions(prev => [newRedemption, ...prev]);
-                showToast(`🎉 "${confirmReward.title}" redeemed! -${confirmReward.coinCost} coins`, 'success');
+                showToast(t('rewards.redeemedToast', { title: confirmReward.title, cost: confirmReward.coinCost }), 'success');
 
                 // Clear form
                 setReceiverName('');
@@ -111,7 +113,7 @@ const RewardsShop: React.FC<RewardsShopProps> = ({ userCoins, token, onCoinsUpda
                 setConfirmReward(null);
             }
         } catch {
-            showToast('Network error. Please try again.', 'error');
+            showToast(t('rewards.networkError'), 'error');
         }
         setRedeeming(false);
     };
@@ -132,21 +134,21 @@ const RewardsShop: React.FC<RewardsShopProps> = ({ userCoins, token, onCoinsUpda
                 <div className="inline-flex items-center gap-3 mb-3">
                     <ShoppingBag size={40} className="text-brand-orange" />
                 </div>
-                <h1 className="text-4xl font-display font-bold italic tracking-tight">Rewards Shop</h1>
-                <p className="text-brand-dark/50 mt-1 font-medium">Claim your hard-earned achievements</p>
+                <h1 className="text-4xl font-display font-bold italic tracking-tight">{t('rewards.title')}</h1>
+                <p className="text-brand-dark/50 mt-1 font-medium">{t('rewards.subtitle')}</p>
                 <div className="inline-flex items-center gap-2 mt-4 bg-brand-dark/5 border border-brand-dark/10 text-brand-dark px-6 py-3 rounded-2xl font-bold text-xl shadow-inner group">
                     <Coins className="text-brand-orange fill-brand-orange/20 w-6 h-6 group-hover:rotate-12 transition-transform" />
-                    {userCoins.toLocaleString()} <span className="text-[10px] text-brand-dark/40 uppercase tracking-widest mt-1 ml-1">Coins</span>
+                    {userCoins.toLocaleString()} <span className="text-[10px] text-brand-dark/40 uppercase tracking-widest mt-1 ml-1">{t('rewards.coins')}</span>
                 </div>
             </div>
 
             {/* Tabs */}
             <div className="flex gap-2 bg-white p-1.5 rounded-2xl mb-10 w-fit mx-auto shadow-sm border border-brand-dark/5">
-                {(['shop', 'history'] as const).map(t => (
-                    <button key={t} onClick={() => setTab(t)}
+                {(['shop', 'history'] as const).map(tabKey => (
+                    <button key={tabKey} onClick={() => setTab(tabKey)}
                         className={`px-8 py-2.5 rounded-xl font-bold text-sm transition-all
-              ${tab === t ? 'bg-brand-dark text-white shadow-lg' : 'text-brand-dark/40 hover:text-brand-dark hover:bg-brand-dark/5'}`}>
-                        {t === 'shop' ? 'Catalog' : 'My Redemptions'}
+              ${tab === tabKey ? 'bg-brand-dark text-white shadow-lg' : 'text-brand-dark/40 hover:text-brand-dark hover:bg-brand-dark/5'}`}>
+                        {tabKey === 'shop' ? t('rewards.catalog') : t('rewards.myRedemptions')}
                     </button>
                 ))}
             </div>
@@ -154,14 +156,14 @@ const RewardsShop: React.FC<RewardsShopProps> = ({ userCoins, token, onCoinsUpda
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-40 opacity-20">
                     <ShoppingBag size={48} className="animate-spin-slow mb-4" />
-                    <span className="font-bold uppercase tracking-widest text-[10px]">Restocking Store</span>
+                    <span className="font-bold uppercase tracking-widest text-[10px]">{t('rewards.restocking')}</span>
                 </div>
             ) : tab === 'shop' ? (
                 rewards.length === 0 ? (
                     <div className="text-center py-20 bg-white rounded-[40px] border-2 border-dashed border-brand-dark/5">
                         <Package size={64} className="mx-auto text-brand-dark/10 mb-6" />
-                        <p className="text-brand-dark/40 font-bold text-xl italic mb-2">The shop is currently empty.</p>
-                        <p className="text-brand-dark/30 text-sm">Our team is preparing new rewards for you!</p>
+                        <p className="text-brand-dark/40 font-bold text-xl italic mb-2">{t('rewards.emptyTitle')}</p>
+                        <p className="text-brand-dark/30 text-sm">{t('rewards.emptyDesc')}</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -183,14 +185,14 @@ const RewardsShop: React.FC<RewardsShopProps> = ({ userCoins, token, onCoinsUpda
                                     <p className="text-brand-dark/40 text-sm text-center mb-6 flex-1 font-medium leading-relaxed">{reward.description}</p>
                                     <div className="flex items-center justify-between mt-auto pt-6 border-t border-brand-dark/5">
                                         <div className="flex flex-col">
-                                            <span className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest">Price</span>
+                                            <span className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest">{t('rewards.price')}</span>
                                             <span className="flex items-center gap-1.5 text-brand-orange font-bold text-lg">
                                                 <Coins className="fill-brand-orange/20 w-4 h-4" />{reward.coinCost}
                                             </span>
                                         </div>
                                         {reward.stock !== null && (
                                             <span className="text-[10px] font-black px-3 py-1 bg-gray-50 rounded-lg text-brand-dark/30 uppercase tracking-tighter">
-                                                {reward.stock > 0 ? `${reward.stock} Left` : 'Sold Out'}
+                                                {reward.stock > 0 ? t('rewards.left', { count: reward.stock }) : t('rewards.soldOut')}
                                             </span>
                                         )}
                                     </div>
@@ -202,7 +204,7 @@ const RewardsShop: React.FC<RewardsShopProps> = ({ userCoins, token, onCoinsUpda
                                                 ? 'bg-gray-100 text-brand-dark/20 cursor-not-allowed shadow-none'
                                                 : 'bg-brand-dark text-white hover:bg-brand-orange hover:shadow-brand-orange/20'
                                             }`}>
-                                        {outOfStock ? 'Depleted' : !canAfford ? 'Low Balance' : 'Redeem Now'}
+                                        {outOfStock ? t('rewards.depleted') : !canAfford ? t('rewards.lowBalance') : t('rewards.redeemNow')}
                                     </button>
                                 </div>
                             );
@@ -213,8 +215,8 @@ const RewardsShop: React.FC<RewardsShopProps> = ({ userCoins, token, onCoinsUpda
                 redemptions.length === 0 ? (
                     <div className="text-center py-20 bg-white rounded-[40px] border-2 border-dashed border-brand-dark/5">
                         <Clock size={64} className="mx-auto text-brand-dark/10 mb-6" />
-                        <p className="text-brand-dark/40 font-bold text-xl italic">No redemption history yet.</p>
-                        <p className="text-brand-dark/30 text-sm mt-2">Spend some coins to see history here!</p>
+                        <p className="text-brand-dark/40 font-bold text-xl italic">{t('rewards.noHistory')}</p>
+                        <p className="text-brand-dark/30 text-sm mt-2">{t('rewards.noHistoryDesc')}</p>
                     </div>
                 ) : (
                     <div className="space-y-4">
@@ -224,7 +226,7 @@ const RewardsShop: React.FC<RewardsShopProps> = ({ userCoins, token, onCoinsUpda
                                 <div className="flex-1">
                                     <p className="font-bold text-brand-dark text-lg">{r.reward.title}</p>
                                     <p className="text-xs text-brand-dark/40 font-bold uppercase tracking-widest mt-0.5">
-                                        Redeemed {new Date(r.redeemedAt).toLocaleDateString()}
+                                        {t('rewards.redeemed', { date: new Date(r.redeemedAt).toLocaleDateString() })}
                                     </p>
                                 </div>
                                 <div className="text-right">
@@ -249,16 +251,16 @@ const RewardsShop: React.FC<RewardsShopProps> = ({ userCoins, token, onCoinsUpda
 
                         <div className="flex flex-col gap-4 mb-8">
                             <div className="space-y-1 text-left">
-                                <label className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest px-1">Recipient Name</label>
+                                <label className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest px-1">{t('rewards.recipientName')}</label>
                                 <input
                                     value={receiverName}
                                     onChange={e => setReceiverName(e.target.value)}
                                     className="w-full bg-gray-50 border border-brand-dark/5 rounded-2xl px-6 py-4 font-bold focus:ring-2 ring-brand-orange/20 outline-none transition-all"
-                                    placeholder="Enter full name"
+                                    placeholder={t('rewards.enterFullName')}
                                 />
                             </div>
                             <div className="space-y-1 text-left">
-                                <label className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest px-1">Phone Number</label>
+                                <label className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest px-1">{t('rewards.phoneNumber')}</label>
                                 <input
                                     value={receiverPhone}
                                     onChange={e => setReceiverPhone(e.target.value)}
@@ -267,12 +269,12 @@ const RewardsShop: React.FC<RewardsShopProps> = ({ userCoins, token, onCoinsUpda
                                 />
                             </div>
                             <div className="space-y-1 text-left">
-                                <label className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest px-1">Delivery Address</label>
+                                <label className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest px-1">{t('rewards.deliveryAddress')}</label>
                                 <textarea
                                     value={receiverAddress}
                                     onChange={e => setReceiverAddress(e.target.value)}
                                     className="w-full bg-gray-50 border border-brand-dark/5 rounded-2xl px-6 py-4 font-medium focus:ring-2 ring-brand-orange/20 outline-none transition-all h-24 resize-none"
-                                    placeholder="Enter full shipping address"
+                                    placeholder={t('rewards.enterAddress')}
                                 />
                             </div>
                         </div>
@@ -280,20 +282,20 @@ const RewardsShop: React.FC<RewardsShopProps> = ({ userCoins, token, onCoinsUpda
                         <div className="bg-brand-orange/5 rounded-3xl p-6 text-center mb-8 border border-brand-orange/10">
                             <p className="text-brand-orange font-black text-2xl flex items-center justify-center gap-2">
                                 <Coins className="fill-brand-orange/20 w-6 h-6 rotate-12" />
-                                {confirmReward.coinCost} Coins
+                                {t('rewards.coinsLabel', { count: confirmReward.coinCost })}
                             </p>
                             <p className="text-brand-dark/30 text-[10px] font-bold uppercase tracking-widest mt-2">
-                                New Balance: {(userCoins - confirmReward.coinCost).toLocaleString()}
+                                {t('rewards.newBalance', { balance: (userCoins - confirmReward.coinCost).toLocaleString() })}
                             </p>
                         </div>
 
                         <div className="flex flex-col gap-3">
                             <button onClick={handleRedeem} disabled={redeeming}
                                 className="w-full py-5 rounded-3xl bg-brand-dark text-white font-bold text-lg shadow-xl hover:bg-brand-orange hover:shadow-brand-orange/20 transition-all active:scale-95 disabled:opacity-50">
-                                {redeeming ? 'Processing...' : 'Confirm Redemption'}
+                                {redeeming ? t('rewards.processing') : t('rewards.confirmRedemption')}
                             </button>
                             <button onClick={() => setConfirmReward(null)} className="w-full py-4 rounded-2xl font-bold text-brand-dark/30 hover:text-brand-dark transition-colors text-sm">
-                                Not right now
+                                {t('rewards.notNow')}
                             </button>
                         </div>
                     </div>
