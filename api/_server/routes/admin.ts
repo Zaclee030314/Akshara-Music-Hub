@@ -329,7 +329,7 @@ router.get('/referrals', async (_req, res) => {
         // Hydrate each referrer's details.
         const referrers = await prisma.user.findMany({
             where: { id: { in: Array.from(byReferrer.keys()) } },
-            select: { id: true, name: true, email: true, referralCode: true },
+            select: { id: true, name: true, email: true, referralCode: true, referralCreditCents: true },
         });
         const referrerMap = new Map(referrers.map(r => [r.id, r]));
 
@@ -342,6 +342,7 @@ router.get('/referrals', async (_req, res) => {
                         name: r?.name || 'Unknown',
                         email: r?.email || '—',
                         referralCode: r?.referralCode || null,
+                        referralCreditCents: r?.referralCreditCents ?? 0,
                     },
                     count: referredUsers.length,
                     referred: referredUsers,

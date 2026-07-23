@@ -16,6 +16,7 @@ interface Profile {
     parentPhone?: string | null;
     parentEmail?: string | null;
     profileCompleted: boolean;
+    referralCreditCents?: number;
 }
 
 const authHeaders = () => ({
@@ -308,8 +309,13 @@ export const ProfilePage: React.FC = () => {
 
             {/* Refer & Earn */}
             <Card className="p-6 md:p-8 shadow-sm space-y-4 bg-gradient-to-br from-brand-orange/5 to-yellow-50/50">
-                <h3 className="font-bold text-brand-dark flex items-center gap-2"><Gift size={18} className="text-brand-orange" /> Refer &amp; Earn</h3>
-                <p className="text-sm text-brand-dark/60">Share this link with other parents — you'll be credited for every signup.</p>
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                    <h3 className="font-bold text-brand-dark flex items-center gap-2"><Gift size={18} className="text-brand-orange" /> Refer &amp; Earn</h3>
+                    <span className="text-sm font-bold text-brand-orange bg-brand-orange/10 px-3 py-1 rounded-full">
+                        RM{((profile.referralCreditCents ?? 0) / 100).toFixed(2)} earned so far
+                    </span>
+                </div>
+                <p className="text-sm text-brand-dark/60">Earn RM5 off your own subscription for every friend who subscribes to a paid plan.</p>
                 {referralCode ? (
                     <div className="flex flex-col sm:flex-row gap-2">
                         <input

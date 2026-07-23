@@ -159,6 +159,7 @@ export default function App() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [paymentClientSecret, setPaymentClientSecret] = useState<string | null>(null);
   const [paymentAmount, setPaymentAmount] = useState<number>(0);
+  const [paymentAppliedCredit, setPaymentAppliedCredit] = useState<number>(0);
   const [paymentInterval, setPaymentInterval] = useState<'month' | 'year'>('month');
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [showQuotaModal, setShowQuotaModal] = useState(false);
@@ -787,6 +788,7 @@ export default function App() {
         const data = await res.json();
         setPaymentClientSecret(data.clientSecret);
         setPaymentAmount(data.amount);
+        setPaymentAppliedCredit(data.appliedCredit || 0);
         setPaymentInterval(interval);
         setSelectedPlanLevel(planLevel);
         setSelectedSubscriptionSyllabus(syllabus);
@@ -1312,6 +1314,7 @@ export default function App() {
             <div className="md:col-span-3 flex justify-center">
               <PaymentForm
                 amount={paymentAmount}
+                appliedCredit={paymentAppliedCredit}
                 interval={paymentInterval}
                 planLevel={selectedPlanLevel}
                 syllabus={selectedSubscriptionSyllabus}

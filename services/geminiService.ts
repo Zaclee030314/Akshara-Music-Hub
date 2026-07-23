@@ -118,7 +118,7 @@ const generateSyllabus = async (subject: Subject, grade: GradeLevel, syllabus: S
 };
 
 export interface StudyPlanRequest {
-  subject: string;
+  subjects: string[];
   grade: string;
   syllabus: string;
   timeframe: string;
@@ -144,7 +144,7 @@ const generateStudyPlan = async (params: StudyPlanRequest): Promise<StudyPlanRes
   if (isMockMode) {
     await new Promise(resolve => setTimeout(resolve, 1500));
     return {
-      title: `Study Plan: ${params.subject} (${params.grade})`,
+      title: `Study Plan: ${params.subjects.join(', ')} (${params.grade})`,
       overview: "A mock study plan for testing.",
       weeks: [
         {

@@ -29,7 +29,8 @@ const shapeProfile = (user: any) => {
         parentName: user.parentName,
         parentPhone: user.parentPhone,
         parentEmail: user.parentEmail,
-        profileCompleted: user.profileCompleted
+        profileCompleted: user.profileCompleted,
+        referralCreditCents: user.referralCreditCents ?? 0
     };
 };
 

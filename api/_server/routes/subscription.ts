@@ -21,15 +21,35 @@ router.post('/create-payment-intent', authenticateToken, async (req: any, res: a
 
     // Promo prices actually charged (MYR cents). Full prices are marketing strikethroughs on the frontend.
     const PRICE_TABLE: Record<string, number> = { single: 5990, all: 9990 };
-    const finalAmount = PRICE_TABLE[planLevel] ?? PRICE_TABLE.single;
+    let finalAmount = PRICE_TABLE[planLevel] ?? PRICE_TABLE.single;
     // Charged currency is always MYR regardless of client-detected display currency.
     const finalCurrency = 'myr';
 
+    // ─── REDEEM: apply the paying user's own accumulated referral credit as a discount ───
+    // Load the user's spendable balance and apply as much as possible while keeping the
+    // charge at or above Stripe's minimum. `applied` is what we actually discount now; it is
+    // only decremented from the balance on successful activation in confirm-payment.
+    const STRIPE_MIN = 200; // 2.00 MYR floor so the charge stays valid
+    let appliedCredit = 0;
+    try {
+        const payer = await prisma.user.findUnique({
+            where: { id: user.id },
+            select: { referralCreditCents: true }
+        });
+        const balance = payer?.referralCreditCents ?? 0;
+        appliedCredit = Math.max(0, Math.min(balance, finalAmount - STRIPE_MIN));
+        finalAmount -= appliedCredit;
+    } catch (creditErr) {
+        console.error('[SUBSCRIPTION] Failed to load referral credit, charging full price:', creditErr);
+        appliedCredit = 0;
+    }
+
     if (isMockMode) {
-        console.warn(`⚠️ STRIPE MOCK MODE ENABLED. Processing ${finalCurrency.toUpperCase()} ${finalAmount / 100} (${interval || 'month'})`);
+        console.warn(`⚠️ STRIPE MOCK MODE ENABLED. Processing ${finalCurrency.toUpperCase()} ${finalAmount / 100} (${interval || 'month'})${appliedCredit > 0 ? ` [referral credit -${appliedCredit / 100}]` : ''}`);
         return res.json({
             clientSecret: `mock_secret_${Date.now()}`,
             amount: finalAmount,
+            appliedCredit,
             interval: interval || 'month',
             planLevel: planLevel || 'single',
             syllabus: syllabus || null,
@@ -45,13 +65,15 @@ router.post('/create-payment-intent', authenticateToken, async (req: any, res: a
             metadata: {
                 userId: user.id,
                 planLevel: planLevel || 'single',
-                syllabus: syllabus || ''
+                syllabus: syllabus || '',
+                appliedCredit: String(appliedCredit)
             }
         });
 
         res.json({
             clientSecret: paymentIntent.client_secret,
             amount: finalAmount,
+            appliedCredit,
             isMock: false
         });
     } catch (error: any) {
@@ -66,6 +88,65 @@ router.post('/confirm-payment', authenticateToken, async (req: any, res: any) =>
     const userId = req.user?.id;
 
     if (!paymentIntentId || !userId) return res.status(400).json({ error: 'Missing data' });
+
+    const STRIPE_MIN = 200;
+    const PRICE_TABLE: Record<string, number> = { single: 5990, all: 9990 };
+
+    // Load the paying user up-front so we can (a) grant the referrer's reward exactly once
+    // and (b) decrement any referral credit the payer applied at checkout.
+    const payer = await prisma.user.findUnique({ where: { id: userId } });
+    if (!payer) return res.status(404).json({ error: 'User not found' });
+
+    // Referral bookkeeping — runs AFTER the subscription is activated (isSubscribed=true).
+    //  DECREMENT: subtract the credit the payer actually applied to this checkout from their own balance.
+    //  GRANT:     if this user was referred and hasn't triggered a grant yet, give the referrer
+    //             RM5 (500 sen) and flag this user so it fires exactly once — even across renewals.
+    // The GRANT credits `referredById` (a different user); the DECREMENT touches only the payer,
+    // so the two steps never collide. NOTE: replicate the GRANT logic in webhooks.ts if real
+    // recurring Stripe billing is adopted.
+    const settleReferral = async (appliedCredit: number) => {
+        // DECREMENT the payer's own applied credit (clamped so the balance never goes negative).
+        if (appliedCredit > 0) {
+            const decrementBy = Math.min(appliedCredit, payer.referralCreditCents);
+            if (decrementBy > 0) {
+                try {
+                    await prisma.user.update({
+                        where: { id: userId },
+                        data: { referralCreditCents: { decrement: decrementBy } }
+                    });
+                    console.log(`[REFERRAL] Redeemed ${decrementBy / 100} MYR credit for payer ${userId}`);
+                } catch (decErr) {
+                    console.error('[REFERRAL] Failed to decrement applied credit:', decErr);
+                }
+            }
+        }
+
+        // GRANT the referrer RM5, exactly once per referred student.
+        if (payer.referredById && payer.referralRewardGranted === false) {
+            try {
+                const referrer = await prisma.user.findUnique({ where: { id: payer.referredById } });
+                if (referrer) {
+                    await prisma.$transaction([
+                        prisma.user.update({
+                            where: { id: payer.referredById },
+                            data: { referralCreditCents: { increment: 500 } }
+                        }),
+                        prisma.user.update({
+                            where: { id: userId },
+                            data: { referralRewardGranted: true }
+                        })
+                    ]);
+                    console.log(`[REFERRAL] Granted RM5 to referrer ${payer.referredById} for first payment by referred user ${userId}`);
+                } else {
+                    // Defensive: referrer no longer exists — still flag so we don't retry endlessly.
+                    await prisma.user.update({ where: { id: userId }, data: { referralRewardGranted: true } });
+                    console.warn(`[REFERRAL] Referrer ${payer.referredById} not found; flagged user ${userId} to avoid retries.`);
+                }
+            } catch (grantErr) {
+                console.error('[REFERRAL] Failed to grant referral reward:', grantErr);
+            }
+        }
+    };
 
     // Handle Mock Confirmation
     if (paymentIntentId.startsWith('mock_')) {
@@ -89,6 +170,14 @@ router.post('/confirm-payment', authenticateToken, async (req: any, res: any) =>
                 questsCreated: 0
             }
         });
+
+        // Re-derive the applied credit server-side (never trust the client) using the exact
+        // formula from create-payment-intent. The payer's balance is unchanged since then, so
+        // this equals what was discounted.
+        const price = PRICE_TABLE[planLevel || 'single'] ?? PRICE_TABLE.single;
+        const applied = Math.max(0, Math.min(payer.referralCreditCents, price - STRIPE_MIN));
+        await settleReferral(applied);
+
         return res.json({ success: true, isMock: true });
     }
 
@@ -115,6 +204,11 @@ router.post('/confirm-payment', authenticateToken, async (req: any, res: any) =>
                     questsCreated: 0
                 }
             });
+
+            // Authoritative applied-credit value is the one we stamped into the PaymentIntent metadata.
+            const applied = parseInt((paymentIntent.metadata?.appliedCredit as string) || '0', 10) || 0;
+            await settleReferral(applied);
+
             res.json({ success: true });
         } else {
             res.status(400).json({ error: 'Payment not successful' });

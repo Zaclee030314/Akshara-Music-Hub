@@ -15,6 +15,7 @@ interface ReferralRow {
         name: string;
         email: string;
         referralCode: string | null;
+        referralCreditCents?: number;
     };
     count: number;
     referred: ReferredUser[];
@@ -115,6 +116,10 @@ export const ReferralReport: React.FC<Props> = ({ token }) => {
                                         <p className="text-[10px] text-brand-dark/40 font-medium truncate uppercase tracking-tighter">{row.referrer.email}</p>
                                     </div>
                                     <div className="flex items-center gap-2 shrink-0">
+                                        <div className="flex flex-col items-center bg-brand-green/10 text-brand-green rounded-2xl px-4 py-2">
+                                            <span className="font-display font-bold text-lg leading-none">RM{((row.referrer.referralCreditCents ?? 0) / 100).toFixed(2)}</span>
+                                            <span className="text-[9px] font-bold uppercase tracking-widest">Earned</span>
+                                        </div>
                                         <div className="flex flex-col items-center bg-brand-orange/10 text-brand-orange rounded-2xl px-4 py-2">
                                             <span className="font-display font-bold text-2xl leading-none">{row.count}</span>
                                             <span className="text-[9px] font-bold uppercase tracking-widest">Referred</span>

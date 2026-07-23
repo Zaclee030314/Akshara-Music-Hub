@@ -19,7 +19,7 @@ import {
 
 export const StudyPlanGenerator: React.FC = () => {
     const navigate = useNavigate();
-    const [subject, setSubject] = useState<string>('');
+    const [subjects, setSubjects] = useState<string[]>([]);
     const [grade, setGrade] = useState<string>('');
     const [syllabus, setSyllabus] = useState<string>('');
     const [timeframe, setTimeframe] = useState<string>('4 Weeks');
@@ -31,9 +31,13 @@ export const StudyPlanGenerator: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    const toggleSubject = (s: string) => {
+        setSubjects(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]);
+    };
+
     const handleGenerate = async () => {
-        if (!subject || !grade || !syllabus || !timeframe) {
-            setError('Please fill in all required fields.');
+        if (subjects.length === 0 || !grade || !syllabus || !timeframe) {
+            setError('Please select at least one subject, a grade, a syllabus and a duration.');
             return;
         }
 
@@ -41,7 +45,7 @@ export const StudyPlanGenerator: React.FC = () => {
         setError(null);
         try {
             const plan = await geminiService.generateStudyPlan({
-                subject,
+                subjects,
                 grade,
                 syllabus,
                 timeframe,
@@ -64,6 +68,7 @@ export const StudyPlanGenerator: React.FC = () => {
         setStudyPlan(null);
         setGeneratedId(null);
         setGoals('');
+        setSubjects([]);
     };
 
     const handleContinue = () => {
@@ -83,7 +88,7 @@ export const StudyPlanGenerator: React.FC = () => {
                     </div>
                     <div className="space-y-3">
                         <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Plan Ready!</h2>
-                        <p className="text-slate-500 text-lg">Your study roadmap for <b>{subject}</b> has been generated.</p>
+                        <p className="text-slate-500 text-lg">Your study roadmap for <b>{subjects.join(', ')}</b> has been generated.</p>
                     </div>
                     <div className="pt-4 space-y-3">
                         <Button 
@@ -159,16 +164,16 @@ export const StudyPlanGenerator: React.FC = () => {
 
                             <div className="space-y-4 md:col-span-2">
                                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 flex items-center gap-2">
-                                    <Target size={14} className="text-brand-blue" /> Focus Subject
+                                    <Target size={14} className="text-brand-blue" /> Focus Subjects <span className="text-slate-300 normal-case tracking-normal">(select one or more)</span>
                                 </label>
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                     {Object.values(Subject).map(s => (
                                         <button
                                             key={s}
-                                            onClick={() => setSubject(s)}
+                                            onClick={() => toggleSubject(s)}
                                             className={`p-4 rounded-2xl border-2 font-bold text-xs transition-all ${
-                                                subject === s 
-                                                ? 'bg-brand-blue text-white border-brand-blue shadow-md' 
+                                                subjects.includes(s)
+                                                ? 'bg-brand-blue text-white border-brand-blue shadow-md'
                                                 : 'bg-white text-slate-400 border-slate-100 hover:border-slate-300 hover:text-slate-600'
                                             }`}
                                         >
@@ -184,7 +189,7 @@ export const StudyPlanGenerator: React.FC = () => {
                                 size="lg"
                                 fullWidth
                                 onClick={handleGenerate}
-                                disabled={loading || !subject || !grade || !syllabus}
+                                disabled={loading || subjects.length === 0 || !grade || !syllabus}
                                 className="py-6 text-xl font-bold rounded-2xl bg-brand-blue transition-all"
                             >
                                 {loading ? (

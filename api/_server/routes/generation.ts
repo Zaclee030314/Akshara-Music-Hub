@@ -539,10 +539,16 @@ router.post('/syllabus', async (req, res) => {
 });
 
 router.post('/study-plan', authenticateToken, checkExpiredSubscriptions, async (req: AuthRequest, res) => {
-    const { subject, grade, syllabus, timeframe, hoursPerDay, goals } = req.body;
+    const { subject, subjects: subjectsRaw, grade, syllabus, timeframe, hoursPerDay, goals } = req.body;
     const userId = req.user?.id;
 
-    console.log(`[STUDY-PLAN] Request: ${subject} / ${grade} / ${syllabus} - ${timeframe} - ${hoursPerDay}h/day`);
+    // Accept a `subjects` array; coerce a legacy single `subject` string for backward-compat.
+    const subjects: string[] = Array.isArray(subjectsRaw) && subjectsRaw.length > 0
+        ? subjectsRaw.filter((s: any) => typeof s === 'string' && s.trim().length > 0)
+        : (typeof subject === 'string' && subject.trim().length > 0 ? [subject] : []);
+    const subjectsLabel = subjects.join(', ');
+
+    console.log(`[STUDY-PLAN] Request: ${subjectsLabel} / ${grade} / ${syllabus} - ${timeframe} - ${hoursPerDay}h/day`);
 
     if (userId) {
         try {
@@ -578,7 +584,7 @@ router.post('/study-plan', authenticateToken, checkExpiredSubscriptions, async (
     if (isMockMode()) {
         console.log(`✅ [STUDY-PLAN] Using mock mode`);
         return res.json({
-            title: `Study Plan: ${subject} (${grade})`,
+            title: `Study Plan: ${subjectsLabel} (${grade})`,
             overview: "A mock study plan for testing.",
             weeks: [
                 {
@@ -609,9 +615,9 @@ router.post('/study-plan', authenticateToken, checkExpiredSubscriptions, async (
         console.log(`🤖 [STUDY-PLAN] Generating with Gemini...`);
 
         const prompt = `Act as an expert academic tutor and create a highly effective, personalized study plan.
-        
+
         STUDENT PROFILE:
-        - Subject: ${subject}
+        - Subjects: ${subjectsLabel}
         - Grade Level: ${grade}
         - Syllabus/Curriculum: ${syllabus}
         - Timeframe: ${timeframe}
@@ -621,7 +627,11 @@ router.post('/study-plan', authenticateToken, checkExpiredSubscriptions, async (
         - Commitment: ${hoursPerDay} hours per day
         ${goals ? `- Specific Goals: ${goals}` : ""}
 
-        IMPORTANT: Keep it simple and clean. Use MINIMAL words. 
+        MULTI-SUBJECT: Build ONE combined weekly plan that covers ALL of these subjects: ${subjectsLabel}.
+        Distribute the subjects across the days and weeks and balance study time between them — do NOT
+        produce a separate plan per subject. Each task's "topicSearch" must be a topic within one of these subjects.
+
+        IMPORTANT: Keep it simple and clean. Use MINIMAL words.
         - Title should be very short (max 5 words).
         - Overview should be max 2 sentences.
         - Task titles should be extremely concise (max 4-5 words).
@@ -688,7 +698,7 @@ router.post('/study-plan', authenticateToken, checkExpiredSubscriptions, async (
                         userId,
                         title: planData.title,
                         overview: planData.overview,
-                        subject,
+                        subject: subjectsLabel, // free-text column stores the comma-joined subjects
                         grade,
                         syllabus,
                         timeframe,
