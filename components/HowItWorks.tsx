@@ -10,7 +10,7 @@ const STEPS = [
     },
     {
         icon: <Brain />,
-        title: 'Master AI Quests',
+        title: 'Master Quests',
         description: 'Teachers conduct sessions for class play, while Parents help students revise with step-by-step AI guidance.',
         color: 'bg-brand-orange'
     },

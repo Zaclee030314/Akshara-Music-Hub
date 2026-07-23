@@ -174,7 +174,7 @@ export const BillingPage: React.FC = () => {
                 ) : (
                     <div className="space-y-4 border-t border-brand-dark/5 pt-6">
                         <ul className="space-y-2 text-sm text-brand-dark/60">
-                            <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-brand-green" /> 3 free AI-generated quizzes</li>
+                            <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-brand-green" /> 3 free quizzes</li>
                         </ul>
                         <Button onClick={() => navigate('/pricing')} fullWidth className="bg-brand-orange hover:bg-orange-400">
                             Upgrade Plan

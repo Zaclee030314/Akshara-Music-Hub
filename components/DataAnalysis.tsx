@@ -15,7 +15,7 @@ interface SubjectStat {
 
 // Friendly label + styling for each quiz mode
 const MODE_META: Record<string, { label: string; className: string; icon: React.ReactNode }> = {
-    AI: { label: 'AI Quest', className: 'bg-brand-blue/10 text-brand-blue', icon: <Sparkles size={11} /> },
+    AI: { label: 'Quest', className: 'bg-brand-blue/10 text-brand-blue', icon: <Sparkles size={11} /> },
     CUSTOM: { label: 'Custom', className: 'bg-purple-100 text-purple-600', icon: <ScrollText size={11} /> },
     PAST_YEAR: { label: 'Past Year', className: 'bg-amber-100 text-amber-600', icon: <FileClock size={11} /> },
 };

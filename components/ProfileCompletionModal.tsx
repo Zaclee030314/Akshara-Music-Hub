@@ -2,13 +2,7 @@ import React, { useState } from 'react';
 import { Card } from './Card';
 import { Button } from './Button';
 import { useAuth } from '../contexts/useAuth';
-import { Loader2, X, Plus, Trash2, Sparkles } from 'lucide-react';
-
-interface Child {
-    name: string;
-    age: string;
-    birthday: string;
-}
+import { Loader2, X, Sparkles } from 'lucide-react';
 
 interface ProfileCompletionModalProps {
     onClose: () => void;
@@ -21,24 +15,16 @@ const authHeaders = () => ({
 
 export const ProfileCompletionModal: React.FC<ProfileCompletionModalProps> = ({ onClose }) => {
     const { user, refreshUser } = useAuth();
-    const [children, setChildren] = useState<Child[]>([{ name: '', age: '', birthday: '' }]);
     const [parentName, setParentName] = useState('');
     const [parentPhone, setParentPhone] = useState('');
     const [parentEmail, setParentEmail] = useState('');
     const [sameAsEmail, setSameAsEmail] = useState(false);
     const [saving, setSaving] = useState(false);
 
-    const updateChild = (idx: number, field: keyof Child, value: string) => {
-        setChildren(prev => prev.map((c, i) => i === idx ? { ...c, [field]: value } : c));
-    };
-    const addChild = () => setChildren(prev => [...prev, { name: '', age: '', birthday: '' }]);
-    const removeChild = (idx: number) => setChildren(prev => prev.length > 1 ? prev.filter((_, i) => i !== idx) : prev);
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const validChildren = children.filter(c => c.name.trim());
-        if (validChildren.length === 0) {
-            alert('Please add at least one child.');
+        if (!parentName.trim()) {
+            alert('Please enter a parent / guardian name.');
             return;
         }
         setSaving(true);
@@ -49,12 +35,7 @@ export const ProfileCompletionModal: React.FC<ProfileCompletionModalProps> = ({ 
                 body: JSON.stringify({
                     parentName,
                     parentPhone,
-                    parentEmail: sameAsEmail ? user?.email : parentEmail,
-                    children: validChildren.map(c => ({
-                        name: c.name.trim(),
-                        age: c.age === '' ? null : Number(c.age),
-                        birthday: c.birthday
-                    }))
+                    parentEmail: sameAsEmail ? user?.email : parentEmail
                 })
             });
             if (!res.ok) {
@@ -92,47 +73,6 @@ export const ProfileCompletionModal: React.FC<ProfileCompletionModalProps> = ({ 
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
-                    <div className="space-y-3">
-                        <label className="text-xs font-bold text-brand-dark/40 uppercase">Children</label>
-                        {children.map((child, idx) => (
-                            <div key={idx} className="grid grid-cols-[1fr_70px_140px_auto] gap-2 items-end">
-                                <input
-                                    type="text"
-                                    placeholder="Name"
-                                    value={child.name}
-                                    onChange={(e) => updateChild(idx, 'name', e.target.value)}
-                                    className="w-full p-2.5 rounded-xl border-2 border-brand-dark/10 focus:border-brand-blue focus:outline-none text-sm font-medium"
-                                />
-                                <input
-                                    type="number"
-                                    min={0}
-                                    placeholder="Age"
-                                    value={child.age}
-                                    onChange={(e) => updateChild(idx, 'age', e.target.value)}
-                                    className="w-full p-2.5 rounded-xl border-2 border-brand-dark/10 focus:border-brand-blue focus:outline-none text-sm font-medium"
-                                />
-                                <input
-                                    type="date"
-                                    value={child.birthday}
-                                    onChange={(e) => updateChild(idx, 'birthday', e.target.value)}
-                                    className="w-full p-2.5 rounded-xl border-2 border-brand-dark/10 focus:border-brand-blue focus:outline-none text-sm font-medium"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => removeChild(idx)}
-                                    disabled={children.length <= 1}
-                                    className="p-2.5 text-red-400 hover:text-red-600 disabled:opacity-30 disabled:cursor-not-allowed"
-                                    aria-label="Remove child"
-                                >
-                                    <Trash2 size={18} />
-                                </button>
-                            </div>
-                        ))}
-                        <Button type="button" variant="outline" size="sm" onClick={addChild}>
-                            <Plus size={16} /> Add child
-                        </Button>
-                    </div>
-
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="space-y-1">
                             <label className="text-xs font-bold text-brand-dark/40 uppercase">Parent Name</label>

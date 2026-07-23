@@ -16,17 +16,8 @@ const generateReferralCode = (): string => {
     return code;
 };
 
-// Shape the profile fields returned to the client (parse children JSON safely).
+// Shape the profile fields returned to the client.
 const shapeProfile = (user: any) => {
-    let children: any[] = [];
-    if (user.children) {
-        try {
-            const parsed = JSON.parse(user.children);
-            if (Array.isArray(parsed)) children = parsed;
-        } catch {
-            children = [];
-        }
-    }
     return {
         id: user.id,
         name: user.name,
@@ -38,7 +29,6 @@ const shapeProfile = (user: any) => {
         parentName: user.parentName,
         parentPhone: user.parentPhone,
         parentEmail: user.parentEmail,
-        children,
         profileCompleted: user.profileCompleted
     };
 };
@@ -150,21 +140,13 @@ router.post('/season-seen', authenticateToken, async (req: AuthRequest, res) => 
     }
 });
 
-// PUT /api/profile/family — update parent + children details, mark profile complete
+// PUT /api/profile/family — update parent details, mark profile complete
 router.put('/family', authenticateToken, async (req: AuthRequest, res) => {
     try {
         const userId = req.user?.id;
         if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
-        const { parentName, parentPhone, parentEmail, children } = req.body;
-
-        const childrenArray = Array.isArray(children)
-            ? children.map((c: any) => ({
-                name: typeof c?.name === 'string' ? c.name : '',
-                age: c?.age ?? null,
-                birthday: typeof c?.birthday === 'string' ? c.birthday : ''
-            }))
-            : [];
+        const { parentName, parentPhone, parentEmail } = req.body;
 
         const user = await prisma.user.update({
             where: { id: userId },
@@ -172,7 +154,6 @@ router.put('/family', authenticateToken, async (req: AuthRequest, res) => {
                 parentName: typeof parentName === 'string' ? parentName : null,
                 parentPhone: typeof parentPhone === 'string' ? parentPhone : null,
                 parentEmail: typeof parentEmail === 'string' ? parentEmail : null,
-                children: JSON.stringify(childrenArray),
                 profileCompleted: true
             }
         });

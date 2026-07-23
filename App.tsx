@@ -209,19 +209,34 @@ export default function App() {
         const qId = query.get('questId');
         const aId = query.get('assignmentId');
         if (aId) setActiveAssignmentId(aId);
-        
+
         if (qId) {
           fetch('/api/quests', {
             headers: { Authorization: `Bearer ${localStorage.getItem('quest_token')}` }
-          }).then(res => res.json()).then(data => {
-            const q = data.find((x: any) => x.id === qId);
-            if (q) {
+          })
+            .then(res => {
+              if (!res.ok) throw new Error('Failed to load quests');
+              return res.json();
+            })
+            .then(data => {
+              if (!Array.isArray(data)) throw new Error('Unexpected quests response');
+              const q = data.find((x: any) => x.id === qId);
+              if (q) {
                 setSelectedCustomQuest(q);
                 if (autoStart) setMustAutoStart(true);
-            }
-          });
+                navigate('/practice');
+              } else {
+                throw new Error('Quest not found');
+              }
+            })
+            .catch(err => {
+              console.error('Custom quest deep-link load failed:', err);
+              alert("Couldn't load this assignment's quest. Please try again from your classroom.");
+              navigate('/classrooms');
+            });
+        } else {
+          navigate('/practice');
         }
-        navigate('/practice');
       }
 
       // Clear URL params to avoid re-triggering on reload
@@ -244,7 +259,7 @@ export default function App() {
         handleStartGame();
       }
     }
-  }, [mustAutoStart, location.pathname, selectedSubject, selectedGrade, selectedSyllabus, selectedTopic, selectedYear, gameMode]);
+  }, [mustAutoStart, location.pathname, selectedSubject, selectedGrade, selectedSyllabus, selectedTopic, selectedYear, gameMode, selectedCustomQuest]);
 
   // Sync stats from Server User
   useEffect(() => {
@@ -1316,7 +1331,7 @@ export default function App() {
                 <ul className="space-y-5 w-full flex-1">
                   <li className="flex items-start gap-3 text-sm font-medium text-brand-dark/60">
                     <CheckCircle2 size={18} className="text-brand-green shrink-0" />
-                    <span>3 free AI-generated quizzes</span>
+                    <span>3 free quizzes</span>
                   </li>
                 </ul>
 
@@ -1714,7 +1729,7 @@ export default function App() {
             onClick={() => setGameMode('AI')}
             className={`py-3 px-2 rounded-xl font-bold flex items-center justify-center gap-1.5 transition-all text-xs sm:text-sm ${gameMode === 'AI' ? 'bg-brand-blue text-white shadow-lg' : 'bg-brand-dark/5 hover:bg-brand-dark/10'}`}
           >
-            <Sparkles size={16} /> AI Quest
+            <Sparkles size={16} /> Quest
           </button>
           <button
             disabled
@@ -2053,8 +2068,8 @@ export default function App() {
       {/* Level Up Overlay */}
       {showLevelUp && levelUpData && <LevelUpOverlay />}
 
-      {/* Post-purchase profile completion (subscribed but family details not yet filled) */}
-      {user && user.isSubscribed && user.profileCompleted === false && !dismissedProfileModal && (
+      {/* Prompt students (free or subscribed) to complete their profile details */}
+      {user && user.role === 'student' && !user.isAdmin && user.profileCompleted === false && !dismissedProfileModal && (
         <ProfileCompletionModal onClose={() => setDismissedProfileModal(true)} />
       )}
       {/* Phase 3: season results announcement popup (shown once per finalized season) */}

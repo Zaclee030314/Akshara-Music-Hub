@@ -2,13 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Card } from './Card';
 import { Button } from './Button';
 import { useAuth } from '../contexts/useAuth';
-import { Loader2, Camera, User as UserIcon, Save, Plus, Trash2, CheckCircle2, Gift, Copy, Check } from 'lucide-react';
-
-interface Child {
-    name: string;
-    age: string | number;
-    birthday: string;
-}
+import { Loader2, Camera, User as UserIcon, Save, CheckCircle2, Gift, Copy, Check } from 'lucide-react';
 
 interface Profile {
     id: string;
@@ -21,7 +15,6 @@ interface Profile {
     parentName?: string | null;
     parentPhone?: string | null;
     parentEmail?: string | null;
-    children: Child[];
     profileCompleted: boolean;
 }
 
@@ -50,7 +43,6 @@ export const ProfilePage: React.FC = () => {
     const [parentPhone, setParentPhone] = useState('');
     const [parentEmail, setParentEmail] = useState('');
     const [sameAsEmail, setSameAsEmail] = useState(false);
-    const [children, setChildren] = useState<Child[]>([{ name: '', age: '', birthday: '' }]);
     const [savingFamily, setSavingFamily] = useState(false);
     const [familySaved, setFamilySaved] = useState(false);
 
@@ -69,7 +61,6 @@ export const ProfilePage: React.FC = () => {
             setParentPhone(data.parentPhone || '');
             setParentEmail(data.parentEmail || '');
             if (data.parentEmail && data.parentEmail === data.email) setSameAsEmail(true);
-            setChildren(data.children && data.children.length > 0 ? data.children : [{ name: '', age: '', birthday: '' }]);
         } catch (err) {
             console.error(err);
             setError('Could not load your profile.');
@@ -189,12 +180,6 @@ export const ProfilePage: React.FC = () => {
         }
     };
 
-    const updateChild = (idx: number, field: keyof Child, value: string) => {
-        setChildren(prev => prev.map((c, i) => i === idx ? { ...c, [field]: value } : c));
-    };
-    const addChild = () => setChildren(prev => [...prev, { name: '', age: '', birthday: '' }]);
-    const removeChild = (idx: number) => setChildren(prev => prev.length > 1 ? prev.filter((_, i) => i !== idx) : prev);
-
     const handleSaveFamily = async (e: React.FormEvent) => {
         e.preventDefault();
         setSavingFamily(true);
@@ -206,10 +191,7 @@ export const ProfilePage: React.FC = () => {
                 body: JSON.stringify({
                     parentName,
                     parentPhone,
-                    parentEmail: sameAsEmail ? profile?.email : parentEmail,
-                    children: children
-                        .filter(c => c.name.trim())
-                        .map(c => ({ name: c.name.trim(), age: c.age === '' ? null : Number(c.age), birthday: c.birthday }))
+                    parentEmail: sameAsEmail ? profile?.email : parentEmail
                 })
             });
             if (!res.ok) {
@@ -391,53 +373,6 @@ export const ProfilePage: React.FC = () => {
                             />
                             Same as my registered email
                         </label>
-                    </div>
-
-                    <div className="space-y-3">
-                        <label className="text-xs font-bold text-brand-dark/40 uppercase">Children</label>
-                        {children.map((child, idx) => (
-                            <div key={idx} className="grid grid-cols-1 sm:grid-cols-[1fr_90px_150px_auto] gap-2 items-end">
-                                <div>
-                                    <input
-                                        type="text"
-                                        placeholder="Child name"
-                                        value={child.name}
-                                        onChange={(e) => updateChild(idx, 'name', e.target.value)}
-                                        className="w-full p-2.5 rounded-xl border-2 border-brand-dark/10 focus:border-brand-blue focus:outline-none text-sm font-medium"
-                                    />
-                                </div>
-                                <div>
-                                    <input
-                                        type="number"
-                                        min={0}
-                                        placeholder="Age"
-                                        value={child.age}
-                                        onChange={(e) => updateChild(idx, 'age', e.target.value)}
-                                        className="w-full p-2.5 rounded-xl border-2 border-brand-dark/10 focus:border-brand-blue focus:outline-none text-sm font-medium"
-                                    />
-                                </div>
-                                <div>
-                                    <input
-                                        type="date"
-                                        value={child.birthday}
-                                        onChange={(e) => updateChild(idx, 'birthday', e.target.value)}
-                                        className="w-full p-2.5 rounded-xl border-2 border-brand-dark/10 focus:border-brand-blue focus:outline-none text-sm font-medium"
-                                    />
-                                </div>
-                                <button
-                                    type="button"
-                                    onClick={() => removeChild(idx)}
-                                    disabled={children.length <= 1}
-                                    className="p-2.5 text-red-400 hover:text-red-600 disabled:opacity-30 disabled:cursor-not-allowed"
-                                    aria-label="Remove child"
-                                >
-                                    <Trash2 size={18} />
-                                </button>
-                            </div>
-                        ))}
-                        <Button type="button" variant="outline" size="sm" onClick={addChild}>
-                            <Plus size={16} /> Add child
-                        </Button>
                     </div>
 
                     <div className="flex items-center gap-3">
