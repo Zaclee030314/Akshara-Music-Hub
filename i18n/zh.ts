@@ -502,6 +502,42 @@ const zh: Record<string, string> = {
   'classroom.errorPrefix': '错误：{msg}',
   'classroom.failJoin': '加入课室失败。',
   'classroom.failSubmit': '提交失败',
+
+  // ── Home quick-access (landing) ────────────────────────────────────
+  'home.resumeQuest': '继续任务',
+  'home.resumeSubtitle': '从您上次停下的地方继续！',
+  'home.resumeProgress': '{subject} • 第 {n} 题，共 {total} 题',
+  'home.continueAdventure': '继续冒险',
+  'home.teacherDesc': '创建自定义任务、管理学生并追踪进度。',
+  'home.rewardsDesc': '用您辛苦赚来的金币兑换精彩奖励和道具。',
+  'home.visitShop': '前往商店',
+  'home.studyPlanDesc': '生成个性化的每日学习计划，助您考试取得佳绩。',
+  'home.createPlan': '创建计划',
+
+  // ── Study progress / roadmap page ──────────────────────────────────
+  'studyprogress.loading': '正在加载路线图...',
+  'studyprogress.fetchFailed': '无法获取您的学习计划',
+  'studyprogress.focusPlan': '专注计划',
+  'studyprogress.noActivePlan': '您目前还没有活跃的学习计划。',
+  'studyprogress.tryAgain': '再试一次',
+  'studyprogress.createNewPlan': '创建新计划',
+  'studyprogress.roadmapTitle': '{subject} 路线图',
+  'studyprogress.totalProgress': '总进度',
+  'studyprogress.focusedTasks': '重点任务',
+  'studyprogress.dayWeek': '{day} • 第 {week} 周',
+  'studyprogress.practice': '练习',
+  'studyprogress.allComplete': '所有任务已完成！',
+  'studyprogress.onTrack': '您正按照学习计划稳步前进。',
+  'studyprogress.fullRoadmap': '完整路线图',
+  'studyprogress.week': '第 {week} 周',
+  'studyprogress.overviewTitle': '路线图概览',
+  'studyprogress.overviewFallback': '您通往学业卓越的旅程从这里开始。',
+  'studyprogress.tasksTotal': '任务总数',
+  'studyprogress.tasksFinished': '已完成任务',
+  'studyprogress.confirmDelete': '您确定要删除此学习计划吗？您的所有进度都将丢失。',
+  'studyprogress.deleteFailed': '删除学习计划失败。请再试一次。',
+  'studyprogress.deleteError': '删除学习计划时发生错误。',
+  'studyprogress.resetRoadmap': '重置路线图',
 };
 
 export default zh;

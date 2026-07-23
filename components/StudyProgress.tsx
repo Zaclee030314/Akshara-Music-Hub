@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from './Button';
 import { Card } from './Card';
+import { useT } from '../contexts/LanguageContext';
 import { 
     CheckCircle2, 
     Circle, 
@@ -40,6 +41,7 @@ interface StudyPlan {
 }
 
 export const StudyProgress: React.FC = () => {
+    const { t } = useT();
     const navigate = useNavigate();
     const [plan, setPlan] = useState<StudyPlan | null>(null);
     const [loading, setLoading] = useState(true);
@@ -62,7 +64,7 @@ export const StudyProgress: React.FC = () => {
                 setError('No active study plan found.');
             } else {
                 const errorData = await res.json().catch(() => ({}));
-                throw new Error(errorData.details || 'Failed to fetch your study plan');
+                throw new Error(errorData.details || t('studyprogress.fetchFailed'));
             }
         } catch (err: any) {
             setError(err.message);
@@ -121,7 +123,7 @@ export const StudyProgress: React.FC = () => {
         return (
             <div className="flex flex-col items-center justify-center min-h-[400px] space-y-6">
                 <Loader2 className="animate-spin text-brand-blue" size={48} strokeWidth={2} />
-                <p className="text-slate-500 font-bold text-sm uppercase tracking-widest">Loading Roadmap...</p>
+                <p className="text-slate-500 font-bold text-sm uppercase tracking-widest">{t('studyprogress.loading')}</p>
             </div>
         );
     }
@@ -134,15 +136,15 @@ export const StudyProgress: React.FC = () => {
                         <AlertCircle size={40} />
                     </div>
                     <div className="space-y-3">
-                        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Focus Plan</h2>
+                        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">{t('studyprogress.focusPlan')}</h2>
                         <p className="text-slate-500 font-medium">
-                            {error === 'No active study plan found.' ? "You don't have an active study plan yet." : error}
+                            {error === 'No active study plan found.' ? t('studyprogress.noActivePlan') : error}
                         </p>
                     </div>
                     <div className="flex flex-col gap-3">
                         {error !== 'No active study plan found.' && (
                             <Button onClick={fetchPlan} size="lg" className="rounded-2xl py-4 font-bold bg-brand-blue">
-                                Try Again
+                                {t('studyprogress.tryAgain')}
                             </Button>
                         )}
                         <Button 
@@ -150,7 +152,7 @@ export const StudyProgress: React.FC = () => {
                             onClick={() => navigate('/study-plan')}
                             className="rounded-2xl py-4 font-bold border-slate-200 text-slate-600"
                         >
-                            Create New Plan
+                            {t('studyprogress.createNewPlan')}
                         </Button>
                     </div>
                 </Card>
@@ -171,9 +173,9 @@ export const StudyProgress: React.FC = () => {
                             onClick={() => navigate('/dashboard')}
                             className="flex items-center gap-2 text-slate-400 hover:text-slate-900 transition-colors font-bold text-xs uppercase tracking-widest mb-4"
                         >
-                            <ArrowLeft size={16} /> Dashboard
+                            <ArrowLeft size={16} /> {t('nav.dashboard')}
                         </button>
-                        <h1 className="text-4xl font-bold text-slate-900 tracking-tight">{plan.subject} Roadmap</h1>
+                        <h1 className="text-4xl font-bold text-slate-900 tracking-tight">{t('studyprogress.roadmapTitle', { subject: plan.subject })}</h1>
                         <p className="text-slate-500 font-medium">{plan.grade} • {plan.syllabus} • {plan.timeframe}</p>
                     </div>
 
@@ -182,7 +184,7 @@ export const StudyProgress: React.FC = () => {
                             {progressPercent}%
                         </div>
                         <div className="space-y-1.5 min-w-[140px]">
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Total Progress</p>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">{t('studyprogress.totalProgress')}</p>
                             <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                                 <div 
                                     className="h-full bg-emerald-500 transition-all duration-1000" 
@@ -196,7 +198,7 @@ export const StudyProgress: React.FC = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2 space-y-8">
                         <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                            <Target size={20} className="text-brand-blue" /> Focused Tasks
+                            <Target size={20} className="text-brand-blue" /> {t('studyprogress.focusedTasks')}
                         </h3>
                         
                         <div className="space-y-4">
@@ -211,7 +213,7 @@ export const StudyProgress: React.FC = () => {
                                             {updatingTaskId === task.id ? <Loader2 size={32} className="animate-spin" /> : <Circle size={32} />}
                                         </button>
                                         <div className="space-y-1">
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{task.day} • Week {task.weekNumber}</p>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t('studyprogress.dayWeek', { day: task.day, week: task.weekNumber })}</p>
                                             <p className="font-bold text-slate-900 text-lg">{task.title}</p>
                                         </div>
                                     </div>
@@ -219,7 +221,7 @@ export const StudyProgress: React.FC = () => {
                                         onClick={() => handleStartPractice(plan.subject, plan.grade, plan.syllabus, task.topicSearch)}
                                         className="w-full sm:w-auto rounded-xl py-3 px-6 font-bold bg-brand-blue flex items-center gap-2"
                                     >
-                                        <Play size={16} fill="currentColor" /> Practice
+                                        <Play size={16} fill="currentColor" /> {t('studyprogress.practice')}
                                     </Button>
                                 </Card>
                             )) : (
@@ -227,15 +229,15 @@ export const StudyProgress: React.FC = () => {
                                     <div className="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
                                         <CheckCircle2 size={32} />
                                     </div>
-                                    <p className="font-bold text-slate-900">All tasks completed!</p>
-                                    <p className="text-slate-500 text-sm">You are on track with your study plan.</p>
+                                    <p className="font-bold text-slate-900">{t('studyprogress.allComplete')}</p>
+                                    <p className="text-slate-500 text-sm">{t('studyprogress.onTrack')}</p>
                                 </Card>
                             )}
                         </div>
 
                         <div className="pt-8 space-y-8">
                             <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                                <Layout size={20} className="text-brand-blue" /> Full Roadmap
+                                <Layout size={20} className="text-brand-blue" /> {t('studyprogress.fullRoadmap')}
                             </h3>
                             
                             <div className="space-y-6">
@@ -243,7 +245,7 @@ export const StudyProgress: React.FC = () => {
                                     const weekTasks = plan.tasks.filter(t => t.weekNumber === weekNum);
                                     return (
                                         <div key={weekNum} className="space-y-4">
-                                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-2 border-l-2 border-brand-blue ml-1">Week {weekNum}</p>
+                                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-2 border-l-2 border-brand-blue ml-1">{t('studyprogress.week', { week: weekNum })}</p>
                                             <div className="grid grid-cols-1 gap-3">
                                                 {weekTasks.map(task => (
                                                     <div 
@@ -273,24 +275,24 @@ export const StudyProgress: React.FC = () => {
                     <div className="space-y-8">
                         <Card className="p-8 border-slate-200 shadow-sm rounded-3xl bg-white space-y-6 lg:sticky lg:top-8">
                             <div className="space-y-2">
-                                <h4 className="text-lg font-bold text-slate-900">Roadmap Overview</h4>
-                                <p className="text-sm text-slate-500 leading-relaxed">{plan.overview || "Your journey towards academic excellence starts here."}</p>
+                                <h4 className="text-lg font-bold text-slate-900">{t('studyprogress.overviewTitle')}</h4>
+                                <p className="text-sm text-slate-500 leading-relaxed">{plan.overview || t('studyprogress.overviewFallback')}</p>
                             </div>
 
                             <div className="pt-4 space-y-3">
                                 <div className="flex items-center justify-between text-sm">
-                                    <span className="text-slate-400 font-medium">Tasks Total</span>
+                                    <span className="text-slate-400 font-medium">{t('studyprogress.tasksTotal')}</span>
                                     <span className="text-slate-900 font-bold">{plan.tasks.length}</span>
                                 </div>
                                 <div className="flex items-center justify-between text-sm">
-                                    <span className="text-slate-400 font-medium">Tasks Finished</span>
+                                    <span className="text-slate-400 font-medium">{t('studyprogress.tasksFinished')}</span>
                                     <span className="text-emerald-600 font-bold">{completedCount}</span>
                                 </div>
                             </div>
 
                             <button 
                                 onClick={async () => {
-                                    if(window.confirm('Are you sure you want to delete this study plan? All your progress will be lost.')) {
+                                    if(window.confirm(t('studyprogress.confirmDelete'))) {
                                         try {
                                             const res = await fetch(`/api/study-plans/${plan.id}`, { 
                                                 method: 'DELETE',
@@ -300,17 +302,17 @@ export const StudyProgress: React.FC = () => {
                                                 navigate('/study-plan');
                                             } else {
                                                 const errData = await res.json().catch(() => ({}));
-                                                alert(errData.error || 'Failed to delete study plan. Please try again.');
+                                                alert(errData.error || t('studyprogress.deleteFailed'));
                                             }
                                         } catch (err) {
-                                            alert('An error occurred while deleting the study plan.');
+                                            alert(t('studyprogress.deleteError'));
                                             console.error(err);
                                         }
                                     }
                                 }}
                                 className="w-full py-3 rounded-xl border border-red-100 text-red-500 text-xs font-bold hover:bg-red-50 transition-all uppercase tracking-widest mt-4"
                             >
-                                Reset Roadmap
+                                {t('studyprogress.resetRoadmap')}
                             </button>
                         </Card>
                     </div>

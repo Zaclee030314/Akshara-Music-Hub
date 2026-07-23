@@ -1151,10 +1151,10 @@ export default function App() {
                 <Rocket size={28} />
               </div>
               <div className="text-left">
-                <span className="bg-brand-blue text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider mb-1 inline-block">Resume Quest</span>
-                <p className="font-display font-bold text-brand-dark text-xl leading-tight">Continue where you left off!</p>
+                <span className="bg-brand-blue text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider mb-1 inline-block">{t('home.resumeQuest')}</span>
+                <p className="font-display font-bold text-brand-dark text-xl leading-tight">{t('home.resumeSubtitle')}</p>
                 <p className="text-xs text-brand-dark/60 font-medium mt-0.5">
-                  {activeSession?.subject} • Question {(activeSession?.currentIndex || 0) + 1} of {activeSession?.questions?.length || 0}
+                  {t('home.resumeProgress', { subject: activeSession?.subject ?? '', n: (activeSession?.currentIndex || 0) + 1, total: activeSession?.questions?.length || 0 })}
                 </p>
               </div>
             </div>
@@ -1171,7 +1171,7 @@ export default function App() {
                 navigate('/practice/session');
               }}
             >
-              Continue Adventure <ArrowRight size={18} className="ml-2" />
+              {t('home.continueAdventure')} <ArrowRight size={18} className="ml-2" />
             </Button>
           </div>
         </div>
@@ -1188,9 +1188,9 @@ export default function App() {
             <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center text-white mb-4 shadow-md group-hover:shadow-lg transition-transform group-hover:-translate-y-1">
               <GraduationCap size={20} />
             </div>
-            <h3 className="font-bold text-brand-dark mb-1">Teacher Dashboard</h3>
+            <h3 className="font-bold text-brand-dark mb-1">{t('nav.teacherDashboard')}</h3>
             <p className="text-xs text-brand-dark/60 mb-6 flex-1">
-              Create custom quests, manage students, and track progress.
+              {t('home.teacherDesc')}
             </p>
             <Button
               variant="primary"
@@ -1202,7 +1202,7 @@ export default function App() {
                 else navigate('/teacher');
               }}
             >
-              <Brain size={14} className="mr-1.5" /> Dashboard
+              <Brain size={14} className="mr-1.5" /> {t('nav.dashboard')}
             </Button>
           </div>
         </Card>
@@ -1216,9 +1216,9 @@ export default function App() {
             <div className="w-10 h-10 bg-yellow-500 rounded-xl flex items-center justify-center text-white mb-4 shadow-md group-hover:shadow-lg transition-transform group-hover:-translate-y-1">
               <Gift size={20} />
             </div>
-            <h3 className="font-bold text-brand-dark mb-1">Rewards Shop</h3>
+            <h3 className="font-bold text-brand-dark mb-1">{t('rewards.title')}</h3>
             <p className="text-xs text-brand-dark/60 mb-6 flex-1">
-              Spend your hard-earned coins on exciting rewards and power-ups.
+              {t('home.rewardsDesc')}
             </p>
             <Button
               variant="primary"
@@ -1227,7 +1227,7 @@ export default function App() {
               className="bg-yellow-500 hover:bg-yellow-600 shadow-md shadow-yellow-500/20"
               onClick={() => { if (!user) setShowLoginModal(true); else navigate('/rewards'); }}
             >
-              <Coins size={14} className="mr-1.5" /> {user ? 'Visit Shop' : 'Log In'}
+              <Coins size={14} className="mr-1.5" /> {user ? t('home.visitShop') : t('nav.login')}
             </Button>
           </div>
         </Card>
@@ -1241,9 +1241,9 @@ export default function App() {
             <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center text-white mb-4 shadow-md group-hover:shadow-lg transition-transform group-hover:-translate-y-1">
               <Calendar size={20} />
             </div>
-            <h3 className="font-bold text-brand-dark mb-1">AI Study Plan</h3>
+            <h3 className="font-bold text-brand-dark mb-1">{t('setup.modeStudyPlan')}</h3>
             <p className="text-xs text-brand-dark/60 mb-6 flex-1">
-              Generate a personalized daily roadmap to ace your exams.
+              {t('home.studyPlanDesc')}
             </p>
             <Button
               variant="primary"
@@ -1255,7 +1255,7 @@ export default function App() {
                 else navigate('/study-plan');
               }}
             >
-              <Sparkles size={14} className="mr-1.5" /> Create Plan
+              <Sparkles size={14} className="mr-1.5" /> {t('home.createPlan')}
             </Button>
           </div>
         </Card>

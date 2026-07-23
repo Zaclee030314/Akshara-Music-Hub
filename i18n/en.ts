@@ -502,6 +502,42 @@ const en: Record<string, string> = {
   'classroom.errorPrefix': 'Error: {msg}',
   'classroom.failJoin': 'Failed to join classroom.',
   'classroom.failSubmit': 'Failed to submit',
+
+  // ── Home quick-access (landing) ────────────────────────────────────
+  'home.resumeQuest': 'Resume Quest',
+  'home.resumeSubtitle': 'Continue where you left off!',
+  'home.resumeProgress': '{subject} • Question {n} of {total}',
+  'home.continueAdventure': 'Continue Adventure',
+  'home.teacherDesc': 'Create custom quests, manage students, and track progress.',
+  'home.rewardsDesc': 'Spend your hard-earned coins on exciting rewards and power-ups.',
+  'home.visitShop': 'Visit Shop',
+  'home.studyPlanDesc': 'Generate a personalized daily roadmap to ace your exams.',
+  'home.createPlan': 'Create Plan',
+
+  // ── Study progress / roadmap page ──────────────────────────────────
+  'studyprogress.loading': 'Loading Roadmap...',
+  'studyprogress.fetchFailed': 'Failed to fetch your study plan',
+  'studyprogress.focusPlan': 'Focus Plan',
+  'studyprogress.noActivePlan': "You don't have an active study plan yet.",
+  'studyprogress.tryAgain': 'Try Again',
+  'studyprogress.createNewPlan': 'Create New Plan',
+  'studyprogress.roadmapTitle': '{subject} Roadmap',
+  'studyprogress.totalProgress': 'Total Progress',
+  'studyprogress.focusedTasks': 'Focused Tasks',
+  'studyprogress.dayWeek': '{day} • Week {week}',
+  'studyprogress.practice': 'Practice',
+  'studyprogress.allComplete': 'All tasks completed!',
+  'studyprogress.onTrack': 'You are on track with your study plan.',
+  'studyprogress.fullRoadmap': 'Full Roadmap',
+  'studyprogress.week': 'Week {week}',
+  'studyprogress.overviewTitle': 'Roadmap Overview',
+  'studyprogress.overviewFallback': 'Your journey towards academic excellence starts here.',
+  'studyprogress.tasksTotal': 'Tasks Total',
+  'studyprogress.tasksFinished': 'Tasks Finished',
+  'studyprogress.confirmDelete': 'Are you sure you want to delete this study plan? All your progress will be lost.',
+  'studyprogress.deleteFailed': 'Failed to delete study plan. Please try again.',
+  'studyprogress.deleteError': 'An error occurred while deleting the study plan.',
+  'studyprogress.resetRoadmap': 'Reset Roadmap',
 };
 
 export default en;

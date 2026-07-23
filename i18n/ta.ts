@@ -502,6 +502,42 @@ const ta: Record<string, string> = {
   'classroom.errorPrefix': 'பிழை: {msg}',
   'classroom.failJoin': 'வகுப்பறையில் சேர முடியவில்லை.',
   'classroom.failSubmit': 'சமர்ப்பிக்க முடியவில்லை',
+
+  // ── Home quick-access (landing) ────────────────────────────────────
+  'home.resumeQuest': 'பயணத்தைத் தொடரவும்',
+  'home.resumeSubtitle': 'நீங்கள் நிறுத்திய இடத்திலிருந்து தொடரவும்!',
+  'home.resumeProgress': '{subject} • கேள்வி {n} / {total}',
+  'home.continueAdventure': 'சாகசத்தைத் தொடரவும்',
+  'home.teacherDesc': 'தனிப்பயன் பயணங்களை உருவாக்கி, மாணவர்களை நிர்வகித்து, முன்னேற்றத்தைக் கண்காணிக்கவும்.',
+  'home.rewardsDesc': 'நீங்கள் கடினமாக ஈட்டிய நாணயங்களை அற்புதமான வெகுமதிகள் மற்றும் பவர்-அப்களுக்கு செலவிடுங்கள்.',
+  'home.visitShop': 'கடையைப் பார்வையிடவும்',
+  'home.studyPlanDesc': 'உங்கள் தேர்வுகளில் சிறந்து விளங்க தனிப்பயனாக்கப்பட்ட தினசரி திட்டத்தை உருவாக்கவும்.',
+  'home.createPlan': 'திட்டத்தை உருவாக்கவும்',
+
+  // ── Study progress / roadmap page ──────────────────────────────────
+  'studyprogress.loading': 'வழித்தடத்தை ஏற்றுகிறது...',
+  'studyprogress.fetchFailed': 'உங்கள் படிப்புத் திட்டத்தைப் பெற முடியவில்லை',
+  'studyprogress.focusPlan': 'கவன திட்டம்',
+  'studyprogress.noActivePlan': 'உங்களிடம் இன்னும் செயலில் உள்ள படிப்புத் திட்டம் இல்லை.',
+  'studyprogress.tryAgain': 'மீண்டும் முயற்சிக்கவும்',
+  'studyprogress.createNewPlan': 'புதிய திட்டத்தை உருவாக்கவும்',
+  'studyprogress.roadmapTitle': '{subject} வழித்தடம்',
+  'studyprogress.totalProgress': 'மொத்த முன்னேற்றம்',
+  'studyprogress.focusedTasks': 'கவனம் செலுத்திய பணிகள்',
+  'studyprogress.dayWeek': '{day} • வாரம் {week}',
+  'studyprogress.practice': 'பயிற்சி',
+  'studyprogress.allComplete': 'அனைத்து பணிகளும் முடிந்தன!',
+  'studyprogress.onTrack': 'உங்கள் படிப்புத் திட்டத்தின்படி நீங்கள் சரியான பாதையில் உள்ளீர்கள்.',
+  'studyprogress.fullRoadmap': 'முழு வழித்தடம்',
+  'studyprogress.week': 'வாரம் {week}',
+  'studyprogress.overviewTitle': 'வழித்தட மேலோட்டம்',
+  'studyprogress.overviewFallback': 'கல்வி சிறப்பை நோக்கிய உங்கள் பயணம் இங்கே தொடங்குகிறது.',
+  'studyprogress.tasksTotal': 'மொத்த பணிகள்',
+  'studyprogress.tasksFinished': 'முடிந்த பணிகள்',
+  'studyprogress.confirmDelete': 'இந்த படிப்புத் திட்டத்தை நீக்க விரும்புகிறீர்களா? உங்கள் அனைத்து முன்னேற்றமும் இழக்கப்படும்.',
+  'studyprogress.deleteFailed': 'படிப்புத் திட்டத்தை நீக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.',
+  'studyprogress.deleteError': 'படிப்புத் திட்டத்தை நீக்கும் போது பிழை ஏற்பட்டது.',
+  'studyprogress.resetRoadmap': 'வழித்தடத்தை மீட்டமைக்கவும்',
 };
 
 export default ta;

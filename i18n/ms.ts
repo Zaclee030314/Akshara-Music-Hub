@@ -502,6 +502,42 @@ const ms: Record<string, string> = {
   'classroom.errorPrefix': 'Ralat: {msg}',
   'classroom.failJoin': 'Gagal menyertai bilik darjah.',
   'classroom.failSubmit': 'Gagal menghantar',
+
+  // ── Home quick-access (landing) ────────────────────────────────────
+  'home.resumeQuest': 'Sambung Misi',
+  'home.resumeSubtitle': 'Sambung dari tempat anda berhenti!',
+  'home.resumeProgress': '{subject} • Soalan {n} daripada {total}',
+  'home.continueAdventure': 'Teruskan Pengembaraan',
+  'home.teacherDesc': 'Cipta misi tersuai, urus pelajar dan jejak kemajuan.',
+  'home.rewardsDesc': 'Belanjakan syiling yang anda peroleh untuk ganjaran dan peningkatan menarik.',
+  'home.visitShop': 'Lawati Kedai',
+  'home.studyPlanDesc': 'Jana pelan harian peribadi untuk cemerlang dalam peperiksaan anda.',
+  'home.createPlan': 'Cipta Pelan',
+
+  // ── Study progress / roadmap page ──────────────────────────────────
+  'studyprogress.loading': 'Memuatkan Pelan Hala Tuju...',
+  'studyprogress.fetchFailed': 'Gagal mendapatkan pelan pembelajaran anda',
+  'studyprogress.focusPlan': 'Pelan Fokus',
+  'studyprogress.noActivePlan': 'Anda belum mempunyai pelan pembelajaran yang aktif.',
+  'studyprogress.tryAgain': 'Cuba Lagi',
+  'studyprogress.createNewPlan': 'Cipta Pelan Baharu',
+  'studyprogress.roadmapTitle': 'Pelan Hala Tuju {subject}',
+  'studyprogress.totalProgress': 'Jumlah Kemajuan',
+  'studyprogress.focusedTasks': 'Tugasan Fokus',
+  'studyprogress.dayWeek': '{day} • Minggu {week}',
+  'studyprogress.practice': 'Berlatih',
+  'studyprogress.allComplete': 'Semua tugasan selesai!',
+  'studyprogress.onTrack': 'Anda berada di landasan yang betul dengan pelan pembelajaran anda.',
+  'studyprogress.fullRoadmap': 'Pelan Hala Tuju Penuh',
+  'studyprogress.week': 'Minggu {week}',
+  'studyprogress.overviewTitle': 'Gambaran Keseluruhan Pelan',
+  'studyprogress.overviewFallback': 'Perjalanan anda menuju kecemerlangan akademik bermula di sini.',
+  'studyprogress.tasksTotal': 'Jumlah Tugasan',
+  'studyprogress.tasksFinished': 'Tugasan Selesai',
+  'studyprogress.confirmDelete': 'Adakah anda pasti mahu memadam pelan pembelajaran ini? Semua kemajuan anda akan hilang.',
+  'studyprogress.deleteFailed': 'Gagal memadam pelan pembelajaran. Sila cuba lagi.',
+  'studyprogress.deleteError': 'Ralat berlaku semasa memadam pelan pembelajaran.',
+  'studyprogress.resetRoadmap': 'Tetapkan Semula Pelan Hala Tuju',
 };
 
 export default ms;
