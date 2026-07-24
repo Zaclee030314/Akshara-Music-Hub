@@ -224,11 +224,12 @@ model CourseSyllabus {
   subject   String
   grade     String
   syllabus  String   // e.g., "KSSM", "IGCSE", "Singapore Math"
+  language  String   @default("en") // UI language code the topics are written in: 'en' | 'ms' | 'zh' | 'ta'
   topics    String    // JSON: ["Algebra", "Geometry"] or nested objects
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([subject, grade, syllabus])
+  @@unique([subject, grade, syllabus, language])
 }
 
 model PaperFile {

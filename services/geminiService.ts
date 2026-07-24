@@ -2,6 +2,10 @@ import { Question, Subject, GradeLevel, Syllabus } from "../types";
 
 const isMockMode = import.meta.env.VITE_AI_MOCK_MODE === 'true';
 
+// Read the currently selected site language (persisted by LanguageContext).
+// AI-generated content follows this language server-side.
+const currentLang = () => localStorage.getItem('quest_lang') || 'en';
+
 const getSubjectCategory = (subject: string): 'STEM' | 'LANGS' | 'HUMS' | 'VALUES' => {
   const stem = [Subject.MATH, Subject.SCIENCE, Subject.PHYSICS, Subject.CHEMISTRY, Subject.BIOLOGY, Subject.ADD_MATH, Subject.COMPUTER_SCIENCE];
   const langs = [Subject.BAHASA_MELAYU, Subject.ENGLISH];
@@ -64,7 +68,7 @@ const generateContent = async (subject: Subject, grade: GradeLevel, topic: strin
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ subject, grade, topic, syllabus, isPastYear, year }),
+      body: JSON.stringify({ subject, grade, topic, syllabus, isPastYear, year, language: currentLang() }),
     });
 
     if (!response.ok) {
@@ -106,7 +110,7 @@ const generateSyllabus = async (subject: Subject, grade: GradeLevel, syllabus: S
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ subject, grade, syllabus, forceRefresh }),
+      body: JSON.stringify({ subject, grade, syllabus, forceRefresh, language: currentLang() }),
     });
 
     if (!response.ok) throw new Error('Failed to fetch syllabus');
@@ -180,7 +184,7 @@ const generateStudyPlan = async (params: StudyPlanRequest): Promise<StudyPlanRes
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify(params),
+      body: JSON.stringify({ ...params, language: currentLang() }),
     });
 
     if (!response.ok) {

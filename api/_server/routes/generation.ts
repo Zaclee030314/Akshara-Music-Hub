@@ -43,7 +43,70 @@ const getSubjectCategory = (subject: string) => {
     return 'VALUES';
 };
 
-// Mock Generation Logic (Server Side) 
+// ─── LANGUAGE RESOLUTION ───────────────────────────────────────────────
+// Map UI language code → target language name for AI content.
+const LANG_NAME_MAP: Record<string, string> = {
+    en: 'English',
+    ms: 'Bahasa Melayu',
+    zh: 'Simplified Chinese (简体中文)',
+    ta: 'Tamil (தமிழ்)',
+};
+
+// Existing syllabus+subject-derived language (backward-compatible fallback).
+// This is the ONE source of truth for the legacy derivation used by both
+// the past-year and general quest paths.
+const deriveSyllabusLanguage = (subject: string, syllabus: string): string => {
+    const s = (syllabus || '').toLowerCase();
+    const sub = (subject || '').toLowerCase();
+    if (s.includes('uec')) {
+        if (sub.includes('bahasa melayu') || sub.includes('sejarah')) return 'Bahasa Melayu (Malay)';
+        if (sub.includes('english')) return 'English';
+        return 'Simplified Chinese (简体中文)';
+    }
+    if (s.includes('kssr') || s.includes('kssm') || s.includes('malaysian')) {
+        if (sub.includes('english')) return 'English';
+        return 'Bahasa Melayu (Malay)';
+    }
+    return 'English';
+};
+
+/**
+ * Resolve the target language for AI-generated content.
+ * - If the client sends a valid UI language code ('en'|'ms'|'zh'|'ta'),
+ *   the content follows the selected site language — EXCEPT intrinsic
+ *   language subjects (subject 'Bahasa Melayu' → always Bahasa Melayu;
+ *   subject 'English' → always English), regardless of UI language.
+ * - If no/invalid language is provided (old clients, classroom HomeworkCreator),
+ *   fall back to the existing syllabus+subject-derived behavior.
+ */
+const resolveTargetLanguage = (uiLang: string | undefined, subject: string, syllabus: string): string => {
+    if (uiLang && LANG_NAME_MAP[uiLang]) {
+        const sub = (subject || '').toLowerCase();
+        // Intrinsic language-subject exception.
+        if (sub.includes('bahasa melayu')) return 'Bahasa Melayu';
+        if (sub.includes('english')) return 'English';
+        return LANG_NAME_MAP[uiLang];
+    }
+    return deriveSyllabusLanguage(subject, syllabus);
+};
+
+/**
+ * Resolve the 4-letter language code used for language-aware syllabus caching.
+ * Mirrors resolveTargetLanguage's rule but returns 'en'|'ms'|'zh'|'ta'.
+ * Falls back to 'en' when no valid UI language is provided (keeps old clients
+ * consistently hitting the same cache rows they always did).
+ */
+const resolveLangCode = (uiLang: string | undefined, subject: string): string => {
+    if (uiLang && LANG_NAME_MAP[uiLang]) {
+        const sub = (subject || '').toLowerCase();
+        if (sub.includes('bahasa melayu')) return 'ms';
+        if (sub.includes('english')) return 'en';
+        return uiLang;
+    }
+    return 'en';
+};
+
+// Mock Generation Logic (Server Side)
 const generateMockQuestions = (subject: string, grade: string, topic: string, syllabus: string) => {
     return Array.from({ length: 15 }).map((_, i) => ({
         id: `mock-${Date.now()}-${i}`,
@@ -129,7 +192,7 @@ const superRepairJSON = (text: string): any => {
 
 // ... Limit Check & Increment ...
 router.post('/quest', authenticateToken, checkExpiredSubscriptions, async (req: AuthRequest, res) => {
-    const { subject, grade, topic, syllabus, isPastYear, year } = req.body;
+    const { subject, grade, topic, syllabus, isPastYear, year, language } = req.body;
     const userId = req.user?.id;
 
     if (userId) {
@@ -273,21 +336,9 @@ router.post('/quest', authenticateToken, checkExpiredSubscriptions, async (req: 
                 return syllabus;
             })();
 
-            // Language Selection for UEC & National Exams
-            const targetLanguage = (() => {
-                const s = syllabus.toLowerCase();
-                const sub = subject.toLowerCase();
-                if (s.includes('uec')) {
-                    if (sub.includes('bahasa melayu') || sub.includes('sejarah')) return 'Bahasa Melayu (Malay)';
-                    if (sub.includes('english')) return 'English';
-                    return 'Simplified Chinese (简体中文)';
-                }
-                if (s.includes('kssr') || s.includes('kssm') || s.includes('malaysian')) {
-                    if (sub.includes('english')) return 'English';
-                    return 'Bahasa Melayu (Malay)';
-                }
-                return 'English';
-            })();
+            // Language: follow selected UI language (with language-subject
+            // exception) when provided; else legacy syllabus-derived.
+            const targetLanguage = resolveTargetLanguage(language, subject, syllabus);
 
             prompt = `You are an expert exam question compiler with comprehensive knowledge of official past year exam papers.
 
@@ -313,21 +364,9 @@ ${syllabus.toLowerCase().includes('igcse') || syllabus.toLowerCase().includes('c
 
 `;
         } else {
-            // General Generation Language
-            const targetLanguage = (() => {
-                const s = syllabus.toLowerCase();
-                const sub = subject.toLowerCase();
-                if (s.includes('uec')) {
-                    if (sub.includes('bahasa melayu') || sub.includes('sejarah')) return 'Bahasa Melayu (Malay)';
-                    if (sub.includes('english')) return 'English';
-                    return 'Simplified Chinese (简体中文)';
-                }
-                if (s.includes('kssr') || s.includes('kssm') || s.includes('malaysian')) {
-                    if (sub.includes('english')) return 'English';
-                    return 'Bahasa Melayu (Malay)';
-                }
-                return 'English';
-            })();
+            // General Generation Language: follow selected UI language (with
+            // language-subject exception) when provided; else legacy derivation.
+            const targetLanguage = resolveTargetLanguage(language, subject, syllabus);
 
             prompt = `Generate a set of high-quality multiple-choice questions for:
             - Subject: ${subject}
@@ -437,8 +476,12 @@ ${syllabus.toLowerCase().includes('igcse') || syllabus.toLowerCase().includes('c
 });
 
 router.post('/syllabus', async (req, res) => {
-    const { subject, grade, syllabus, forceRefresh } = req.body;
-    console.log(`[SYLLABUS] Request: ${subject} / ${grade} / ${syllabus}${forceRefresh ? ' (FORCE REFRESH)' : ''}`);
+    const { subject, grade, syllabus, forceRefresh, language } = req.body;
+    // Resolve target language (same rule as quests — language-subject exception
+    // applies) and the 4-letter code used for language-aware cache keying.
+    const targetLanguage = resolveTargetLanguage(language, subject, syllabus);
+    const langCode = resolveLangCode(language, subject);
+    console.log(`[SYLLABUS] Request: ${subject} / ${grade} / ${syllabus} [lang=${langCode}]${forceRefresh ? ' (FORCE REFRESH)' : ''}`);
 
     if (isMockMode()) {
         console.log(`✅ [SYLLABUS] Using mock mode, returning mock data`);
@@ -450,7 +493,7 @@ router.post('/syllabus', async (req, res) => {
         if (!forceRefresh) {
             const cached = await prisma.courseSyllabus.findUnique({
                 where: {
-                    subject_grade_syllabus: { subject, grade, syllabus }
+                    subject_grade_syllabus_language: { subject, grade, syllabus, language: langCode }
                 }
             });
 
@@ -480,6 +523,7 @@ router.post('/syllabus', async (req, res) => {
         7. DETAILED STRUCTURE: Include the main sub-topics in parentheses.
            Example: "Topic 1: Quadratic Functions (Graphs, Roots, Completing the Square)"
         8. UNIVERSAL APPLICABILITY: This must work for ANY subject (Mathematics, Computer Science, Biology, Languages, etc.).
+        9. LANGUAGE: The topic names MUST be written in ${targetLanguage}.
 
         JSON SPECIFICATION:
         Return ONLY a JSON object with a "topics" key containing a flat array of strings.
@@ -525,10 +569,10 @@ router.post('/syllabus', async (req, res) => {
         // Cache it for future use
         await prisma.courseSyllabus.upsert({
             where: {
-                subject_grade_syllabus: { subject, grade, syllabus }
+                subject_grade_syllabus_language: { subject, grade, syllabus, language: langCode }
             },
             update: { topics: JSON.stringify(topics) },
-            create: { subject, grade, syllabus, topics: JSON.stringify(topics) }
+            create: { subject, grade, syllabus, topics: JSON.stringify(topics), language: langCode }
         });
 
         return res.json(topics);
@@ -539,8 +583,13 @@ router.post('/syllabus', async (req, res) => {
 });
 
 router.post('/study-plan', authenticateToken, checkExpiredSubscriptions, async (req: AuthRequest, res) => {
-    const { subject, subjects: subjectsRaw, grade, syllabus, timeframe, hoursPerDay, goals } = req.body;
+    const { subject, subjects: subjectsRaw, grade, syllabus, timeframe, hoursPerDay, goals, language } = req.body;
     const userId = req.user?.id;
+
+    // Study plans span multiple subjects, so we apply the selected UI language
+    // directly WITHOUT the language-subject exception (there is no single
+    // subject to key the exception on). Falls back to English for old clients.
+    const targetLanguage = (language && LANG_NAME_MAP[language]) ? LANG_NAME_MAP[language] : 'English';
 
     // Accept a `subjects` array; coerce a legacy single `subject` string for backward-compat.
     const subjects: string[] = Array.isArray(subjectsRaw) && subjectsRaw.length > 0
@@ -631,6 +680,8 @@ router.post('/study-plan', authenticateToken, checkExpiredSubscriptions, async (
         Distribute the subjects across the days and weeks and balance study time between them — do NOT
         produce a separate plan per subject. Each task's "topicSearch" must be a topic within one of these subjects.
 
+        LANGUAGE: The plan's title, overview, weekly focus, task titles and tips MUST be written in ${targetLanguage}. However, every "topicSearch" value MUST remain in English so the topic deep-links into quest generation still work.
+
         IMPORTANT: Keep it simple and clean. Use MINIMAL words.
         - Title should be very short (max 5 words).
         - Overview should be max 2 sentences.
@@ -659,7 +710,7 @@ router.post('/study-plan', authenticateToken, checkExpiredSubscriptions, async (
         
         CRITICAL: 
         1. Each task MUST be an object with "title" and "topicSearch".
-        2. "topicSearch" should be a 1-3 word keyword that represents the mathematical or academic topic (e.g., "Algebra", "Calculus", "Probability", "Human Rights", "Volcanoes"). This will be used to deep-link the student to specific practice questions.
+        2. "topicSearch" should be a 1-3 word keyword that represents the mathematical or academic topic (e.g., "Algebra", "Calculus", "Probability", "Human Rights", "Volcanoes"). topicSearch values must be in English. This will be used to deep-link the student to specific practice questions.
         3. Give tasks like "Complete 10 MCQ questions on [Topic]", "Review [Topic] theory", etc.
         `;
 
