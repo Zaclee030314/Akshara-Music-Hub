@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Subject, Syllabus, GradeLevel } from '../types';
 import {
     Users,
@@ -32,7 +32,8 @@ import {
     Shield,
     Trophy,
     Vote,
-    Share2
+    Share2,
+    RefreshCw
 } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
 import SeasonManager from './admin/SeasonManager';
@@ -41,11 +42,15 @@ import ReferralReport from './admin/ReferralReport';
 
 interface AdminStats {
     users: number;
+    totalStudents: number;
     totalCoins: number;
     totalXP: number;
     totalQuestions: number;
     totalCorrect: number;
     averageAccuracy: number;
+    activeThisSeason: number;
+    seasonName: string | null;
+    generatedAt: string;
 }
 
 interface UserStats {
@@ -106,6 +111,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
     const [stats, setStats] = useState<AdminStats | null>(null);
     const [tab, setTab] = useState<'analytics' | 'users' | 'rewards' | 'redemptions' | 'papers' | 'roles' | 'seasons' | 'polls' | 'referrals'>('analytics');
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
+    const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
     const [users, setUsers] = useState<UserStats[]>([]);
     const [rewards, setRewards] = useState<Reward[]>([]);
     const [redemptions, setRedemptions] = useState<Redemption[]>([]);
@@ -133,20 +140,23 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
 
     const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
 
-    const showToast = (msg: string, type: 'success' | 'error') => {
+    const showToast = useCallback((msg: string, type: 'success' | 'error') => {
         setToast({ msg, type });
         setTimeout(() => setToast(null), 3000);
-    };
+    }, []);
 
-    const fetchData = async () => {
-        setLoading(true);
+    // `isBackground` keeps polling/refresh runs from flashing the full-page "Syncing Data" loader.
+    const fetchData = useCallback(async (isBackground = false) => {
+        const h = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
+        if (isBackground) setRefreshing(true);
+        else setLoading(true);
         try {
             const [uRes, sRes, rRes, rdRes, pfRes] = await Promise.all([
-                fetch(`${API_BASE}/users`, { headers }),
-                fetch(`${API_BASE}/stats`, { headers }),
-                fetch(`${API_BASE}/rewards`, { headers }),
-                fetch(`${API_BASE}/redemptions`, { headers }),
-                fetch('/api/paper-files', { headers })
+                fetch(`${API_BASE}/users`, { headers: h }),
+                fetch(`${API_BASE}/stats`, { headers: h }),
+                fetch(`${API_BASE}/rewards`, { headers: h }),
+                fetch(`${API_BASE}/redemptions`, { headers: h }),
+                fetch('/api/paper-files', { headers: h })
             ]);
 
             if (uRes.ok) setUsers(await uRes.json());
@@ -154,11 +164,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
             if (rRes.ok) setRewards(await rRes.json());
             if (rdRes.ok) setRedemptions(await rdRes.json());
             if (pfRes.ok) setPaperFiles(await pfRes.json());
+            setLastUpdated(new Date());
         } catch (error) {
             showToast('Failed to refresh data', 'error');
         }
-        setLoading(false);
-    };
+        if (isBackground) setRefreshing(false);
+        else setLoading(false);
+    }, [token, showToast]);
 
     const fetchUserPerformance = async (userId: string) => {
         setLoadingPerformance(true);
@@ -173,7 +185,18 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
 
     useEffect(() => {
         fetchData();
-    }, [token]);
+    }, [fetchData]);
+
+    // Live refresh: poll every 30s, but only while the analytics overview is on screen,
+    // no student detail is open, and the browser tab is actually visible.
+    useEffect(() => {
+        if (tab !== 'analytics' || selectedUser) return;
+        const id = setInterval(() => {
+            if (document.visibilityState !== 'visible') return;
+            fetchData(true);
+        }, 30000);
+        return () => clearInterval(id);
+    }, [tab, selectedUser, fetchData]);
 
     const handleBackToUsers = () => {
         setSelectedUser(null);
@@ -389,11 +412,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
 
     const renderAnalytics = () => {
         if (!stats) return null;
+        // Defensive fallback in case a stale cached /stats response lacks the newer keys.
+        const studentTotal = stats.totalStudents ?? stats.users;
         return (
             <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     {[
-                        { label: 'Total Students', value: stats.users, icon: <Users size={20} />, color: 'bg-blue-500' },
+                        { label: 'Total Students', value: studentTotal, icon: <Users size={20} />, color: 'bg-blue-500' },
                         { label: 'Questions', value: stats.totalQuestions, icon: <BookOpen size={20} />, color: 'bg-purple-500' },
                         { label: 'Avg. Accuracy', value: `${stats.averageAccuracy}%`, icon: <Target size={20} />, color: 'bg-green-500' },
                         { label: 'Coins in Econ', value: stats.totalCoins, icon: <ShoppingBag size={20} />, color: 'bg-orange-500' }
@@ -418,7 +443,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
                         </h3>
                         <div className="space-y-4">
                             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                                <span className="text-sm font-bold text-brand-dark/60">Total XP Distributed</span>
+                                <span className="text-sm font-bold text-brand-dark/60">Total XP Distributed (all-time)</span>
                                 <span className="font-bold text-brand-dark text-lg">⭐ {stats.totalXP.toLocaleString()}</span>
                             </div>
                             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
@@ -430,12 +455,21 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
 
                     <div className="bg-brand-dark rounded-3xl p-8 text-white relative overflow-hidden group shadow-xl">
                         <div className="relative z-10">
-                            <h3 className="font-display font-bold text-2xl mb-2 italic">Student Retention</h3>
-                            <p className="text-white/60 text-sm mb-6">Active community participation</p>
+                            <h3 className="font-display font-bold text-2xl mb-2 italic">Active This Season</h3>
+                            <p className="text-white/60 text-sm mb-6">{stats.seasonName ? stats.seasonName : 'No active season'}</p>
                             <div className="flex items-baseline gap-2">
-                                <span className="text-5xl font-display font-bold text-brand-orange">{stats.averageAccuracy}%</span>
-                                <span className="text-white/40 font-bold uppercase text-[10px] tracking-widest">Global Success Rate</span>
+                                <span className="text-5xl font-display font-bold text-brand-orange">{(stats.activeThisSeason ?? 0).toLocaleString()}</span>
+                                <span className="text-white/40 font-bold uppercase text-[10px] tracking-widest">
+                                    of {studentTotal.toLocaleString()} students
+                                </span>
                             </div>
+                            {stats.seasonName ? (
+                                <p className="text-white/50 text-xs font-bold mt-3">
+                                    {studentTotal > 0 ? Math.round((stats.activeThisSeason ?? 0) / studentTotal * 100) : 0}% participation
+                                </p>
+                            ) : (
+                                <p className="text-white/50 text-xs font-bold mt-3">Start a season to track participation</p>
+                            )}
                         </div>
                         <div className="absolute -right-10 -bottom-10 opacity-10 rotate-12 group-hover:rotate-0 transition-transform duration-700">
                             <LayoutDashboard size={200} />
@@ -1083,6 +1117,23 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
                                 {selectedUser ? `Analyzing growth for ${selectedUser.name}` : 'Real-time platform monitoring'}
                             </p>
                         </div>
+                        {!selectedUser && (
+                            <div className="flex items-center gap-3">
+                                {lastUpdated && (
+                                    <span className="text-[11px] font-bold text-brand-dark/30 uppercase tracking-widest">
+                                        Updated {lastUpdated.toLocaleTimeString()}
+                                    </span>
+                                )}
+                                <button
+                                    onClick={() => fetchData(true)}
+                                    disabled={refreshing}
+                                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-brand-dark/10 shadow-sm text-xs font-bold uppercase tracking-widest text-brand-dark/60 hover:text-brand-dark hover:border-brand-dark/20 transition-colors disabled:opacity-50"
+                                >
+                                    <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} />
+                                    {refreshing ? 'Refreshing' : 'Refresh'}
+                                </button>
+                            </div>
+                        )}
                     </header>
 
                     {loading ? (

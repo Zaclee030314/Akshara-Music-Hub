@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import prisma from '../db.js';
 import { generateAIContent } from '../utils/ai.js';
 import { authenticateToken, AuthRequest } from '../middleware/authMiddleware.js';
+import { getActiveSeason, seasonScores } from '../utils/seasonScore.js';
 
 const router = express.Router();
 
@@ -24,14 +25,15 @@ const requireAdmin = async (req: AuthRequest, res: express.Response, next: expre
 
 router.use(authenticateToken, requireAdmin);
 
-// GET /api/admin/stats — aggregate analytics
+// GET /api/admin/stats — aggregate analytics (student-scoped)
 router.get('/stats', async (_req, res) => {
     try {
-        const [userCount, totalCoins, totalXP, performance] = await Promise.all([
-            prisma.user.count(),
-            prisma.user.aggregate({ _sum: { coins: true } }),
-            prisma.user.aggregate({ _sum: { xp: true } }),
+        const [studentCount, totalCoins, totalXP, performance] = await Promise.all([
+            prisma.user.count({ where: { role: 'student' } }),
+            prisma.user.aggregate({ where: { role: 'student' }, _sum: { coins: true } }),
+            prisma.user.aggregate({ where: { role: 'student' }, _sum: { xp: true } }),
             prisma.result.aggregate({
+                where: { user: { role: 'student' } },
                 _sum: {
                     totalQuestions: true,
                     correctAnswers: true
@@ -39,14 +41,26 @@ router.get('/stats', async (_req, res) => {
             })
         ]);
 
+        // Season participation: how many students have scored points in the live season.
+        const season = await getActiveSeason(new Date());
+        let activeThisSeason = 0;
+        if (season) {
+            const scores = await seasonScores(season.startDate, season.endDate);
+            activeThisSeason = scores.filter(s => s.points > 0).length;
+        }
+
         res.json({
-            users: userCount,
+            users: studentCount,
+            totalStudents: studentCount,
             totalCoins: totalCoins._sum.coins || 0,
             totalXP: totalXP._sum.xp || 0,
             totalQuestions: performance._sum.totalQuestions || 0,
             totalCorrect: performance._sum.correctAnswers || 0,
             averageAccuracy: performance._sum.totalQuestions ?
-                Math.round((performance._sum.correctAnswers || 0) / performance._sum.totalQuestions * 100) : 0
+                Math.round((performance._sum.correctAnswers || 0) / performance._sum.totalQuestions * 100) : 0,
+            activeThisSeason,
+            seasonName: season ? season.name : null,
+            generatedAt: new Date().toISOString()
         });
     } catch (error) {
         console.error('[ADMIN] Stats error:', error);
