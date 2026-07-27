@@ -474,6 +474,12 @@ const ms: Record<string, string> = {
   'poll.errSuggestion': 'Sila masukkan cadangan.',
   'poll.errPickOption': 'Sila pilih satu pilihan.',
   'poll.errFailVote': 'Gagal menghantar undi.',
+  'poll.changeVote': 'Tukar undi',
+  'poll.cancelChange': 'Batal',
+  'poll.updateVote': 'Kemas Kini Undi',
+  'poll.suggestedBy': 'dicadangkan oleh {name}',
+  'poll.votesShort': '{count} undi',
+  'poll.yourVote': 'Undi anda',
 
   // ── Bilik darjah pelajar ───────────────────────────────────────────
   'classroom.joinTitle': 'Sertai Bilik Darjah',

@@ -45,9 +45,56 @@ const tallyVotes = (
     return { optionCounts, suggestionsCount };
 };
 
+interface SuggestedMetaEntry {
+    index: number;
+    text: string;
+    userId: string;
+    userName: string;
+    createdAt: string;
+}
+
+// Student-added options recorded on Poll.suggestedMeta (JSON array).
+const parseSuggestedMeta = (raw: string | null | undefined): SuggestedMetaEntry[] => {
+    if (!raw) return [];
+    try {
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return [];
+        return parsed
+            .filter((e: any) => e && typeof e.index === 'number')
+            .map((e: any) => ({
+                index: e.index,
+                text: String(e.text ?? ''),
+                userId: String(e.userId ?? ''),
+                userName: String(e.userName ?? 'Unknown'),
+                createdAt: String(e.createdAt ?? ''),
+            }));
+    } catch {
+        return [];
+    }
+};
+
+// Soft-removed option indices recorded on Poll.removedOptions (JSON array of ints).
+const parseRemoved = (raw: string | null | undefined): number[] => {
+    if (!raw) return [];
+    try {
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return [];
+        return parsed
+            .map((n: any) => parseInt(String(n), 10))
+            .filter((n: number) => Number.isInteger(n) && n >= 0);
+    } catch {
+        return [];
+    }
+};
+
+// Collapse whitespace so "  Extra   Class " and "Extra Class" are the same suggestion.
+const normalizeText = (s: string): string => String(s).trim().replace(/\s+/g, ' ');
+
 // ─── STUDENT ROUTES ──────────────────────────────────────────────────────────
 
-// GET /api/polls/active — auth; newest active poll + myVote + counts.
+// GET /api/polls/active — auth; newest active poll + myVote + per-option counts.
+// Options are returned as objects carrying their TRUE array index so the client can
+// post a stable optionIndex even though soft-removed options are filtered out.
 router.get('/active', authenticateToken, async (req: AuthRequest, res) => {
     try {
         const poll = await prisma.poll.findFirst({
@@ -57,11 +104,23 @@ router.get('/active', authenticateToken, async (req: AuthRequest, res) => {
         if (!poll) return res.json({ poll: null });
 
         const options = parseOptions(poll.options);
+        const meta = parseSuggestedMeta(poll.suggestedMeta);
+        const removed = new Set(parseRemoved(poll.removedOptions));
+
         const votes = await prisma.pollVote.findMany({
             where: { pollId: poll.id },
             select: { optionIndex: true, suggestion: true, userId: true },
         });
-        const { optionCounts, suggestionsCount } = tallyVotes(votes, options.length);
+        const { optionCounts } = tallyVotes(votes, options.length);
+
+        const optionList = options
+            .map((text, index) => ({
+                index,
+                text,
+                count: optionCounts[index] || 0,
+                suggestedByName: meta.find(m => m.index === index)?.userName || null,
+            }))
+            .filter(o => !removed.has(o.index));
 
         const mine = votes.find(v => v.userId === req.user?.id) || null;
         const myVote = mine
@@ -73,13 +132,11 @@ router.get('/active', authenticateToken, async (req: AuthRequest, res) => {
                 id: poll.id,
                 question: poll.question,
                 description: poll.description,
-                options,
                 allowSuggestions: poll.allowSuggestions,
                 seasonId: poll.seasonId,
+                options: optionList,
             },
             myVote,
-            optionCounts,
-            suggestionsCount,
             totalVotes: votes.length,
         });
     } catch (error) {
@@ -89,6 +146,10 @@ router.get('/active', authenticateToken, async (req: AuthRequest, res) => {
 });
 
 // POST /api/polls/:id/vote — auth; body { optionIndex } XOR { suggestion }.
+// Votes can be CHANGED: we upsert on the (pollId, userId) unique pair, so voting
+// again MOVES the existing vote instead of creating a second one.
+// A free-text `suggestion` is auto-promoted into a real, votable option (deduped
+// case-insensitively against existing options), and the vote lands on that option.
 router.post('/:id/vote', authenticateToken, async (req: AuthRequest, res) => {
     try {
         const { id } = req.params;
@@ -107,40 +168,93 @@ router.post('/:id/vote', authenticateToken, async (req: AuthRequest, res) => {
         if (!poll) return res.status(404).json({ error: 'Poll not found' });
         if (!poll.isActive) return res.status(400).json({ error: 'This poll is no longer active' });
 
-        const options = parseOptions(poll.options);
-
-        const data: { pollId: string; userId: string; optionIndex?: number; suggestion?: string } = {
-            pollId: id,
-            userId,
-        };
-
+        // ── Vote for an existing option ──────────────────────────────────────
         if (hasOption) {
+            const options = parseOptions(poll.options);
+            const removed = new Set(parseRemoved(poll.removedOptions));
             const idx = parseInt(String(optionIndex), 10);
-            if (isNaN(idx) || idx < 0 || idx >= options.length) {
+            if (!Number.isInteger(idx) || idx < 0 || idx >= options.length) {
                 return res.status(400).json({ error: 'Invalid option selected' });
             }
-            data.optionIndex = idx;
-        } else {
-            if (!poll.allowSuggestions) {
-                return res.status(400).json({ error: 'This poll does not accept suggestions' });
+            if (removed.has(idx)) {
+                return res.status(400).json({ error: 'That option is no longer available' });
             }
-            const text = String(suggestion).trim();
-            if (text.length === 0) {
-                return res.status(400).json({ error: 'Suggestion cannot be empty' });
-            }
-            data.suggestion = text.slice(0, 200);
+            // `suggestion: null` clears any stale pre-upgrade free-text value.
+            await prisma.pollVote.upsert({
+                where: { pollId_userId: { pollId: id, userId } },
+                create: { pollId: id, userId, optionIndex: idx, suggestion: null },
+                update: { optionIndex: idx, suggestion: null },
+            });
+            return res.json({ success: true, optionIndex: idx });
         }
 
-        try {
-            await prisma.pollVote.create({ data });
-        } catch (err: any) {
-            if (err?.code === 'P2002') {
-                return res.status(409).json({ error: 'You have already voted in this poll' });
-            }
-            throw err;
+        // ── Suggest a new answer → auto-promote to a real option ─────────────
+        if (!poll.allowSuggestions) {
+            return res.status(400).json({ error: 'This poll does not accept suggestions' });
+        }
+        const norm = normalizeText(String(suggestion)).slice(0, 200);
+        if (norm.length === 0) {
+            return res.status(400).json({ error: 'Suggestion cannot be empty' });
         }
 
-        res.json({ success: true });
+        const voter = await prisma.user.findUnique({ where: { id: userId }, select: { name: true } });
+        const voterName = voter?.name || 'Unknown';
+
+        // All inside one transaction so two students suggesting at the same moment
+        // cannot both append the same option.
+        const resolvedIndex = await prisma.$transaction(async tx => {
+            // Row-lock the poll so the read-modify-write of `options` is serialized.
+            // Best-effort: if raw SQL is unavailable the re-read below still covers
+            // the common (non-simultaneous) case.
+            try {
+                await tx.$queryRaw`SELECT id FROM "Poll" WHERE id = ${id} FOR UPDATE`;
+            } catch {
+                /* ignore — fall back to the plain re-read */
+            }
+
+            const fresh = await tx.poll.findUnique({ where: { id } });
+            if (!fresh) throw new Error('Poll disappeared mid-transaction');
+
+            const options = parseOptions(fresh.options);
+            const removedSet = new Set(parseRemoved(fresh.removedOptions));
+            const target = norm.toLowerCase();
+
+            // Case-insensitive dedupe against live (non-removed) options.
+            let idx = -1;
+            for (let i = 0; i < options.length; i++) {
+                if (removedSet.has(i)) continue;
+                if (normalizeText(options[i]).toLowerCase() === target) { idx = i; break; }
+            }
+
+            if (idx === -1) {
+                // APPEND ONLY — never splice or reorder, existing votes point at indices.
+                idx = options.length;
+                const meta = parseSuggestedMeta(fresh.suggestedMeta);
+                meta.push({
+                    index: idx,
+                    text: norm,
+                    userId,
+                    userName: voterName,
+                    createdAt: new Date().toISOString(),
+                });
+                await tx.poll.update({
+                    where: { id },
+                    data: {
+                        options: JSON.stringify([...options, norm]),
+                        suggestedMeta: JSON.stringify(meta),
+                    },
+                });
+            }
+
+            await tx.pollVote.upsert({
+                where: { pollId_userId: { pollId: id, userId } },
+                create: { pollId: id, userId, optionIndex: idx, suggestion: null },
+                update: { optionIndex: idx, suggestion: null },
+            });
+            return idx;
+        });
+
+        res.json({ success: true, optionIndex: resolvedIndex });
     } catch (error) {
         console.error('[POLLS] vote error:', error);
         res.status(500).json({ error: 'Failed to record vote' });
@@ -160,7 +274,7 @@ router.get('/admin/all', authenticateToken, requireAdmin, async (_req, res) => {
                     where: { pollId: p.id },
                     select: { optionIndex: true, suggestion: true },
                 });
-                const { optionCounts, suggestionsCount } = tallyVotes(votes, options.length);
+                const { optionCounts } = tallyVotes(votes, options.length);
                 return {
                     id: p.id,
                     question: p.question,
@@ -171,7 +285,9 @@ router.get('/admin/all', authenticateToken, requireAdmin, async (_req, res) => {
                     seasonId: p.seasonId,
                     createdAt: p.createdAt,
                     optionCounts,
-                    suggestionsCount,
+                    // Now means "number of student-suggested OPTIONS" (they are real
+                    // options after auto-promotion), not "number of free-text votes".
+                    suggestionsCount: parseSuggestedMeta(p.suggestedMeta).length,
                     totalVotes: votes.length,
                 };
             })
@@ -243,7 +359,30 @@ router.put('/admin/:id', authenticateToken, requireAdmin, async (req, res) => {
     }
 });
 
-// GET /api/polls/admin/:id/results — per-option counts + suggestions with user names.
+// Build the admin-facing option list: every option (including soft-removed ones,
+// flagged) with its true index, count and suggester attribution.
+const buildAdminOptions = (
+    poll: { options: string; suggestedMeta: string | null; removedOptions: string | null },
+    optionCounts: number[]
+) => {
+    const options = parseOptions(poll.options);
+    const meta = parseSuggestedMeta(poll.suggestedMeta);
+    const removed = new Set(parseRemoved(poll.removedOptions));
+    return options.map((text, index) => {
+        const m = meta.find(e => e.index === index);
+        return {
+            index,
+            text,
+            count: optionCounts[index] || 0,
+            suggestedByName: m?.userName || null,
+            suggestedByUserId: m?.userId || null,
+            removed: removed.has(index),
+        };
+    });
+};
+
+// GET /api/polls/admin/:id/results — every option (removed ones flagged) + counts,
+// plus any pre-upgrade free-text suggestion votes that were never promoted.
 router.get('/admin/:id/results', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const { id } = req.params;
@@ -257,21 +396,73 @@ router.get('/admin/:id/results', authenticateToken, requireAdmin, async (req, re
             orderBy: { createdAt: 'desc' },
         });
         const { optionCounts } = tallyVotes(votes, options.length);
-        const suggestions = votes
+
+        // Rows created before the auto-promotion upgrade: optionIndex null, suggestion set.
+        // Surfaced read-only (never auto-migrated) and still counted in totalVotes.
+        const legacySuggestions = votes
             .filter(v => v.suggestion)
-            .map(v => ({ suggestion: v.suggestion, userName: v.user?.name || 'Unknown', createdAt: v.createdAt }));
+            .map(v => ({
+                suggestion: v.suggestion,
+                userName: v.user?.name || 'Unknown',
+                createdAt: v.createdAt,
+            }));
 
         res.json({
-            id: poll.id,
-            question: poll.question,
-            options,
-            optionCounts,
-            suggestions,
+            poll: {
+                id: poll.id,
+                question: poll.question,
+                allowSuggestions: poll.allowSuggestions,
+            },
+            options: buildAdminOptions(poll, optionCounts),
+            legacySuggestions,
             totalVotes: votes.length,
         });
     } catch (error) {
         console.error('[POLLS] results error:', error);
         res.status(500).json({ error: 'Failed to fetch poll results' });
+    }
+});
+
+// PATCH /api/polls/admin/:id/options/:index — soft-remove / restore one option.
+// We deliberately do NOT delete the entry from `options` and do NOT touch votes:
+// PollVote.optionIndex references options by ARRAY INDEX, so deleting or reordering
+// would silently repoint every later vote at the wrong option. Removal is a hide.
+router.patch('/admin/:id/options/:index', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const { id, index } = req.params;
+        const { removed } = req.body;
+        if (typeof removed !== 'boolean') {
+            return res.status(400).json({ error: 'Body must include boolean "removed"' });
+        }
+
+        const poll = await prisma.poll.findUnique({ where: { id } });
+        if (!poll) return res.status(404).json({ error: 'Poll not found' });
+
+        const options = parseOptions(poll.options);
+        const idx = parseInt(String(index), 10);
+        if (!Number.isInteger(idx) || idx < 0 || idx >= options.length) {
+            return res.status(400).json({ error: 'Invalid option index' });
+        }
+
+        const current = new Set(parseRemoved(poll.removedOptions));
+        if (removed) current.add(idx);
+        else current.delete(idx);
+
+        const updated = await prisma.poll.update({
+            where: { id },
+            data: { removedOptions: JSON.stringify([...current].sort((a, b) => a - b)) },
+        });
+
+        const votes = await prisma.pollVote.findMany({
+            where: { pollId: id },
+            select: { optionIndex: true, suggestion: true },
+        });
+        const { optionCounts } = tallyVotes(votes, options.length);
+
+        res.json({ options: buildAdminOptions(updated, optionCounts) });
+    } catch (error) {
+        console.error('[POLLS] option remove error:', error);
+        res.status(500).json({ error: 'Failed to update option' });
     }
 });
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-    Vote, Plus, Loader2, CheckCircle, XCircle, BarChart3, X, Trash2,
+    Vote, Plus, Loader2, CheckCircle, XCircle, BarChart3, X, Trash2, RotateCcw,
 } from 'lucide-react';
 
 interface Poll {
@@ -16,12 +16,22 @@ interface Poll {
     totalVotes: number;
 }
 
+// `index` is the option's TRUE position in the stored options array — votes point
+// at it, so it is what the remove/restore endpoint is keyed on.
+interface ResultOption {
+    index: number;
+    text: string;
+    count: number;
+    suggestedByName: string | null;
+    suggestedByUserId: string | null;
+    removed: boolean;
+}
+
 interface PollResults {
-    id: string;
-    question: string;
-    options: string[];
-    optionCounts: number[];
-    suggestions: Array<{ suggestion: string | null; userName: string; createdAt: string }>;
+    poll: { id: string; question: string; allowSuggestions: boolean };
+    options: ResultOption[];
+    // Pre-upgrade free-text suggestion votes that were never promoted to options.
+    legacySuggestions: Array<{ suggestion: string | null; userName: string; createdAt: string }>;
     totalVotes: number;
 }
 
@@ -42,6 +52,7 @@ export const PollManager: React.FC<Props> = ({ token }) => {
     const [allowSuggestions, setAllowSuggestions] = useState(false);
 
     const [results, setResults] = useState<PollResults | null>(null);
+    const [optionBusy, setOptionBusy] = useState<number | null>(null);
 
     const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
 
@@ -118,10 +129,9 @@ export const PollManager: React.FC<Props> = ({ token }) => {
         }
     };
 
-    const viewResults = async (poll: Poll) => {
-        setResults(null);
+    const loadResults = async (pollId: string) => {
         try {
-            const res = await fetch(`/api/polls/admin/${poll.id}/results`, { headers });
+            const res = await fetch(`/api/polls/admin/${pollId}/results`, { headers });
             if (res.ok) setResults(await res.json());
             else showToast('Failed to load results', 'error');
         } catch {
@@ -129,11 +139,40 @@ export const PollManager: React.FC<Props> = ({ token }) => {
         }
     };
 
+    const viewResults = async (poll: Poll) => {
+        setResults(null);
+        await loadResults(poll.id);
+    };
+
+    // Soft-hide / restore one option. The backend never deletes it from the options
+    // array (vote indices must stay stable) — existing votes are untouched.
+    const setOptionRemoved = async (pollId: string, index: number, removed: boolean) => {
+        setOptionBusy(index);
+        try {
+            const res = await fetch(`/api/polls/admin/${pollId}/options/${index}`, {
+                method: 'PATCH',
+                headers,
+                body: JSON.stringify({ removed }),
+            });
+            if (res.ok) {
+                await loadResults(pollId);
+                fetchPolls();
+                showToast(removed ? 'Option hidden from students' : 'Option restored', 'success');
+            } else {
+                const data = await res.json().catch(() => ({}));
+                showToast(data.error || 'Failed to update option', 'error');
+            }
+        } catch {
+            showToast('Failed to update option', 'error');
+        }
+        setOptionBusy(null);
+    };
+
     const addOption = () => setOptions(prev => [...prev, '']);
     const removeOption = (i: number) => setOptions(prev => prev.filter((_, idx) => idx !== i));
     const updateOption = (i: number, val: string) => setOptions(prev => prev.map((o, idx) => (idx === i ? val : o)));
 
-    const maxCount = results ? Math.max(1, ...results.optionCounts) : 1;
+    const maxCount = results ? Math.max(1, ...results.options.map(o => o.count)) : 1;
 
     return (
         <div className="space-y-4">
@@ -179,7 +218,7 @@ export const PollManager: React.FC<Props> = ({ token }) => {
                                     </div>
                                     <p className="text-xs text-brand-dark/50 font-bold">
                                         {p.totalVotes} vote{p.totalVotes === 1 ? '' : 's'}
-                                        {p.allowSuggestions ? ` · ${p.suggestionsCount} suggestion${p.suggestionsCount === 1 ? '' : 's'}` : ''}
+                                        {p.allowSuggestions ? ` · ${p.suggestionsCount} suggested option${p.suggestionsCount === 1 ? '' : 's'}` : ''}
                                     </p>
                                 </div>
                                 <div className="flex items-center gap-2 shrink-0">
@@ -257,18 +296,44 @@ export const PollManager: React.FC<Props> = ({ token }) => {
                         <div className="absolute inset-0 bg-brand-dark/60 backdrop-blur-sm" onClick={() => setResults(null)} />
                         <div className="relative bg-white rounded-[32px] shadow-2xl w-full max-w-lg p-8 animate-pop-in border border-brand-dark/10 my-8">
                             <button onClick={() => setResults(null)} className="absolute top-5 right-5 text-brand-dark/30 hover:text-brand-dark"><X size={20} /></button>
-                            <h2 className="text-xl font-display font-bold mb-1">{results.question}</h2>
+                            <h2 className="text-xl font-display font-bold mb-1">{results.poll.question}</h2>
                             <p className="text-xs text-brand-dark/40 font-bold mb-6">{results.totalVotes} total vote{results.totalVotes === 1 ? '' : 's'}</p>
 
                             <div className="space-y-3 mb-6">
-                                {results.options.map((opt, i) => {
-                                    const count = results.optionCounts[i] || 0;
-                                    const pct = Math.round((count / maxCount) * 100);
+                                {results.options.map(o => {
+                                    const pct = Math.round((o.count / maxCount) * 100);
+                                    const isSuggested = !!o.suggestedByName;
                                     return (
-                                        <div key={i}>
-                                            <div className="flex items-center justify-between mb-1">
-                                                <span className="text-sm font-bold text-brand-dark">{opt}</span>
-                                                <span className="text-sm font-black text-indigo-600">{count}</span>
+                                        <div key={o.index} className={o.removed ? 'opacity-50' : ''}>
+                                            <div className="flex items-center justify-between gap-3 mb-1">
+                                                <span className={`text-sm font-bold text-brand-dark min-w-0 ${o.removed ? 'line-through' : ''}`}>
+                                                    {o.text}
+                                                    {isSuggested && (
+                                                        <span className="ml-2 text-[9px] px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-500 font-black uppercase tracking-wide align-middle">
+                                                            suggested by {o.suggestedByName}
+                                                        </span>
+                                                    )}
+                                                    {o.removed && (
+                                                        <span className="ml-2 text-[9px] px-2 py-0.5 rounded-full bg-red-50 text-red-500 font-black uppercase tracking-wide align-middle">
+                                                            hidden
+                                                        </span>
+                                                    )}
+                                                </span>
+                                                <div className="flex items-center gap-2 shrink-0">
+                                                    <span className="text-sm font-black text-indigo-600">{o.count}</span>
+                                                    {(isSuggested || o.removed) && (
+                                                        <button
+                                                            onClick={() => setOptionRemoved(results.poll.id, o.index, !o.removed)}
+                                                            disabled={optionBusy === o.index}
+                                                            className={`px-2.5 py-1 rounded-lg text-[10px] font-bold active:scale-95 transition-all disabled:opacity-50 flex items-center gap-1
+                                                                ${o.removed ? 'bg-green-50 text-green-600 hover:bg-green-100' : 'bg-red-50 text-red-500 hover:bg-red-100'}`}
+                                                        >
+                                                            {optionBusy === o.index
+                                                                ? <Loader2 size={12} className="animate-spin" />
+                                                                : (o.removed ? <><RotateCcw size={12} /> Restore</> : <><Trash2 size={12} /> Remove</>)}
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </div>
                                             <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
                                                 <div className="h-full bg-indigo-500 rounded-full transition-all duration-700" style={{ width: `${pct}%` }} />
@@ -278,11 +343,16 @@ export const PollManager: React.FC<Props> = ({ token }) => {
                                 })}
                             </div>
 
-                            {results.suggestions.length > 0 && (
+                            {results.legacySuggestions.length > 0 && (
                                 <div>
-                                    <p className="text-[10px] font-black text-brand-dark/40 uppercase tracking-widest mb-2">Suggestions ({results.suggestions.length})</p>
+                                    <p className="text-[10px] font-black text-brand-dark/40 uppercase tracking-widest mb-2">
+                                        Earlier text suggestions ({results.legacySuggestions.length})
+                                    </p>
+                                    <p className="text-[10px] text-brand-dark/30 font-bold mb-2 italic">
+                                        Submitted before suggestions became votable options — read-only.
+                                    </p>
                                     <div className="space-y-2 max-h-56 overflow-y-auto">
-                                        {results.suggestions.map((s, i) => (
+                                        {results.legacySuggestions.map((s, i) => (
                                             <div key={i} className="bg-gray-50 rounded-xl px-4 py-2.5">
                                                 <p className="text-sm font-medium text-brand-dark">{s.suggestion}</p>
                                                 <p className="text-[10px] text-brand-dark/40 font-bold mt-0.5">— {s.userName}</p>

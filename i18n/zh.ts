@@ -474,6 +474,12 @@ const zh: Record<string, string> = {
   'poll.errSuggestion': '请输入一个建议。',
   'poll.errPickOption': '请选择一个选项。',
   'poll.errFailVote': '提交投票失败。',
+  'poll.changeVote': '更改投票',
+  'poll.cancelChange': '取消',
+  'poll.updateVote': '更新投票',
+  'poll.suggestedBy': '由 {name} 建议',
+  'poll.votesShort': '{count} 票',
+  'poll.yourVote': '你的投票',
 
   // ── 学生课室 ─────────────────────────────────────────────────────────
   'classroom.joinTitle': '加入课室',

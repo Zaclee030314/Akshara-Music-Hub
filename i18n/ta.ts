@@ -474,6 +474,12 @@ const ta: Record<string, string> = {
   'poll.errSuggestion': 'ஒரு பரிந்துரையை உள்ளிடவும்.',
   'poll.errPickOption': 'ஒரு விருப்பத்தைத் தேர்வுசெய்யவும்.',
   'poll.errFailVote': 'வாக்கைச் சமர்ப்பிக்க முடியவில்லை.',
+  'poll.changeVote': 'வாக்கை மாற்று',
+  'poll.cancelChange': 'ரத்துசெய்',
+  'poll.updateVote': 'வாக்கைப் புதுப்பி',
+  'poll.suggestedBy': '{name} பரிந்துரைத்தார்',
+  'poll.votesShort': '{count} வாக்குகள்',
+  'poll.yourVote': 'உங்கள் வாக்கு',
 
   // ── மாணவர் வகுப்பறைகள் ──────────────────────────────────────────────
   'classroom.joinTitle': 'வகுப்பறையில் சேரவும்',

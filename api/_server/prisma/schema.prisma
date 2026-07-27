@@ -139,6 +139,12 @@ model Poll {
   isActive         Boolean  @default(true)
   seasonId         String?
   createdAt        DateTime @default(now())
+  // JSON array of student-added options: [{ index, text, userId, userName, createdAt }]
+  suggestedMeta    String?
+  // JSON array of soft-removed option indices, e.g. [2, 5].
+  // Options are APPEND-ONLY — votes reference options by array index, so entries
+  // in `options` must never be deleted or reordered. Removal is a soft-hide.
+  removedOptions   String?
   votes            PollVote[]
 }
 

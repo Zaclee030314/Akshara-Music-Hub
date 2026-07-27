@@ -474,6 +474,12 @@ const en: Record<string, string> = {
   'poll.errSuggestion': 'Please enter a suggestion.',
   'poll.errPickOption': 'Please pick an option.',
   'poll.errFailVote': 'Failed to submit vote.',
+  'poll.changeVote': 'Change vote',
+  'poll.cancelChange': 'Cancel',
+  'poll.updateVote': 'Update Vote',
+  'poll.suggestedBy': 'suggested by {name}',
+  'poll.votesShort': '{count} votes',
+  'poll.yourVote': 'Your vote',
 
   // ── Student classrooms ─────────────────────────────────────────────
   'classroom.joinTitle': 'Join a Classroom',
