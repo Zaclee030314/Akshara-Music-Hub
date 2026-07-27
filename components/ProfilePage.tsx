@@ -3,7 +3,7 @@ import { Card } from './Card';
 import { Button } from './Button';
 import { useAuth } from '../contexts/useAuth';
 import { useT } from '../contexts/LanguageContext';
-import { Loader2, Camera, User as UserIcon, Save, CheckCircle2, Gift, Copy, Check } from 'lucide-react';
+import { Loader2, Camera, User as UserIcon, Save, CheckCircle2, Gift, Copy, Check, Sparkles } from 'lucide-react';
 
 interface Profile {
     id: string;
@@ -307,6 +307,26 @@ export const ProfilePage: React.FC = () => {
                         <p className="font-medium text-brand-dark">{profile.gradeSyllabus || '—'}</p>
                     </div>
                 </div>
+            </Card>
+
+            {/* How to earn XP & Coins */}
+            <Card className="p-6 md:p-8 shadow-sm space-y-4 bg-gradient-to-br from-brand-blue/5 to-white">
+                <h3 className="font-bold text-brand-dark flex items-center gap-2">
+                    <Sparkles size={18} className="text-brand-blue" /> {t('profile.pointsTitle')}
+                </h3>
+                <ul className="space-y-2.5 text-sm text-brand-dark/70">
+                    {[
+                        t('profile.pointsQuest'),
+                        t('profile.pointsStandard'),
+                        t('profile.pointsXp'),
+                        t('profile.pointsCoins')
+                    ].map((line, i) => (
+                        <li key={i} className="flex gap-2.5">
+                            <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-blue shrink-0" />
+                            <span>{line}</span>
+                        </li>
+                    ))}
+                </ul>
             </Card>
 
             {/* Refer & Earn */}

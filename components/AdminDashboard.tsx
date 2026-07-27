@@ -54,6 +54,7 @@ interface UserStats {
     email: string;
     role: string;
     xp: number;
+    coins: number;
     isAdmin: boolean;
     isSubscribed: boolean;
     questsPlayed: number;
@@ -121,7 +122,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
     const [roleSearchQuery, setRoleSearchQuery] = useState('');
     const [savingRoleId, setSavingRoleId] = useState<string | null>(null);
     const [userSearchQuery, setUserSearchQuery] = useState('');
-    const [userSortOrder, setUserSortOrder] = useState<'default' | 'accuracy-desc' | 'accuracy-asc' | 'xp-desc'>('default');
+    const [userSortOrder, setUserSortOrder] = useState<'default' | 'accuracy-desc' | 'accuracy-asc' | 'xp-desc' | 'coins-desc'>('default');
     const [redemptionSearchQuery, setRedemptionSearchQuery] = useState('');
 
     // Paper Files state
@@ -455,6 +456,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
                 if (userSortOrder === 'accuracy-desc') return b.accuracy - a.accuracy;
                 if (userSortOrder === 'accuracy-asc') return a.accuracy - b.accuracy;
                 if (userSortOrder === 'xp-desc') return b.xp - a.xp;
+                if (userSortOrder === 'coins-desc') return (b.coins ?? 0) - (a.coins ?? 0);
                 return 0; // default (current state is usually xp-desc from backend)
             });
 
@@ -483,6 +485,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
                             <option value="accuracy-desc">Accuracy (High → Low)</option>
                             <option value="accuracy-asc">Accuracy (Low → High)</option>
                             <option value="xp-desc">Most XP</option>
+                            <option value="coins-desc">Most Coins</option>
                         </select>
                     </div>
                     <button
@@ -522,10 +525,18 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
                                         </div>
                                     )}
                                 </div>
-                                <div className="hidden md:flex items-center gap-8 text-center">
+                                <div className="hidden md:flex items-center gap-6 text-center">
                                     <div>
                                         <p className="text-[10px] font-bold text-brand-dark/30 uppercase mb-0.5">Questions</p>
                                         <p className="font-bold text-sm tracking-tighter">{u.totalQuestions}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-bold text-brand-dark/30 uppercase mb-0.5">Banked XP</p>
+                                        <p className="font-bold text-sm tracking-tighter text-brand-dark">{(u.xp ?? 0).toLocaleString()}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-bold text-brand-dark/30 uppercase mb-0.5">Coins</p>
+                                        <p className="font-bold text-sm tracking-tighter text-amber-500">{(u.coins ?? 0).toLocaleString()}</p>
                                     </div>
                                     <div>
                                         <p className="text-[10px] font-bold text-brand-dark/30 uppercase mb-0.5">Accuracy</p>
@@ -938,9 +949,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                         {[
-                            { label: 'Academic XP', value: selectedUser.xp, icon: '⭐' },
+                            { label: 'Banked XP', value: selectedUser.xp, icon: '⭐' },
+                            { label: 'Coins', value: selectedUser.coins ?? 0, icon: '🪙' },
                             { label: 'Q. Answered', value: selectedUser.totalQuestions, icon: '📚' },
                             { label: 'Correct', value: selectedUser.totalCorrect, icon: '✅' },
                             { label: 'Avg Accuracy', value: `${selectedUser.accuracy}%`, icon: '🎯' }

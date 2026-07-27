@@ -64,6 +64,7 @@ router.get('/users', async (_req, res) => {
                 email: true,
                 role: true,
                 xp: true,
+                coins: true,
                 isAdmin: true,
                 isSubscribed: true,
                 questsPlayed: true,
