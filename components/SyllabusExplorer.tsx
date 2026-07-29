@@ -114,12 +114,14 @@ export const SyllabusExplorer: React.FC<SyllabusExplorerProps> = ({ onSelectSubj
                 </div>
 
                 {/* Region Selector */}
-                <div className="flex justify-center gap-3">
+                {/* flex-wrap is required: 4 region buttons run ~500px and the page
+                    clips overflow, which made "Music Programmes" unreachable on phones */}
+                <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
                     {REGIONS.map((region) => (
                         <button
                             key={region.id}
                             onClick={() => setSelectedRegion(region.id)}
-                            className={`px-6 py-2 rounded-xl font-bold text-sm transition-all duration-300 flex items-center gap-2 ${selectedRegion === region.id
+                            className={`px-4 sm:px-6 py-2 rounded-xl font-bold text-xs sm:text-sm transition-all duration-300 flex items-center gap-1.5 sm:gap-2 ${selectedRegion === region.id
                                 ? 'bg-brand-orange text-white shadow-lg'
                                 : 'bg-white text-brand-dark/50 hover:bg-brand-orange/5'
                                 }`}

@@ -4,8 +4,10 @@ import { useT } from '../contexts/LanguageContext';
 
 export const Footer: React.FC = () => {
     const { t } = useT();
+    // pb-28 on phones clears the fixed bottom tab bar (~74px). The footer sits
+    // outside <main>, so main's pb-20 gives it no clearance.
     return (
-        <footer className="bg-brand-dark text-white pt-12 pb-10 px-6 md:px-12 lg:px-20 w-full mt-auto">
+        <footer className="bg-brand-dark text-white pt-12 pb-28 md:pb-10 px-6 md:px-12 lg:px-20 w-full mt-auto">
             <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 border-b border-white/10 pb-10 md:pb-12 text-center sm:text-left">
                 <div className="space-y-4 flex flex-col items-center sm:items-start col-span-1 sm:col-span-2 lg:col-span-1">
                     <div className="flex items-center gap-2">

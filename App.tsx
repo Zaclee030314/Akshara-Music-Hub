@@ -2094,10 +2094,32 @@ export default function App() {
       <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-orange/20 rounded-full blur-3xl -z-10 animate-float" />
       <div className="fixed bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-brand-blue/10 rounded-full blur-3xl -z-10" />
 
+      {/* Tap-outside backdrop so the menu can be dismissed without hunting the X */}
+      {showMobileMenu && (
+        <div
+          className="md:hidden fixed inset-0 z-[55] bg-black/20"
+          onClick={() => setShowMobileMenu(false)}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Mobile Menu Dropdown */}
       {showMobileMenu && (
-        <div className="md:hidden fixed top-14 left-0 right-0 z-[60] bg-white/95 backdrop-blur-xl border-b border-brand-dark/10 shadow-xl animate-menu-slide-down">
+        <div className="md:hidden fixed top-16 left-0 right-0 z-[60] bg-white/95 backdrop-blur-xl border-b border-brand-dark/10 shadow-xl animate-menu-slide-down max-h-[calc(100vh-4rem)] overflow-y-auto">
           <div className="flex flex-col p-4 gap-1">
+            {/* XP + coins live here on phones — the navbar pills are hidden below sm */}
+            {user && (
+              <div className="flex items-center gap-2 px-4 pb-2 mb-1 border-b border-brand-dark/5">
+                <span className="inline-flex items-center gap-1.5 bg-white/70 border border-white/60 px-3 py-1 rounded-full">
+                  <Star className="w-4 h-4 text-brand-accent fill-brand-accent" />
+                  <span className="font-bold text-sm">{stats.xp} XP</span>
+                </span>
+                <span className="inline-flex items-center gap-1.5 bg-yellow-100/80 border border-yellow-200 text-yellow-700 px-3 py-1 rounded-full">
+                  <Coins className="w-4 h-4 fill-yellow-500" />
+                  <span className="font-bold text-sm">{stats.coins || 0}</span>
+                </span>
+              </div>
+            )}
             <button onClick={() => { setShowMobileMenu(false); if (user && (user.role === 'student' || user.role === 'teacher') && !user.isAdmin) { handleNewQuest(); } else { navigate('/'); setTimeout(() => document.getElementById('courses')?.scrollIntoView({ behavior: 'smooth' }), 200); } }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">{user && (user.role === 'student' || user.role === 'teacher') && !user.isAdmin ? `🚀 ${t('nav.newQuest')}` : `📚 ${t('nav.courses')}`}</button>
             <button onClick={() => { setShowMobileMenu(false); if (!user) setShowLoginModal(true); else navigate(user?.isAdmin ? '/admin' : user?.role === 'teacher' ? '/teacher' : '/dashboard'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">📊 {t('nav.dashboard')}</button>
             <button onClick={() => { setShowMobileMenu(false); if (!user) setShowLoginModal(true); else navigate('/classrooms'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">🏫 {t('nav.classrooms')}</button>
@@ -2121,9 +2143,9 @@ export default function App() {
 
       {/* Navbar */}
       <nav className="p-3 md:p-4 lg:p-5 flex justify-between items-center max-w-6xl mx-auto z-50 relative">
-        <div className="flex items-center gap-2 cursor-pointer flex-shrink-0" onClick={() => navigate('/')}>
-          <BookOpen className="text-brand-orange w-5 h-5 md:w-6 md:h-6" />
-          <span className="font-display font-bold text-base md:text-lg tracking-tight">Akshara Music Hub</span>
+        <div className="flex items-center gap-2 cursor-pointer min-w-0" onClick={() => navigate('/')}>
+          <BookOpen className="text-brand-orange w-5 h-5 md:w-6 md:h-6 shrink-0" />
+          <span className="font-display font-bold text-sm sm:text-base md:text-lg tracking-tight truncate">Akshara Music Hub</span>
         </div>
 
         <div className="hidden md:flex items-center gap-4 lg:gap-8 flex-1 justify-center px-4">
@@ -2169,7 +2191,9 @@ export default function App() {
                 <span className="font-bold text-sm">{stats.coins || 0}</span>
               </div>
 
-              <div className="flex items-center gap-2 bg-white/60 backdrop-blur px-3 py-1 rounded-full border border-white/50">
+              {/* Hidden on phones (like the coins pill above) — it pushed the
+                  avatar/profile menu off-screen. XP is shown in the mobile menu. */}
+              <div className="hidden sm:flex items-center gap-2 bg-white/60 backdrop-blur px-3 py-1 rounded-full border border-white/50">
                 <Star className="w-4 h-4 text-brand-accent fill-brand-accent" />
                 <span className="font-bold text-sm">{stats.xp} XP</span>
               </div>
