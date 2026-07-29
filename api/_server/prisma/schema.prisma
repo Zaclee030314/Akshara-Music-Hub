@@ -52,6 +52,7 @@ model User {
   role                  String
   grade                 String?
   gradeSyllabus         String?
+  birthday              DateTime? // immutable after set — drives the age-based XP award gate
   avatar                String?
   parentName            String?
   parentPhone           String?
@@ -201,6 +202,8 @@ model PendingUser {
   role             String
   grade            String?
   syllabus         String?
+  birthday         DateTime?
+  parentPhone      String?
   referredById     String?
   verificationCode String
   createdAt        DateTime @default(now())

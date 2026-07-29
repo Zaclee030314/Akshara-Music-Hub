@@ -3,6 +3,7 @@ import prisma from '../db.js';
 import { authenticateToken, AuthRequest } from '../middleware/authMiddleware.js';
 import { checkExpiredSubscriptions } from '../middleware/checkExpiredSubscriptions.js';
 import { shouldAwardPoints } from '../utils/gradeRank.js';
+import { GATE_LENIENCY, expectedGradeFor, isMusicSyllabus } from '../utils/ageGrade.js';
 
 const router = express.Router();
 
@@ -26,8 +27,29 @@ router.post('/', authenticateToken, async (req: AuthRequest, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        // Award gating: no XP/coins when the quiz is below the student's registered standard
-        let award = shouldAwardPoints(user.grade, grade);
+        // Award gating: the gate is judged by the student's AGE GROUP (derived from their
+        // immutable birthday), not the standard they picked — students may edit their
+        // standard freely, so gating on it would let anyone farm XP on easy quizzes.
+        // Music syllabi have no age mapping, and accounts with no birthday on file fall
+        // back to the selected grade — i.e. exactly today's behaviour.
+        const ageGrade =
+            (!isMusicSyllabus(user.gradeSyllabus) && user.birthday)
+                ? expectedGradeFor(user.gradeSyllabus, user.birthday, new Date())
+                : null;
+        const gateGrade = ageGrade ?? user.grade;
+        const gateSource: 'age' | 'profile' = ageGrade ? 'age' : 'profile';
+
+        // Leniency only applies to the DERIVED grade — it exists to absorb age-mapping
+        // drift (repeated/skipped years). A grade the student picked themselves has no
+        // such drift, so the profile path keeps leniency 0 and stays exactly as it is
+        // today for every existing account.
+        let award = shouldAwardPoints(gateGrade, grade, gateSource === 'age' ? GATE_LENIENCY : 0);
+
+        console.log(
+            `[GATE] user=${userId} birthday=${user.birthday ? user.birthday.toISOString().slice(0, 10) : 'none'} ` +
+            `syllabus=${user.gradeSyllabus ?? 'none'} profileGrade=${user.grade ?? 'none'} ` +
+            `gateGrade=${gateGrade ?? 'none'} source=${gateSource} quizGrade=${grade ?? 'none'} award=${award}`
+        );
 
         // Teacher-quest exemption: quests created by teachers/admins always award points
         if (questId) {
@@ -81,7 +103,15 @@ router.post('/', authenticateToken, async (req: AuthRequest, res) => {
 
         console.log(`[API] ✅ Result saved! User XP: ${user.xp} -> +${xpAwarded}, Coins: +${coinsAwarded} (total: ${updatedUser?.coins}, gated: ${!award})`);
 
-        res.json({ ...result, newCoinTotal: updatedUser?.coins ?? 0, xpAwarded, coinsAwarded, gated: !award });
+        res.json({
+            ...result,
+            newCoinTotal: updatedUser?.coins ?? 0,
+            xpAwarded,
+            coinsAwarded,
+            gated: !award,
+            gateGrade: gateGrade ?? null,
+            gateSource
+        });
     } catch (error) {
         console.error('[API] Error saving result:', error);
         res.status(500).json({ error: 'Failed to save result' });

@@ -32,9 +32,13 @@ export const gradeRank = (grade: string | null | undefined): { family: 'academic
 
 // True when points should be awarded: unknown/unparseable grades never gate,
 // different families never gate, and playing at or above your own rank earns points.
+// `leniency` widens the allowance downwards by N ranks (used by the age-based gate,
+// where the derived grade can legitimately be a year off). Default 0 keeps every
+// existing caller byte-identical.
 export const shouldAwardPoints = (
     userGrade: string | null | undefined,
-    quizGrade: string | null | undefined
+    quizGrade: string | null | undefined,
+    leniency: number = 0
 ): boolean => {
     const userRank = gradeRank(userGrade);
     if (!userRank) return true;
@@ -44,5 +48,5 @@ export const shouldAwardPoints = (
 
     if (userRank.family !== quizRank.family) return true;
 
-    return quizRank.rank >= userRank.rank;
+    return quizRank.rank >= userRank.rank - leniency;
 };

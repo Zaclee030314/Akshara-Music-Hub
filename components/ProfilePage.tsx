@@ -4,6 +4,7 @@ import { Button } from './Button';
 import { useAuth } from '../contexts/useAuth';
 import { useT } from '../contexts/LanguageContext';
 import { Loader2, Camera, User as UserIcon, Save, CheckCircle2, Gift, Copy, Check, Sparkles } from 'lucide-react';
+import { StandardEditor } from './StandardEditor';
 
 interface Profile {
     id: string;
@@ -12,6 +13,8 @@ interface Profile {
     role: string;
     grade?: string | null;
     gradeSyllabus?: string | null;
+    birthday?: string | null;
+    expectedGrade?: string | null;
     avatar?: string | null;
     parentName?: string | null;
     parentPhone?: string | null;
@@ -298,16 +301,23 @@ export const ProfilePage: React.FC = () => {
                         <p className="text-xs font-bold text-brand-dark/40 uppercase">{t('profile.email')}</p>
                         <p className="font-medium text-brand-dark break-all">{profile.email}</p>
                     </div>
-                    <div>
-                        <p className="text-xs font-bold text-brand-dark/40 uppercase">{t('profile.registeredGrade')}</p>
-                        <p className="font-medium text-brand-dark">{profile.grade || '—'}</p>
-                    </div>
-                    <div>
-                        <p className="text-xs font-bold text-brand-dark/40 uppercase">{t('login.syllabus')}</p>
-                        <p className="font-medium text-brand-dark">{profile.gradeSyllabus || '—'}</p>
-                    </div>
+                    {profile.birthday && (
+                        <div>
+                            <p className="text-xs font-bold text-brand-dark/40 uppercase">{t('login.birthday')}</p>
+                            <p className="font-medium text-brand-dark">{profile.birthday}</p>
+                        </div>
+                    )}
                 </div>
             </Card>
+
+            {/* Syllabus + standard (student-editable — XP is gated on age, not on this) */}
+            <StandardEditor
+                syllabus={profile.gradeSyllabus}
+                grade={profile.grade}
+                birthday={profile.birthday}
+                expectedGrade={profile.expectedGrade}
+                onSaved={async () => { await loadProfile(); await refreshUser(); }}
+            />
 
             {/* How to earn XP & Coins */}
             <Card className="p-6 md:p-8 shadow-sm space-y-4 bg-gradient-to-br from-brand-blue/5 to-white">

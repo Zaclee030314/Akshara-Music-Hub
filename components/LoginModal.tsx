@@ -7,6 +7,7 @@ import { useT } from '../contexts/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import { Syllabus } from '../types';
 import { getGradesBySyllabus } from '../lib/curriculum';
+import { suggestGrade, isMusicSyllabus } from '../lib/ageGrade';
 
 interface LoginModalProps {
     onClose: () => void;
@@ -95,15 +96,36 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
     const [code, setCode] = useState('');
     const [loading, setLoading] = useState(false);
 
-    // Signup: syllabus + grade selection
+    // Signup: birthday, contact, syllabus + grade selection
+    const [birthday, setBirthday] = useState('');           // 'YYYY-MM-DD'
+    const [phone, setPhone] = useState('');
     const [selectedSyllabus, setSelectedSyllabus] = useState<Syllabus | ''>('');
     const [selectedGrade, setSelectedGrade] = useState('');
+    // Once the student picks a standard themselves, stop overwriting it with the suggestion.
+    const [gradeTouched, setGradeTouched] = useState(false);
+
+    const todayISO = React.useMemo(() => new Date().toISOString().slice(0, 10), []);
 
     const gradeOptions = React.useMemo(() => {
         if (!selectedSyllabus) return [];
         const g = getGradesBySyllabus(selectedSyllabus as Syllabus);
         return [...g.primary, ...g.secondary, ...(g.advanced || [])];
     }, [selectedSyllabus]);
+
+    // Auto-suggest the standard from the birthday until the student overrides it.
+    // Music syllabi have no age→grade relationship, so they are never suggested.
+    const suggestedGrade = React.useMemo(() => {
+        if (!birthday || !selectedSyllabus || isMusicSyllabus(selectedSyllabus)) return null;
+        return suggestGrade(selectedSyllabus, birthday);
+    }, [birthday, selectedSyllabus]);
+
+    React.useEffect(() => {
+        if (gradeTouched) return;
+        if (!birthday || !selectedSyllabus || isMusicSyllabus(selectedSyllabus)) return;
+        setSelectedGrade(suggestedGrade ?? '');
+    }, [birthday, selectedSyllabus, suggestedGrade, gradeTouched]);
+
+    const gradeWasSuggested = !gradeTouched && !!suggestedGrade && selectedGrade === suggestedGrade;
 
     // Forgot password state
     const [fpEmail, setFpEmail] = useState('');
@@ -133,9 +155,20 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
         if (isSignUp && !validEmail(email)) { alert(t('login.alertValidEmail')); return; }
         if (isSignUp) {
             if (!name || !password) { alert(t('login.alertFillAll')); return; }
+            if (!birthday) { alert(t('login.alertEnterBirthday')); return; }
+            if (!phone.trim()) { alert(t('login.alertEnterPhone')); return; }
             if (!selectedSyllabus) { alert(t('login.alertSelectSyllabus')); return; }
             if (!selectedGrade) { alert(t('login.alertSelectGrade')); return; }
-            const r = await signup(name, email, password, 'student', selectedGrade, selectedSyllabus);
+            const r = await signup({
+                name,
+                email,
+                password,
+                role: 'student',
+                grade: selectedGrade,
+                syllabus: selectedSyllabus,
+                birthday,
+                phone: phone.trim()
+            });
             if (typeof r === 'object' && r.needsVerification) { setEmail(r.email); setView('verify'); }
             else if (r === true) {
                 onClose();
@@ -346,10 +379,40 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
 
                     {isSignUp && (
                         <div>
+                            <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-1">{t('login.birthday')}</label>
+                            {/* appearance-none + min-h are required: iOS Safari renders a bare
+                                date input about 20px tall and unusable without them. */}
+                            <input
+                                type="date"
+                                value={birthday}
+                                max={todayISO}
+                                onChange={e => setBirthday(e.target.value)}
+                                className="w-full p-3 rounded-lg border-2 border-brand-dark/10 bg-white appearance-none min-h-[48px]"
+                            />
+                            <p className="text-xs text-brand-dark/40 mt-1">{t('login.birthdayHint')}</p>
+                        </div>
+                    )}
+
+                    {isSignUp && (
+                        <div>
+                            <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-1">{t('login.contactPhone')}</label>
+                            <input
+                                type="tel"
+                                value={phone}
+                                onChange={e => setPhone(e.target.value)}
+                                className="w-full p-3 rounded-lg border-2 border-brand-dark/10"
+                                placeholder={t('login.contactPhonePlaceholder')}
+                            />
+                            <p className="text-xs text-brand-dark/40 mt-1">{t('login.contactPhoneHint')}</p>
+                        </div>
+                    )}
+
+                    {isSignUp && (
+                        <div>
                             <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-1">{t('login.syllabus')}</label>
                             <select
                                 value={selectedSyllabus}
-                                onChange={e => { setSelectedSyllabus(e.target.value as Syllabus | ''); setSelectedGrade(''); }}
+                                onChange={e => { setSelectedSyllabus(e.target.value as Syllabus | ''); setSelectedGrade(''); setGradeTouched(false); }}
                                 className="w-full p-3 rounded-lg border-2 border-brand-dark/10 bg-white"
                             >
                                 <option value="">{t('login.selectSyllabus')}</option>
@@ -365,7 +428,7 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
                             <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-1">{t('login.myGrade')}</label>
                             <select
                                 value={selectedGrade}
-                                onChange={e => setSelectedGrade(e.target.value)}
+                                onChange={e => { setSelectedGrade(e.target.value); setGradeTouched(true); }}
                                 disabled={!selectedSyllabus}
                                 className="w-full p-3 rounded-lg border-2 border-brand-dark/10 bg-white disabled:opacity-50 disabled:cursor-not-allowed"
                             >
@@ -374,6 +437,9 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
                                     <option key={g} value={g}>{g}</option>
                                 ))}
                             </select>
+                            {gradeWasSuggested && (
+                                <p className="text-xs text-brand-blue/80 mt-1">{t('login.gradeSuggested')}</p>
+                            )}
                         </div>
                     )}
 

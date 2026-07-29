@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { User } from '../types';
-import { AuthContext, AuthContextType } from './AuthContextTypes';
+import { AuthContext, AuthContextType, SignupOptions } from './AuthContextTypes';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
@@ -32,14 +32,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     }, []);
 
-    const signup = async (name: string, email: string, password: string, role: 'student' | 'teacher', grade?: string, syllabus?: string): Promise<boolean | { needsVerification: true; email: string }> => {
+    const signup = async (options: SignupOptions): Promise<boolean | { needsVerification: true; email: string }> => {
+        const { name, email, password, role, grade, syllabus, birthday, phone } = options;
         setIsLoading(true);
         try {
             const referralCode = localStorage.getItem('ref_code') || undefined;
             const res = await fetch('/api/auth/signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, password, role, grade, syllabus, referralCode })
+                body: JSON.stringify({ name, email, password, role, grade, syllabus, birthday, phone, referralCode })
             });
             const data = await res.json();
             if (!res.ok) {

@@ -6,9 +6,25 @@ import { checkExpiredSubscriptions } from '../middleware/checkExpiredSubscriptio
 import prisma from '../db.js';
 import { sendOTPEmail, sendPasswordResetEmail } from '../services/mailService.js';
 import { getUserSeasonXp } from '../utils/seasonScore.js';
+import { schoolAge } from '../utils/ageGrade.js';
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkeyshouldbeenv';
+
+// Parse a 'YYYY-MM-DD' string into a UTC-midnight Date.
+// NEVER `new Date('2012-03-04')` directly — that is parsed as UTC and then rendered in
+// local time, which shifts the stored date by a day for anyone west of Greenwich.
+const parseBirthday = (value: unknown): Date | null => {
+    if (typeof value !== 'string') return null;
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
+    if (!m) return null;
+    const y = Number(m[1]), mo = Number(m[2]), d = Number(m[3]);
+    const date = new Date(Date.UTC(y, mo - 1, d));
+    if (isNaN(date.getTime())) return null;
+    // Reject rolled-over dates like 2012-02-31.
+    if (date.getUTCFullYear() !== y || date.getUTCMonth() !== mo - 1 || date.getUTCDate() !== d) return null;
+    return date;
+};
 
 // Emails that are always granted platform-admin access (owner + operators).
 // Auto-applied on login/verify so no manual DB edit is required.
@@ -19,7 +35,7 @@ const isAdminEmail = (email: string): boolean => ADMIN_EMAILS.has(email.trim().t
 
 // SIGNUP
 router.post('/signup', async (req, res) => {
-    const { name, email, password, grade, syllabus, referralCode } = req.body;
+    const { name, email, password, grade, syllabus, birthday, phone, referralCode } = req.body;
     // Public sign-ups are always students. Teacher/admin accounts are provisioned
     // by an admin from the Admin dashboard — never self-selected here.
     const role = 'student';
@@ -27,6 +43,18 @@ router.post('/signup', async (req, res) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
         return res.status(400).json({ error: 'Please provide a valid email address' });
+    }
+
+    // Birthday is required at signup: it is the immutable anchor for the age-based
+    // XP award gate (utils/ageGrade.ts), which is what makes the student-editable
+    // standard safe.
+    const parsedBirthday = parseBirthday(birthday);
+    if (!parsedBirthday) {
+        return res.status(400).json({ error: 'Please provide a valid date of birth (YYYY-MM-DD)' });
+    }
+    const age = schoolAge(parsedBirthday, new Date());
+    if (age < 4 || age > 100) {
+        return res.status(400).json({ error: 'Please provide a valid date of birth' });
     }
 
     try {
@@ -60,6 +88,8 @@ router.post('/signup', async (req, res) => {
                 role,
                 grade: grade || null,
                 syllabus: syllabus || null,
+                birthday: parsedBirthday,
+                parentPhone: typeof phone === 'string' && phone.trim() ? phone.trim() : null,
                 referredById,
                 verificationCode
             },
@@ -70,6 +100,8 @@ router.post('/signup', async (req, res) => {
                 role,
                 grade: grade || null,
                 syllabus: syllabus || null,
+                birthday: parsedBirthday,
+                parentPhone: typeof phone === 'string' && phone.trim() ? phone.trim() : null,
                 referredById,
                 verificationCode
             }
@@ -123,6 +155,8 @@ router.post('/verify', async (req, res) => {
                 role: pendingUser.role,
                 grade: pendingUser.grade,
                 gradeSyllabus: pendingUser.syllabus,
+                birthday: pendingUser.birthday,
+                parentPhone: pendingUser.parentPhone,
                 referredById: pendingUser.referredById,
                 isVerified: true,
                 isAdmin: isAdminEmail(pendingUser.email)
@@ -143,6 +177,7 @@ router.post('/verify', async (req, res) => {
                 role: user.role,
                 grade: user.grade,
                 gradeSyllabus: user.gradeSyllabus,
+                birthday: user.birthday ? user.birthday.toISOString().slice(0, 10) : null,
                 avatar: user.avatar,
                 profileCompleted: user.profileCompleted,
                 isAdmin: user.isAdmin,
@@ -249,6 +284,7 @@ router.post('/login', async (req, res) => {
                 role: user.role,
                 grade: user.grade,
                 gradeSyllabus: user.gradeSyllabus,
+                birthday: user.birthday ? user.birthday.toISOString().slice(0, 10) : null,
                 avatar: user.avatar,
                 profileCompleted: user.profileCompleted,
                 xp: user.xp,
@@ -312,6 +348,7 @@ router.get('/me', authenticateToken, checkExpiredSubscriptions, async (req: Auth
                 role: user.role,
                 grade: user.grade,
                 gradeSyllabus: user.gradeSyllabus,
+                birthday: user.birthday ? user.birthday.toISOString().slice(0, 10) : null,
                 avatar: user.avatar,
                 profileCompleted: user.profileCompleted,
                 xp: user.xp,

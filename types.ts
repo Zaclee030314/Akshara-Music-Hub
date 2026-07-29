@@ -88,6 +88,7 @@ export interface User {
   role: 'student' | 'teacher';
   grade?: string;
   gradeSyllabus?: string;
+  birthday?: string | null; // 'YYYY-MM-DD'; immutable once set — anchors the age-based XP gate
   isSubscribed: boolean;
   subscriptionEndDate?: string | Date;
   subscriptionInterval?: 'month';
