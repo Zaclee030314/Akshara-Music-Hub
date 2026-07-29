@@ -94,6 +94,9 @@ model User {
   pollVotes          PollVote[] @relation("PollVotes")
 
   @@index([referredById])
+  // Backs the all-time leaderboard: role-filtered ordering by xp and the
+  // rank-by-count queries that mirror that ordering.
+  @@index([role, xp])
 }
 
 model Season {

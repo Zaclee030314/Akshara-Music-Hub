@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card } from './Card';
-import { Trophy, Medal, Star, UserCircle2, Loader2, Award, CalendarClock } from 'lucide-react';
+import { Trophy, Medal, Star, UserCircle2, Loader2, Award, CalendarClock, Search, X } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
 import { useT } from '../contexts/LanguageContext';
 
@@ -66,10 +66,23 @@ export const Leaderboard: React.FC = () => {
     // Default to the season-first model.
     const [tab, setTab] = useState<Tab>('season');
 
+    // `t` changes identity when the language changes; effects below read it through
+    // this ref so they never capture a stale copy nor re-run on every language tick.
+    const tRef = useRef(t);
+    tRef.current = t;
+
     // All-time (lifetime XP)
     const [allTimeData, setAllTimeData] = useState<LeaderboardUser[]>([]);
+    const [allTimeMe, setAllTimeMe] = useState<LeaderboardUser | null>(null);
+    // False while the API still answers with the legacy bare array (no `me` concept),
+    // so we don't wrongly tell a ranked student they have no XP during a staggered deploy.
+    const [allTimeMeSupported, setAllTimeMeSupported] = useState(false);
     const [allTimeLoading, setAllTimeLoading] = useState(true);
     const [allTimeError, setAllTimeError] = useState('');
+
+    // Search (All-Time tab only): raw input + 300ms-debounced value that drives the fetch.
+    const [searchInput, setSearchInput] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
 
     // Current season
     const [seasonInfo, setSeasonInfo] = useState<SeasonInfo | null>(null);
@@ -80,14 +93,44 @@ export const Leaderboard: React.FC = () => {
 
     const [pastSeasons, setPastSeasons] = useState<PastSeason[]>([]);
 
+    // Debounce the search box (300ms) so typing doesn't fire a request per keystroke.
     useEffect(() => {
-        // All-time leaderboard (public)
-        fetch('/api/leaderboard')
-            .then(r => { if (!r.ok) throw new Error('Failed'); return r.json(); })
-            .then(data => setAllTimeData(Array.isArray(data) ? data : []))
-            .catch(() => setAllTimeError(t('leaderboard.errAllTime')))
-            .finally(() => setAllTimeLoading(false));
+        const id = setTimeout(() => setSearchQuery(searchInput.trim()), 300);
+        return () => clearTimeout(id);
+    }, [searchInput]);
 
+    // All-time leaderboard (public; token sent when present so "me" resolves).
+    // Re-runs whenever the debounced query changes.
+    useEffect(() => {
+        let cancelled = false;
+        setAllTimeLoading(true);
+        setAllTimeError('');
+
+        const token = localStorage.getItem('quest_token');
+        const url = searchQuery
+            ? `/api/leaderboard?q=${encodeURIComponent(searchQuery)}`
+            : '/api/leaderboard';
+
+        fetch(url, { headers: token ? { Authorization: `Bearer ${token}` } : undefined })
+            .then(r => { if (!r.ok) throw new Error('Failed'); return r.json(); })
+            .then(data => {
+                if (cancelled) return;
+                // Tolerate BOTH shapes: the old bare array and the new { leaderboard, me, total }.
+                // The API and the bundle can deploy moments apart.
+                const rows = Array.isArray(data) ? data : (data?.leaderboard ?? []);
+                const me = Array.isArray(data) ? null : (data?.me ?? null);
+                setAllTimeData(Array.isArray(rows) ? rows : []);
+                setAllTimeMe(me);
+                setAllTimeMeSupported(!Array.isArray(data));
+            })
+            .catch(() => { if (!cancelled) setAllTimeError(tRef.current('leaderboard.errAllTime')); })
+            .finally(() => { if (!cancelled) setAllTimeLoading(false); });
+
+        return () => { cancelled = true; };
+    }, [searchQuery]);
+
+    // Season standings + past-season history — fetched once on mount.
+    useEffect(() => {
         // Current-season leaderboard (auth optional — send token so "me" resolves)
         const token = localStorage.getItem('quest_token');
         fetch('/api/seasons/current/leaderboard', {
@@ -99,7 +142,7 @@ export const Leaderboard: React.FC = () => {
                 setSeasonRows(Array.isArray(data.leaderboard) ? data.leaderboard : []);
                 setSeasonMe(data.me || null);
             })
-            .catch(() => setSeasonError(t('leaderboard.errSeason')))
+            .catch(() => setSeasonError(tRef.current('leaderboard.errSeason')))
             .finally(() => setSeasonLoading(false));
 
         fetch('/api/seasons/history')
@@ -111,10 +154,16 @@ export const Leaderboard: React.FC = () => {
     const medalFor = (rank: number) => (rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉');
     const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
-    const allTimeRows: DisplayRow[] = allTimeData.map(p => ({
+    const allTimeToRow = (p: LeaderboardUser): DisplayRow => ({
         id: p.id, name: p.name, avatar: p.avatar, grade: p.grade,
         rank: p.rank, value: p.xp, level: p.level,
-    }));
+    });
+    const allTimeRows: DisplayRow[] = allTimeData.map(allTimeToRow);
+    // Append the caller's own standing when they sit outside the visible list
+    // (mirrors seasonMeRow). Suppressed while searching — the query drives the list.
+    const allTimeMeRow = allTimeMe && !searchQuery && !allTimeData.some(r => r.id === allTimeMe.id)
+        ? allTimeToRow(allTimeMe)
+        : null;
 
     const seasonToRow = (r: SeasonRow): DisplayRow => ({
         id: r.userId, name: r.name, avatar: r.avatar, grade: r.grade,
@@ -141,48 +190,48 @@ export const Leaderboard: React.FC = () => {
         return (
             <div
                 key={player.id + keySuffix}
-                className={`flex items-center justify-between p-4 rounded-xl transition-all ${
+                className={`flex items-center justify-between gap-3 p-4 rounded-xl transition-all ${
                     isCurrentUser
                         ? 'bg-brand-blue/10 border-2 border-brand-blue shadow-sm scale-[1.02]'
                         : 'bg-gray-50 hover:bg-gray-100 border border-gray-100'
                 }`}
             >
-                <div className="flex items-center gap-4">
-                    <div className="w-10 text-center font-bold text-xl text-brand-dark/50">
+                <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                    <div className="w-10 shrink-0 text-center font-bold text-xl text-brand-dark/50">
                         {RankIcon ? RankIcon : `#${player.rank}`}
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
                         {player.avatar ? (
                             <img
                                 src={player.avatar}
                                 alt={player.name}
-                                className={`w-10 h-10 rounded-full object-cover border-2 ${isCurrentUser ? 'border-brand-blue' : 'border-gray-200'}`}
+                                className={`w-10 h-10 shrink-0 rounded-full object-cover border-2 ${isCurrentUser ? 'border-brand-blue' : 'border-gray-200'}`}
                             />
                         ) : (
-                            <div className={`p-2 rounded-full ${isCurrentUser ? 'bg-brand-blue/20 text-brand-blue' : 'bg-gray-200 text-gray-500'}`}>
+                            <div className={`p-2 shrink-0 rounded-full ${isCurrentUser ? 'bg-brand-blue/20 text-brand-blue' : 'bg-gray-200 text-gray-500'}`}>
                                 <UserCircle2 size={24} />
                             </div>
                         )}
-                        <div>
-                            <div className="flex items-center gap-2">
-                                <p className={`font-bold ${isCurrentUser ? 'text-brand-blue' : 'text-brand-dark'}`}>
+                        <div className="min-w-0">
+                            <div className="flex items-center gap-2 min-w-0">
+                                <p className={`font-bold truncate ${isCurrentUser ? 'text-brand-blue' : 'text-brand-dark'}`}>
                                     {player.name}{isCurrentUser ? ` (${t('leaderboard.you')})` : ''}
                                 </p>
                                 {player.grade && (
-                                    <span className="text-[10px] font-bold bg-brand-orange/10 text-brand-orange px-2 py-0.5 rounded-full">
+                                    <span className="text-[10px] font-bold bg-brand-orange/10 text-brand-orange px-2 py-0.5 rounded-full shrink-0">
                                         {player.grade}
                                     </span>
                                 )}
                             </div>
                             <div className="flex items-center gap-1 text-sm text-brand-dark/50">
-                                <Star size={14} className="text-brand-orange fill-brand-orange" />
+                                <Star size={14} className="text-brand-orange fill-brand-orange shrink-0" />
                                 {t('leaderboard.level', { level: player.level })}
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="text-right">
+                <div className="text-right shrink-0">
                     <p className="font-bold text-lg text-brand-dark">{player.value}</p>
                     <p className="text-xs font-bold text-brand-dark/50 uppercase tracking-wider">
                         {isActiveTab === 'alltime' ? t('leaderboard.xp') : t('leaderboard.seasonXp')}
@@ -230,6 +279,33 @@ export const Leaderboard: React.FC = () => {
                 </div>
             )}
 
+            {/* Search (All-Time only). Lives outside the Card so it keeps focus while refetching. */}
+            {tab === 'alltime' && (
+                <div className="relative w-full max-w-md mx-auto">
+                    <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-dark/30 pointer-events-none" />
+                    <input
+                        type="text"
+                        value={searchInput}
+                        onChange={e => setSearchInput(e.target.value)}
+                        maxLength={50}
+                        placeholder={t('leaderboard.searchPlaceholder')}
+                        aria-label={t('leaderboard.searchPlaceholder')}
+                        className="w-full min-h-[44px] pl-10 pr-11 py-2.5 rounded-xl border border-gray-200 bg-white text-brand-dark font-bold text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40 focus:border-brand-blue"
+                    />
+                    {searchInput && (
+                        <button
+                            type="button"
+                            onClick={() => setSearchInput('')}
+                            aria-label={t('leaderboard.clearSearch')}
+                            title={t('leaderboard.clearSearch')}
+                            className="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-lg text-brand-dark/40 hover:text-brand-dark hover:bg-gray-100"
+                        >
+                            <X size={18} />
+                        </button>
+                    )}
+                </div>
+            )}
+
             <Card className="p-4 md:p-6 shadow-xl border-t-4 border-t-brand-accent">
                 {loading ? (
                     <div className="flex justify-center p-8 text-brand-dark/50">
@@ -244,7 +320,23 @@ export const Leaderboard: React.FC = () => {
                         <p className="text-sm text-brand-dark/40">{t('leaderboard.noSeasonDesc')}</p>
                     </div>
                 ) : tab === 'alltime' && allTimeRows.length === 0 ? (
-                    <div className="text-center p-8 text-brand-dark/50">{t('leaderboard.noUsers')}</div>
+                    <div className="text-center p-8 text-brand-dark/50 space-y-3">
+                        {searchQuery ? (
+                            <>
+                                <Search size={40} className="mx-auto text-brand-dark/20" />
+                                <p className="font-bold">{t('leaderboard.noMatches')}</p>
+                                <button
+                                    type="button"
+                                    onClick={() => setSearchInput('')}
+                                    className="text-sm font-bold text-brand-blue hover:underline min-h-[44px] px-3"
+                                >
+                                    {t('leaderboard.clearSearch')}
+                                </button>
+                            </>
+                        ) : (
+                            <p>{t('leaderboard.noUsers')}</p>
+                        )}
+                    </div>
                 ) : tab === 'season' && seasonDisplayRows.length === 0 ? (
                     <div className="text-center p-8 text-brand-dark/50">{t('leaderboard.noSeasonScores')}</div>
                 ) : (
@@ -257,6 +349,18 @@ export const Leaderboard: React.FC = () => {
                             <>
                                 <div className="text-center text-[10px] font-black text-brand-dark/20 uppercase tracking-widest">{t('leaderboard.yourStanding')}</div>
                                 {renderRow(seasonMeRow, '-me')}
+                            </>
+                        )}
+                        {tab === 'alltime' && allTimeMeRow && (
+                            <>
+                                <div className="text-center text-[10px] font-black text-brand-dark/20 uppercase tracking-widest">{t('leaderboard.yourStanding')}</div>
+                                {renderRow(allTimeMeRow, '-me')}
+                            </>
+                        )}
+                        {tab === 'alltime' && !searchQuery && !allTimeMe && allTimeMeSupported && user?.role === 'student' && (
+                            <>
+                                <div className="text-center text-[10px] font-black text-brand-dark/20 uppercase tracking-widest">{t('leaderboard.yourStanding')}</div>
+                                <p className="text-center text-sm text-brand-dark/40 font-bold px-4">{t('leaderboard.notRankedYet')}</p>
                             </>
                         )}
                     </div>
