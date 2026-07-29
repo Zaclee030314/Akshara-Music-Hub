@@ -319,6 +319,11 @@ const ta: Record<string, string> = {
   'leaderboard.you': 'நீங்கள்',
   'leaderboard.level': 'நிலை {level}',
   'leaderboard.pts': '{count} புள்ளிகள்',
+  'leaderboard.selectSeason': 'பருவத்தைத் தேர்ந்தெடுக்கவும்',
+  'leaderboard.finalStandings': 'இறுதி தரவரிசை',
+  'leaderboard.liveStandings': 'நேரலை / தற்காலிகம்',
+  'leaderboard.showMore': 'மேலும் காட்டு',
+  'leaderboard.showLess': 'குறைவாகக் காட்டு',
 
   // ── வெகுமதிக் கடை ──────────────────────────────────────────────────
   'rewards.title': 'வெகுமதிக் கடை',

@@ -319,6 +319,11 @@ const zh: Record<string, string> = {
   'leaderboard.you': '你',
   'leaderboard.level': '第 {level} 级',
   'leaderboard.pts': '{count} 分',
+  'leaderboard.selectSeason': '选择赛季',
+  'leaderboard.finalStandings': '最终排名',
+  'leaderboard.liveStandings': '实时 / 暂定',
+  'leaderboard.showMore': '显示更多',
+  'leaderboard.showLess': '收起',
 
   // ── 奖励商店 ─────────────────────────────────────────────────────────
   'rewards.title': '奖励商店',

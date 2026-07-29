@@ -116,7 +116,35 @@ model Season {
   endDate           DateTime
   status            String   @default("upcoming") // upcoming | active | ended | finalized
   createdAt         DateTime @default(now())
+  finalizedAt       DateTime?
   winners           SeasonWinner[]
+  standings         SeasonStanding[]
+}
+
+// Immutable top-100 snapshot of a season's leaderboard, written once at finalize time.
+// Past seasons must never change, so once a season is finalized its standings are
+// served from these rows instead of being recomputed from Result.
+//
+// NOTE: `userId` deliberately has NO `user User @relation`. Identity (name / avatar /
+// grade) is COPIED into this table rather than joined, precisely so that a later
+// rename, avatar change, or a student→teacher role flip cannot retroactively rewrite
+// a finalized season's standings. Joining the live User row would reintroduce exactly
+// the mutability this table exists to remove. `userId` is kept (and indexed) only as a
+// lookup key for "where did I place?" queries.
+model SeasonStanding {
+  id       String  @id @default(uuid())
+  seasonId String
+  userId   String
+  rank     Int
+  points   Int
+  name     String  // frozen at finalize time
+  avatar   String? // frozen at finalize time
+  grade    String? // frozen at finalize time
+  season   Season  @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  @@unique([seasonId, rank])
+  @@index([seasonId])
+  @@index([userId])
 }
 
 model SeasonWinner {

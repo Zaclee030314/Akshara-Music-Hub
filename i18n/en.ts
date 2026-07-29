@@ -319,6 +319,11 @@ const en: Record<string, string> = {
   'leaderboard.you': 'You',
   'leaderboard.level': 'Level {level}',
   'leaderboard.pts': '{count} pts',
+  'leaderboard.selectSeason': 'Select season',
+  'leaderboard.finalStandings': 'Final standings',
+  'leaderboard.liveStandings': 'Live / provisional',
+  'leaderboard.showMore': 'Show more',
+  'leaderboard.showLess': 'Show less',
 
   // ── Rewards shop ───────────────────────────────────────────────────
   'rewards.title': 'Rewards Shop',

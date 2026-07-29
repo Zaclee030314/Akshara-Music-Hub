@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Card } from './Card';
-import { Trophy, Medal, Star, UserCircle2, Loader2, Award, CalendarClock, Search, X } from 'lucide-react';
+import { Trophy, UserCircle2, Loader2, Award, CalendarClock, Search, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
 import { useT } from '../contexts/LanguageContext';
+import { LeaderboardRow, DisplayRow } from './LeaderboardRow';
+import { SeasonPicker, SeasonListItem } from './SeasonPicker';
 
 interface LeaderboardUser {
     id: string;
@@ -49,16 +51,8 @@ interface PastSeason {
 
 type Tab = 'season' | 'alltime';
 
-// A normalized row so both leaderboards share one renderer.
-interface DisplayRow {
-    id: string;
-    name: string;
-    avatar?: string | null;
-    grade?: string | null;
-    rank: number;
-    value: number;
-    level: number;
-}
+// Rows shown before the "Show more" expander. A 100-row wall is unusable on a phone.
+const SEASON_PREVIEW = 20;
 
 export const Leaderboard: React.FC = () => {
     const { user } = useAuth();
@@ -84,10 +78,14 @@ export const Leaderboard: React.FC = () => {
     const [searchInput, setSearchInput] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
 
-    // Current season
+    // Season standings — for WHICHEVER season the picker has selected, not just the
+    // running one. Past seasons are served frozen (source: 'snapshot').
+    const [selectedSeason, setSelectedSeason] = useState<SeasonListItem | null>(null);
     const [seasonInfo, setSeasonInfo] = useState<SeasonInfo | null>(null);
     const [seasonRows, setSeasonRows] = useState<SeasonRow[]>([]);
     const [seasonMe, setSeasonMe] = useState<SeasonRow | null>(null);
+    const [seasonSource, setSeasonSource] = useState<'snapshot' | 'live' | null>(null);
+    const [seasonExpanded, setSeasonExpanded] = useState(false);
     const [seasonLoading, setSeasonLoading] = useState(true);
     const [seasonError, setSeasonError] = useState('');
 
@@ -129,27 +127,53 @@ export const Leaderboard: React.FC = () => {
         return () => { cancelled = true; };
     }, [searchQuery]);
 
-    // Season standings + past-season history — fetched once on mount.
+    // Past-season prize history — fetched once on mount.
     useEffect(() => {
-        // Current-season leaderboard (auth optional — send token so "me" resolves)
-        const token = localStorage.getItem('quest_token');
-        fetch('/api/seasons/current/leaderboard', {
-            headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-        })
-            .then(r => { if (!r.ok) throw new Error('Failed'); return r.json(); })
-            .then(data => {
-                setSeasonInfo(data.season || null);
-                setSeasonRows(Array.isArray(data.leaderboard) ? data.leaderboard : []);
-                setSeasonMe(data.me || null);
-            })
-            .catch(() => setSeasonError(tRef.current('leaderboard.errSeason')))
-            .finally(() => setSeasonLoading(false));
-
         fetch('/api/seasons/history')
             .then(r => (r.ok ? r.json() : []))
             .then(data => setPastSeasons(Array.isArray(data) ? data : []))
             .catch(() => { /* silent — past winners are supplementary */ });
     }, []);
+
+    // The picker owns the season list and reports its default on mount, so this is also
+    // how the first season board gets loaded. `null` means there is no browsable season.
+    const handleSeasonChange = useCallback((s: SeasonListItem | null) => {
+        setSelectedSeason(s);
+        setSeasonExpanded(false);
+        if (!s) {
+            setSeasonInfo(null);
+            setSeasonRows([]);
+            setSeasonMe(null);
+            setSeasonSource(null);
+            setSeasonLoading(false);
+        }
+    }, []);
+
+    // Standings for the selected season (auth optional — send the token so "me" resolves).
+    const selectedSeasonId = selectedSeason?.id ?? null;
+    useEffect(() => {
+        if (!selectedSeasonId) return;
+        let cancelled = false;
+        setSeasonLoading(true);
+        setSeasonError('');
+
+        const token = localStorage.getItem('quest_token');
+        fetch(`/api/seasons/${selectedSeasonId}/standings?limit=100`, {
+            headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        })
+            .then(r => { if (!r.ok) throw new Error('Failed'); return r.json(); })
+            .then(data => {
+                if (cancelled) return;
+                setSeasonInfo(data.season || null);
+                setSeasonRows(Array.isArray(data.leaderboard) ? data.leaderboard : []);
+                setSeasonMe(data.me || null);
+                setSeasonSource(data.source === 'snapshot' ? 'snapshot' : 'live');
+            })
+            .catch(() => { if (!cancelled) setSeasonError(tRef.current('leaderboard.errSeason')); })
+            .finally(() => { if (!cancelled) setSeasonLoading(false); });
+
+        return () => { cancelled = true; };
+    }, [selectedSeasonId]);
 
     const medalFor = (rank: number) => (rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉');
     const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -170,8 +194,12 @@ export const Leaderboard: React.FC = () => {
         rank: r.rank, value: r.points, level: Math.floor(r.points / 1000) + 1,
     });
     const seasonDisplayRows: DisplayRow[] = seasonRows.map(seasonToRow);
-    // Append the caller's own standing when they sit outside the visible list.
-    const seasonMeRow = seasonMe && !seasonRows.some(r => r.userId === seasonMe.userId)
+    // Collapse the season board to a readable preview until the student asks for more.
+    const visibleSeasonRows = seasonExpanded ? seasonDisplayRows : seasonDisplayRows.slice(0, SEASON_PREVIEW);
+    const canExpandSeason = seasonDisplayRows.length > SEASON_PREVIEW;
+    // Append the caller's own standing when they sit outside the VISIBLE list — that
+    // includes ranks hidden behind the "Show more" fold, not just ranks outside the top 100.
+    const seasonMeRow = seasonMe && !visibleSeasonRows.some(r => r.id === seasonMe.userId)
         ? seasonToRow(seasonMe)
         : null;
 
@@ -179,67 +207,11 @@ export const Leaderboard: React.FC = () => {
     const loading = isActiveTab === 'alltime' ? allTimeLoading : seasonLoading;
     const error = isActiveTab === 'alltime' ? allTimeError : seasonError;
     const valueLabel = isActiveTab === 'alltime' ? t('leaderboard.totalXp') : t('leaderboard.seasonXp');
+    const unitLabel = isActiveTab === 'alltime' ? t('leaderboard.xp') : t('leaderboard.seasonXp');
 
-    const renderRow = (player: DisplayRow, keySuffix = '') => {
-        const isCurrentUser = user && player.id === user.id;
-        let RankIcon = null;
-        if (player.rank === 1) RankIcon = <Trophy size={24} className="text-yellow-400 fill-yellow-400" />;
-        else if (player.rank === 2) RankIcon = <Medal size={24} className="text-gray-400 fill-gray-400" />;
-        else if (player.rank === 3) RankIcon = <Medal size={24} className="text-amber-600 fill-amber-600" />;
-
-        return (
-            <div
-                key={player.id + keySuffix}
-                className={`flex items-center justify-between gap-3 p-4 rounded-xl transition-all ${
-                    isCurrentUser
-                        ? 'bg-brand-blue/10 border-2 border-brand-blue shadow-sm scale-[1.02]'
-                        : 'bg-gray-50 hover:bg-gray-100 border border-gray-100'
-                }`}
-            >
-                <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-                    <div className="w-10 shrink-0 text-center font-bold text-xl text-brand-dark/50">
-                        {RankIcon ? RankIcon : `#${player.rank}`}
-                    </div>
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                        {player.avatar ? (
-                            <img
-                                src={player.avatar}
-                                alt={player.name}
-                                className={`w-10 h-10 shrink-0 rounded-full object-cover border-2 ${isCurrentUser ? 'border-brand-blue' : 'border-gray-200'}`}
-                            />
-                        ) : (
-                            <div className={`p-2 shrink-0 rounded-full ${isCurrentUser ? 'bg-brand-blue/20 text-brand-blue' : 'bg-gray-200 text-gray-500'}`}>
-                                <UserCircle2 size={24} />
-                            </div>
-                        )}
-                        <div className="min-w-0">
-                            <div className="flex items-center gap-2 min-w-0">
-                                <p className={`font-bold truncate ${isCurrentUser ? 'text-brand-blue' : 'text-brand-dark'}`}>
-                                    {player.name}{isCurrentUser ? ` (${t('leaderboard.you')})` : ''}
-                                </p>
-                                {player.grade && (
-                                    <span className="text-[10px] font-bold bg-brand-orange/10 text-brand-orange px-2 py-0.5 rounded-full shrink-0">
-                                        {player.grade}
-                                    </span>
-                                )}
-                            </div>
-                            <div className="flex items-center gap-1 text-sm text-brand-dark/50">
-                                <Star size={14} className="text-brand-orange fill-brand-orange shrink-0" />
-                                {t('leaderboard.level', { level: player.level })}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="text-right shrink-0">
-                    <p className="font-bold text-lg text-brand-dark">{player.value}</p>
-                    <p className="text-xs font-bold text-brand-dark/50 uppercase tracking-wider">
-                        {isActiveTab === 'alltime' ? t('leaderboard.xp') : t('leaderboard.seasonXp')}
-                    </p>
-                </div>
-            </div>
-        );
-    };
+    const renderRow = (player: DisplayRow, keySuffix = '') => (
+        <LeaderboardRow key={player.id + keySuffix} player={player} unitLabel={unitLabel} />
+    );
 
     const pillBase = 'flex-1 px-4 py-2.5 rounded-xl text-sm font-bold transition-all';
 
@@ -271,11 +243,31 @@ export const Leaderboard: React.FC = () => {
                 </button>
             </div>
 
-            {/* Season header (only on season tab, when active) */}
-            {tab === 'season' && seasonInfo && (
-                <div className="flex items-center justify-center gap-2 text-sm font-bold text-brand-orange -mt-2">
-                    <CalendarClock size={16} />
-                    {seasonInfo.name}
+            {/* Season picker + header (season tab only) */}
+            {tab === 'season' && (
+                <div className="space-y-3 -mt-2">
+                    <SeasonPicker value={selectedSeason?.id ?? null} onChange={handleSeasonChange} />
+                    {seasonInfo && (
+                        <div className="flex items-center justify-center gap-2 flex-wrap">
+                            <span className="flex items-center gap-2 text-sm font-bold text-brand-orange">
+                                <CalendarClock size={16} />
+                                {seasonInfo.name}
+                            </span>
+                            {seasonSource && (
+                                <span
+                                    className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full ${
+                                        seasonSource === 'snapshot'
+                                            ? 'bg-purple-50 text-purple-600'
+                                            : 'bg-green-50 text-green-600'
+                                    }`}
+                                >
+                                    {seasonSource === 'snapshot'
+                                        ? t('leaderboard.finalStandings')
+                                        : t('leaderboard.liveStandings')}
+                                </span>
+                            )}
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -344,7 +336,20 @@ export const Leaderboard: React.FC = () => {
                         <div className="flex justify-end px-1">
                             <span className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest">{valueLabel}</span>
                         </div>
-                        {(tab === 'alltime' ? allTimeRows : seasonDisplayRows).map(p => renderRow(p))}
+                        {(tab === 'alltime' ? allTimeRows : visibleSeasonRows).map(p => renderRow(p))}
+                        {tab === 'season' && canExpandSeason && (
+                            <button
+                                type="button"
+                                onClick={() => setSeasonExpanded(v => !v)}
+                                className="w-full min-h-[44px] flex items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-white text-sm font-bold text-brand-blue hover:bg-gray-50 active:scale-[0.99] transition-all"
+                            >
+                                {seasonExpanded ? (
+                                    <><ChevronUp size={16} /> {t('leaderboard.showLess')}</>
+                                ) : (
+                                    <><ChevronDown size={16} /> {t('leaderboard.showMore')}</>
+                                )}
+                            </button>
+                        )}
                         {tab === 'season' && seasonMeRow && (
                             <>
                                 <div className="text-center text-[10px] font-black text-brand-dark/20 uppercase tracking-widest">{t('leaderboard.yourStanding')}</div>

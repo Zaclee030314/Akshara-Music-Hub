@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-    Trophy, Plus, Edit2, Loader2, Calendar, Award, CheckCircle, XCircle, UserCircle2, X,
+    Trophy, Plus, Edit2, Loader2, Calendar, Award, CheckCircle, XCircle, UserCircle2, X, AlertTriangle,
 } from 'lucide-react';
 
 interface Winner {
@@ -211,6 +211,10 @@ export const SeasonManager: React.FC<Props> = ({ token }) => {
 
     const medal = (rank: number) => (rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉');
 
+    // Seasons whose window has closed but which nobody has finalized. Their standings
+    // are still recomputed live, so they are not locked in yet.
+    const needsFinalizing = seasons.filter(s => s.status === 'ended').length;
+
     return (
         <div className="space-y-4">
             {toast && (
@@ -233,6 +237,16 @@ export const SeasonManager: React.FC<Props> = ({ token }) => {
                     <Plus size={16} /> New Season
                 </button>
             </div>
+
+            {needsFinalizing > 0 && (
+                <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl p-4">
+                    <AlertTriangle size={18} className="shrink-0 mt-0.5" />
+                    <p className="text-xs font-bold leading-relaxed">
+                        {needsFinalizing} season{needsFinalizing === 1 ? ' has' : 's have'} ended and need
+                        {needsFinalizing === 1 ? 's' : ''} finalizing. Standings are provisional until you finalize.
+                    </p>
+                </div>
+            )}
 
             {loading ? (
                 <div className="flex justify-center p-12 text-brand-dark/30"><Loader2 className="animate-spin" size={28} /></div>

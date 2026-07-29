@@ -1,8 +1,8 @@
 import express from 'express';
-import jwt from 'jsonwebtoken';
 import prisma from '../db.js';
 import { authenticateToken, AuthRequest } from '../middleware/authMiddleware.js';
 import { seasonScores, effectiveStatus, getActiveSeason } from '../utils/seasonScore.js';
+import { optionalUserId } from '../utils/optionalAuth.js';
 
 const router = express.Router();
 
@@ -43,11 +43,21 @@ type SeasonRow = {
     createdAt: Date;
 };
 
+// A leaderboard row after identity has been attached.
+type HydratedRow = {
+    userId: string;
+    points: number;
+    rank: number;
+    name: string;
+    avatar: string | null;
+    grade?: string | null;
+};
+
 // Hydrate a scores array with user name/avatar (and optionally grade).
 const hydrateUsers = async (
     rows: Array<{ userId: string; points: number }>,
     includeGrade = false
-) => {
+): Promise<HydratedRow[]> => {
     const ids = rows.map(r => r.userId);
     const users = await prisma.user.findMany({
         where: { id: { in: ids } },
@@ -170,6 +180,44 @@ router.get('/history', async (_req, res) => {
     }
 });
 
+// GET /api/seasons/list — PUBLIC. Every season a student may browse: finalized,
+// active, or ended-but-not-yet-finalized (upcoming seasons are hidden — they have no
+// standings yet). Newest first. Feeds the season dropdown on the leaderboard.
+//
+// Including 'ended' seasons is deliberate: before this route an ended season that an
+// admin had not yet finalized was invisible on every student surface (/history,
+// lastFinalized and /latest-finalized all filter on the RAW 'finalized' status), so a
+// finished competition's results silently vanished until someone pressed Finalize.
+// Registered BEFORE '/:id/...' so Express doesn't read "list" as a season id.
+router.get('/list', async (_req, res) => {
+    try {
+        const now = new Date();
+        const all = await prisma.season.findMany({ orderBy: { startDate: 'desc' } });
+        const visible = all.filter(s => effectiveStatus(s, now) !== 'upcoming');
+
+        // A season is a true snapshot only if it is finalized AND actually has frozen
+        // rows — seasons finalized before SeasonStanding existed have none, and must
+        // fall back to a live recompute.
+        const withRows = await prisma.seasonStanding.findMany({
+            where: { seasonId: { in: visible.map(s => s.id) }, rank: 1 },
+            select: { seasonId: true },
+        });
+        const snapshotIds = new Set(withRows.map(r => r.seasonId));
+
+        res.json(visible.map(s => ({
+            id: s.id,
+            name: s.name,
+            startDate: s.startDate,
+            endDate: s.endDate,
+            status: effectiveStatus(s, now),
+            isSnapshot: s.status === 'finalized' && snapshotIds.has(s.id),
+        })));
+    } catch (error) {
+        console.error('[SEASONS] list error:', error);
+        res.status(500).json({ error: 'Failed to fetch season list' });
+    }
+});
+
 // GET /api/seasons/latest-finalized — auth; most recently finalized season + winners (for popup)
 router.get('/latest-finalized', authenticateToken, async (_req, res) => {
     try {
@@ -207,26 +255,16 @@ router.get('/current/leaderboard', async (req, res) => {
         const scores = await seasonScores(season.startDate, season.endDate);
         const top20 = await hydrateUsers(scores.slice(0, 20), true);
 
-        // Optionally resolve the caller from a bearer token (public route, so decode manually).
+        // Optionally resolve the caller from a bearer token (public route).
         let me: any = null;
-        const authHeader = req.headers['authorization'];
-        const token = authHeader && authHeader.split(' ')[1];
-        if (token) {
-            try {
-                const secret = process.env.JWT_SECRET || 'supersecretkeyshouldbeenv';
-                const payload: any = jwt.verify(token, secret);
-                const userId = payload?.id;
-                if (userId) {
-                    const idx = scores.findIndex(s => s.userId === userId);
-                    if (idx >= 20) {
-                        const hydrated = await hydrateUsers([scores[idx]], true);
-                        me = { ...hydrated[0], rank: idx + 1 };
-                    } else if (idx >= 0) {
-                        me = top20[idx];
-                    }
-                }
-            } catch {
-                /* invalid/expired token — treat as anonymous */
+        const userId = optionalUserId(req);
+        if (userId) {
+            const idx = scores.findIndex(s => s.userId === userId);
+            if (idx >= 20) {
+                const hydrated = await hydrateUsers([scores[idx]], true);
+                me = { ...hydrated[0], rank: idx + 1 };
+            } else if (idx >= 0) {
+                me = top20[idx];
             }
         }
 
@@ -273,6 +311,86 @@ router.get('/:id/leaderboard', authenticateToken, async (req: AuthRequest, res) 
     } catch (error) {
         console.error('[SEASONS] leaderboard error:', error);
         res.status(500).json({ error: 'Failed to fetch season leaderboard' });
+    }
+});
+
+// GET /api/seasons/:id/standings?limit=100 — the full standings for ONE season.
+// Auth is OPTIONAL (a signed-in caller also gets their own row back).
+//
+// A finalized season with frozen rows is served from SeasonStanding and can never
+// change again. Everything else (active, ended-but-unfinalized, or a legacy season
+// finalized before snapshots existed) is recomputed live and flagged as such via
+// `source`, so the UI can label it "provisional".
+router.get('/:id/standings', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const now = new Date();
+        const parsed = parseInt(String(req.query.limit ?? ''), 10);
+        const limit = Math.min(100, Math.max(1, isNaN(parsed) ? 100 : parsed));
+
+        const season = await prisma.season.findUnique({ where: { id } });
+        if (!season) return res.status(404).json({ error: 'Season not found' });
+
+        const userId = optionalUserId(req);
+
+        // ── Frozen snapshot ──────────────────────────────────────────────────
+        if (season.status === 'finalized') {
+            const rows = await prisma.seasonStanding.findMany({
+                where: { seasonId: id },
+                orderBy: { rank: 'asc' },
+                take: limit,
+            });
+            if (rows.length > 0) {
+                const toRow = (r: typeof rows[number]) => ({
+                    userId: r.userId,
+                    points: r.points,
+                    rank: r.rank,
+                    name: r.name,
+                    avatar: r.avatar,
+                    grade: r.grade,
+                });
+                // The caller's own frozen row — null if they placed outside the snapshot.
+                let me: any = null;
+                if (userId) {
+                    const mine = await prisma.seasonStanding.findFirst({
+                        where: { seasonId: id, userId },
+                    });
+                    if (mine) me = toRow(mine);
+                }
+                return res.json({
+                    season: publicSeasonShape(season, now),
+                    source: 'snapshot',
+                    leaderboard: rows.map(toRow),
+                    me,
+                });
+            }
+            // Finalized but no frozen rows (legacy season) — fall through to live.
+        }
+
+        // ── Live recompute ───────────────────────────────────────────────────
+        const scores = await seasonScores(season.startDate, season.endDate);
+        const top = await hydrateUsers(scores.slice(0, limit), true);
+
+        let me: any = null;
+        if (userId) {
+            const idx = scores.findIndex(s => s.userId === userId);
+            if (idx >= limit) {
+                const hydrated = await hydrateUsers([scores[idx]], true);
+                me = { ...hydrated[0], rank: idx + 1 };
+            } else if (idx >= 0) {
+                me = top[idx];
+            }
+        }
+
+        res.json({
+            season: publicSeasonShape(season, now),
+            source: 'live',
+            leaderboard: top,
+            me,
+        });
+    } catch (error) {
+        console.error('[SEASONS] standings error:', error);
+        res.status(500).json({ error: 'Failed to fetch season standings' });
     }
 });
 
@@ -366,13 +484,26 @@ router.post('/admin', authenticateToken, requireAdmin, async (req, res) => {
     }
 });
 
-// PUT /api/seasons/admin/:id — update editable fields (blocked once finalized).
+// PUT /api/seasons/admin/:id — update editable fields.
+//
+// What is editable depends on the EFFECTIVE status, not the raw one. Previously only a
+// raw 'finalized' status blocked edits, which meant a season that had already ENDED
+// could still have its startDate/endDate moved — silently rewriting its standings after
+// students had played. Rules now:
+//   upcoming  — fully editable (nothing has happened yet)
+//   active    — startDate frozen once it has begun; endDate may only move forward in
+//               time; prizes still editable
+//   ended     — dates and prize points/coins frozen; only cosmetic text may change
+//   finalized — nothing editable
 router.put('/admin/:id', authenticateToken, requireAdmin, async (req, res) => {
     try {
         const { id } = req.params;
+        const now = new Date();
         const existing = await prisma.season.findUnique({ where: { id } });
         if (!existing) return res.status(404).json({ error: 'Season not found' });
-        if (existing.status === 'finalized') {
+
+        const status = effectiveStatus(existing, now);
+        if (status === 'finalized') {
             return res.status(400).json({ error: 'A finalized season cannot be edited' });
         }
 
@@ -391,6 +522,45 @@ router.put('/admin/:id', authenticateToken, requireAdmin, async (req, res) => {
         }
         if (end <= start) {
             return res.status(400).json({ error: 'End date must be after start date' });
+        }
+
+        // The admin form is a datetime-local input, so it round-trips dates at MINUTE
+        // precision. Compare at that same granularity or an unchanged resubmit of a
+        // season whose stored date carries seconds would look like an edit and be rejected.
+        const sameMinute = (a: Date, b: Date) =>
+            Math.floor(a.getTime() / 60000) === Math.floor(b.getTime() / 60000);
+        const startChanged = !sameMinute(start, existing.startDate);
+        const endChanged = !sameMinute(end, existing.endDate);
+
+        // Did the request try to change any prize points/coins field?
+        const prizeNumbers: Array<[any, number]> = [
+            [secondPlacePoints, existing.secondPlacePoints],
+            [thirdPlacePoints, existing.thirdPlacePoints],
+            [firstPrizeCoins, existing.firstPrizeCoins],
+            [secondPrizeCoins, existing.secondPrizeCoins],
+            [thirdPrizeCoins, existing.thirdPrizeCoins],
+        ];
+        const prizeValuesChanged = prizeNumbers.some(
+            ([incoming, current]) => incoming !== undefined && nonNegInt(incoming) !== current
+        );
+
+        if (status === 'ended') {
+            if (startChanged || endChanged || prizeValuesChanged) {
+                return res.status(400).json({
+                    error: 'A season that has ended can no longer have its dates or prizes changed — finalize it instead',
+                });
+            }
+        } else if (status === 'active') {
+            if (startChanged && now >= existing.startDate) {
+                return res.status(400).json({
+                    error: 'A season that has already started cannot have its start date changed',
+                });
+            }
+            if (endChanged && end <= now) {
+                return res.status(400).json({
+                    error: 'The end date of a running season can only be moved to a future date',
+                });
+            }
         }
 
         // Reject overlap with any OTHER non-finalized season.
@@ -437,8 +607,15 @@ router.post('/admin/:id/finalize', authenticateToken, requireAdmin, async (req, 
             return res.status(400).json({ error: 'Season has not ended yet' });
         }
 
+        // All READS happen before the transaction opens — an interactive transaction on
+        // pooled/serverless Neon is billed wall-clock, so no query that can be hoisted
+        // out of it should stay inside.
         const scores = await seasonScores(season.startDate, season.endDate);
         const top3 = scores.slice(0, 3);
+        const top100 = scores.slice(0, 100);
+        // Identity is read ONCE, here, and copied into SeasonStanding. From this moment
+        // the season's standings are detached from the live User rows.
+        const hydrated = await hydrateUsers(top100, true);
 
         await prisma.$transaction(async (tx) => {
             for (let i = 0; i < top3.length; i++) {
@@ -468,7 +645,34 @@ router.post('/admin/:id/finalize', authenticateToken, requireAdmin, async (req, 
                     });
                 }
             }
-            await tx.season.update({ where: { id: season.id }, data: { status: 'finalized' } });
+
+            // Freeze the top 100 so ranks 4+ survive the season ending, and so a later
+            // rename / avatar change / student→teacher flip cannot rewrite history.
+            if (hydrated.length > 0) {
+                await tx.seasonStanding.createMany({
+                    data: hydrated.map((h, i) => ({
+                        seasonId: season.id,
+                        userId: h.userId,
+                        rank: i + 1,
+                        points: h.points,
+                        name: h.name,
+                        avatar: h.avatar ?? null,
+                        grade: h.grade ?? null,
+                    })),
+                    skipDuplicates: true,
+                });
+            }
+
+            await tx.season.update({
+                where: { id: season.id },
+                data: { status: 'finalized', finalizedAt: now },
+            });
+        }, {
+            // Prisma's default interactive-transaction timeout is 5s. 100 standing
+            // inserts plus the winner/coin writes against a pooled Neon connection can
+            // comfortably exceed that, so give it real headroom.
+            timeout: 15000,
+            maxWait: 10000,
         });
 
         res.json({

@@ -319,6 +319,11 @@ const ms: Record<string, string> = {
   'leaderboard.you': 'Anda',
   'leaderboard.level': 'Tahap {level}',
   'leaderboard.pts': '{count} mata',
+  'leaderboard.selectSeason': 'Pilih musim',
+  'leaderboard.finalStandings': 'Kedudukan akhir',
+  'leaderboard.liveStandings': 'Langsung / sementara',
+  'leaderboard.showMore': 'Papar lagi',
+  'leaderboard.showLess': 'Papar kurang',
 
   // ── Kedai ganjaran ─────────────────────────────────────────────────
   'rewards.title': 'Kedai Ganjaran',
