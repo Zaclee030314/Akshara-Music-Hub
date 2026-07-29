@@ -134,7 +134,7 @@ const RewardsShop: React.FC<RewardsShopProps> = ({ userCoins, token, onCoinsUpda
                 <div className="inline-flex items-center gap-3 mb-3">
                     <ShoppingBag size={40} className="text-brand-orange" />
                 </div>
-                <h1 className="text-4xl font-display font-bold italic tracking-tight">{t('rewards.title')}</h1>
+                <h1 className="text-3xl sm:text-4xl font-display font-bold italic tracking-tight">{t('rewards.title')}</h1>
                 <p className="text-brand-dark/50 mt-1 font-medium">{t('rewards.subtitle')}</p>
                 <div className="inline-flex items-center gap-2 mt-4 bg-brand-dark/5 border border-brand-dark/10 text-brand-dark px-6 py-3 rounded-2xl font-bold text-xl shadow-inner group">
                     <Coins className="text-brand-orange fill-brand-orange/20 w-6 h-6 group-hover:rotate-12 transition-transform" />
@@ -178,7 +178,7 @@ const RewardsShop: React.FC<RewardsShopProps> = ({ userCoins, token, onCoinsUpda
                                     <div className="flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
                                         {reward.imageUrl
                                             ? <img src={reward.imageUrl} alt={reward.title} className="w-20 h-20 object-cover rounded-2xl shadow-md" />
-                                            : <span className="text-6xl">{reward.icon}</span>
+                                            : <span className="text-4xl sm:text-6xl">{reward.icon}</span>
                                         }
                                     </div>
                                     <h3 className="font-display font-bold text-xl text-center mb-2 tracking-tight">{reward.title}</h3>
@@ -221,16 +221,16 @@ const RewardsShop: React.FC<RewardsShopProps> = ({ userCoins, token, onCoinsUpda
                 ) : (
                     <div className="space-y-4">
                         {redemptions.map(r => (
-                            <div key={r.id} className="bg-white rounded-3xl p-6 flex items-center gap-6 shadow-sm border border-brand-dark/5 hover:border-brand-orange/10 transition-colors">
-                                <span className="text-4xl shrink-0">{r.reward.icon}</span>
-                                <div className="flex-1">
-                                    <p className="font-bold text-brand-dark text-lg">{r.reward.title}</p>
+                            <div key={r.id} className="bg-white rounded-3xl p-6 flex items-center gap-3 sm:gap-6 shadow-sm border border-brand-dark/5 hover:border-brand-orange/10 transition-colors">
+                                <span className="text-3xl sm:text-4xl shrink-0">{r.reward.icon}</span>
+                                <div className="flex-1 min-w-0">
+                                    <p className="font-bold text-brand-dark text-lg truncate">{r.reward.title}</p>
                                     <p className="text-xs text-brand-dark/40 font-bold uppercase tracking-widest mt-0.5">
                                         {t('rewards.redeemed', { date: new Date(r.redeemedAt).toLocaleDateString() })}
                                     </p>
                                 </div>
-                                <div className="text-right">
-                                    <span className="flex items-center gap-1.5 text-brand-orange font-black text-sm bg-brand-orange/5 px-4 py-2 rounded-xl border border-brand-orange/10">
+                                <div className="text-right shrink-0">
+                                    <span className="flex items-center gap-1.5 whitespace-nowrap text-brand-orange font-black text-sm bg-brand-orange/5 px-4 py-2 rounded-xl border border-brand-orange/10">
                                         -{r.reward.coinCost} <Coins className="fill-brand-orange/20 w-4 h-4" />
                                     </span>
                                 </div>
@@ -244,8 +244,8 @@ const RewardsShop: React.FC<RewardsShopProps> = ({ userCoins, token, onCoinsUpda
             {confirmReward && (
                 <div className="fixed inset-0 z-[400] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-brand-dark/60 backdrop-blur-sm" onClick={() => setConfirmReward(null)} />
-                    <div className="relative bg-white rounded-[40px] p-10 max-w-sm w-full shadow-2xl animate-pop-in border border-brand-dark/10" onClick={e => e.stopPropagation()}>
-                        <div className="text-7xl text-center mb-6">{confirmReward.icon}</div>
+                    <div className="relative bg-white rounded-[40px] p-6 sm:p-10 max-w-sm w-full shadow-2xl animate-pop-in border border-brand-dark/10" onClick={e => e.stopPropagation()}>
+                        <div className="text-5xl sm:text-7xl text-center mb-6">{confirmReward.icon}</div>
                         <h3 className="font-display font-bold text-3xl text-center mb-2 italic tracking-tight">{confirmReward.title}</h3>
                         <p className="text-brand-dark/40 text-sm text-center mb-8 font-medium leading-relaxed">{confirmReward.description}</p>
 

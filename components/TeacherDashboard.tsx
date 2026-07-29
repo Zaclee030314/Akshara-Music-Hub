@@ -108,13 +108,13 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ onBack, onVi
 
     return (
         <div className="max-w-4xl mx-auto space-y-8 animate-float">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div className="flex items-center gap-4">
                     <Button variant="outline" size="sm" onClick={onBack}>
                         <ArrowLeft size={20} /> Back to Home
                     </Button>
                     <div className="flex flex-col">
-                        <h2 className="text-3xl font-display font-bold text-brand-dark">Homework Creator Dashboard</h2>
+                        <h2 className="text-2xl sm:text-3xl font-display font-bold text-brand-dark">Homework Creator Dashboard</h2>
                         <div className="flex items-center gap-2 mt-1">
                             {user?.isSubscribed ? (
                                 <span className="bg-brand-green/10 text-brand-green text-[10px] font-bold px-2 py-0.5 rounded-full border border-brand-green/20 flex items-center gap-1">

@@ -57,7 +57,7 @@ export const Hero: React.FC<HeroProps> = ({ onStart, onViewPricing, isLoggedIn, 
                 <Button
                     size="lg"
                     onClick={onStart}
-                    className="px-16 py-6 text-xl shadow-xl hover:scale-105 transition-transform"
+                    className="px-8 py-4 text-base sm:px-16 sm:py-6 sm:text-xl shadow-xl hover:scale-105 transition-transform"
                 >
                     {isLoggedIn ? t('hero.ctaContinue') : t('hero.ctaStart')}
                     <Rocket className="w-5 h-5 ml-2" />

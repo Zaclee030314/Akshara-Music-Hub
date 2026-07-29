@@ -1026,9 +1026,9 @@ export default function App() {
           {/* Shine sweep */}
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 animate-[shimmer_1.5s_ease-in-out_infinite]" />
 
-          <div className="text-7xl mb-4 relative">⚡</div>
+          <div className="text-5xl sm:text-7xl mb-4 relative">⚡</div>
           <p className="text-white/80 font-bold text-sm uppercase tracking-widest mb-1">{t('levelup.badge')}</p>
-          <div className="text-white font-display font-bold text-7xl leading-none mb-2">
+          <div className="text-white font-display font-bold text-5xl sm:text-7xl leading-none mb-2">
             {levelUpData?.newLevel}
           </div>
           <p className="text-white/90 font-bold text-lg mb-1">{getLevelTitle(levelUpData?.newLevel ?? 1)}</p>
@@ -1306,7 +1306,7 @@ export default function App() {
           <Button variant="outline" size="sm" onClick={() => navigate('/')} className="mb-4 mx-auto">
             <ArrowLeft size={16} /> {t('pricing.backHome')}
           </Button>
-          <h2 className="text-5xl font-display font-bold text-brand-dark">{t('pricing.title')}</h2>
+          <h2 className="text-3xl sm:text-5xl font-display font-bold text-brand-dark">{t('pricing.title')}</h2>
           <p className="text-xl opacity-60">{t('pricing.subtitle')}</p>
         </div>
 
@@ -1333,7 +1333,7 @@ export default function App() {
               <Card className="p-8 md:p-10 flex flex-col items-center gap-8 border-2 border-transparent hover:border-brand-dark/10 opacity-60 transition-all bg-white/50">
                 <div className="text-center space-y-3">
                   <h3 className="font-display font-bold text-3xl text-brand-dark/60">{t('pricing.starter')}</h3>
-                  <div className="text-5xl font-display font-bold text-brand-dark/60">
+                  <div className="text-3xl sm:text-5xl font-display font-bold text-brand-dark/60">
                     {currencyConfig.symbol} 0
                   </div>
                 </div>
@@ -1352,12 +1352,12 @@ export default function App() {
 
               {/* Single Syllabus Plan */}
               <Card className="p-8 md:p-10 flex flex-col items-center gap-8 border-2 border-brand-dark/5 shadow-xl relative bg-white rounded-3xl group hover:border-brand-orange/20 transition-all">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-brand-green text-white px-5 py-1.5 rounded-full font-bold text-xs shadow-lg whitespace-nowrap">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[90%] bg-brand-green text-white px-2 sm:px-5 py-1.5 rounded-full font-bold text-[10px] sm:text-xs shadow-lg whitespace-nowrap overflow-hidden text-ellipsis">
                   {t('pricing.promo')}
                 </div>
                 <div className="text-center space-y-3">
                   <h3 className="font-display font-bold text-3xl text-brand-dark">{t('pricing.single')}</h3>
-                  <div className="text-5xl font-display font-bold text-brand-dark flex flex-col items-center">
+                  <div className="text-3xl sm:text-5xl font-display font-bold text-brand-dark flex flex-col items-center">
                     <span className="text-2xl text-brand-dark/40 line-through mb-1">
                       {currencyConfig.symbol} 99.90
                     </span>
@@ -1410,14 +1410,14 @@ export default function App() {
               </Card>
 
               {/* All Syllabus Plan */}
-              <Card className="p-8 md:p-10 flex flex-col items-center gap-8 border-4 border-brand-orange relative shadow-2xl bg-white rounded-3xl scale-105 z-10 group">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-brand-orange text-white px-6 py-2 rounded-full font-bold text-sm shadow-xl whitespace-nowrap animate-bounce">
+              <Card className="p-8 md:p-10 flex flex-col items-center gap-8 border-4 border-brand-orange relative shadow-2xl bg-white rounded-3xl sm:scale-105 z-10 group">
+                <div className="absolute top-0 inset-x-0 mx-auto w-fit max-w-[90%] bg-brand-orange text-white px-2 sm:px-6 py-2 rounded-full font-bold text-[10px] sm:text-sm shadow-xl whitespace-nowrap overflow-hidden text-ellipsis animate-bounce">
                   {t('pricing.bestValue')}
                 </div>
 
                 <div className="text-center space-y-3">
                   <h3 className="font-display font-bold text-3xl text-brand-dark">{t('pricing.max')}</h3>
-                  <div className="text-5xl font-display font-bold text-brand-dark flex flex-col items-center">
+                  <div className="text-3xl sm:text-5xl font-display font-bold text-brand-dark flex flex-col items-center">
                     <span className="text-2xl text-brand-dark/40 line-through mb-1">
                       {currencyConfig.symbol} 149.90
                     </span>
@@ -2298,7 +2298,7 @@ export default function App() {
           <Route path="/classrooms" element={
             <ProtectedRoute>
               <div className="max-w-4xl mx-auto py-12 px-4 animate-in fade-in slide-in-from-bottom-4">
-                <h2 className="text-4xl font-display font-bold text-brand-dark mb-8 text-center">Classrooms</h2>
+                <h2 className="text-3xl sm:text-4xl font-display font-bold text-brand-dark mb-8 text-center">Classrooms</h2>
                 {user?.role === 'teacher' ? <ClassroomManager /> : <StudentClassrooms />}
               </div>
             </ProtectedRoute>

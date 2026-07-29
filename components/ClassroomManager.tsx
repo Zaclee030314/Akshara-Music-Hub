@@ -351,7 +351,7 @@ const HomeworkCreator: React.FC<HomeworkCreatorProps> = ({ classroomId, classroo
             </div>
 
             {/* Mode Toggle */}
-            <div className="flex gap-1 bg-slate-200/60 p-1 rounded-xl w-fit">
+            <div className="flex gap-1 bg-slate-200/60 p-1 rounded-xl w-fit max-w-full overflow-x-auto">
                 <button
                     onClick={() => setMode('manual')}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${mode === 'manual' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
@@ -571,7 +571,7 @@ const HomeworkCreator: React.FC<HomeworkCreatorProps> = ({ classroomId, classroo
             )}
 
             {/* ── Save & Assign Button ── */}
-            <div className="flex gap-3 pt-2">
+            <div className="flex flex-wrap gap-3 pt-2">
                 <button onClick={onClose} className="px-5 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-500 hover:bg-slate-50 transition-all">
                     Cancel
                 </button>
@@ -708,7 +708,7 @@ export const ClassroomManager: React.FC = () => {
                         <p className="font-bold text-indigo-800 flex items-center gap-2"><GraduationCap size={16}/> New Classroom</p>
                         <button onClick={()=>setIsCreating(false)}><X size={16} className="text-slate-400"/></button>
                     </div>
-                    <div className="flex gap-3">
+                    <div className="flex flex-wrap gap-3">
                         <input type="text" placeholder="e.g., Form 4 Science A"
                             value={newName} onChange={e=>setNewName(e.target.value)}
                             onKeyDown={e=>e.key==='Enter'&&createClassroom()}
