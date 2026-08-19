@@ -169,7 +169,7 @@ export const StudyPlanGenerator: React.FC = () => {
                                     <Target size={14} className="text-brand-blue" /> {t('studyplan.focusSubjects')} <span className="text-slate-300 normal-case tracking-normal">{t('studyplan.selectOneOrMore')}</span>
                                 </label>
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                    {Object.values(Subject).map(s => (
+                                    {Object.values(Subject).filter(s => s !== Subject.AURAL_PRACTICAL).map(s => (
                                         <button
                                             key={s}
                                             onClick={() => toggleSubject(s)}

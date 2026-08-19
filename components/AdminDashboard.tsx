@@ -722,7 +722,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
                             className="w-full bg-gray-50 rounded-xl px-4 py-3 font-medium text-sm outline-none focus:ring-2 ring-brand-orange/20 appearance-none"
                         >
                             <option value="">Select Subject...</option>
-                            {Object.values(Subject).map(s => <option key={s} value={s}>{s}</option>)}
+                            {Object.values(Subject).filter(s => s !== Subject.AURAL_PRACTICAL).map(s => <option key={s} value={s}>{s}</option>)}
                         </select>
                     </div>
                     <div>

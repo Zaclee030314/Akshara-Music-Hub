@@ -266,6 +266,8 @@ const ta: Record<string, string> = {
   'setup.primary': 'தொடக்கநிலை',
   'setup.secondary': 'இடைநிலை',
   'setup.advanced': 'மேம்பட்ட / பல்கலைக்கழக முன்நிலை',
+  'setup.musicFoundation': 'அடிப்படை கிரேடுகள்',
+  'setup.musicAdvanced': 'மேம்பட்ட கிரேடுகள்',
   'setup.step3': '3. பாடத்தைத் தேர்வுசெய்யவும்',
   'setup.selectGradeFirst': 'கிடைக்கும் பாடங்களைப் பார்க்க முதலில் ஒரு நிலையைத் தேர்வுசெய்யவும்',
   'setup.step4': '4. தலைப்பைத் தேர்வுசெய்யவும்',

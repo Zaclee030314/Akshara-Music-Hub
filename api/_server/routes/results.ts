@@ -12,7 +12,7 @@ router.use(authenticateToken, checkExpiredSubscriptions);
 
 // Save a game result
 router.post('/', authenticateToken, async (req: AuthRequest, res) => {
-    const { score, mode, questId, correctAnswers, totalQuestions, subject, topic, grade } = req.body;
+    const { score, mode, questId, correctAnswers, totalQuestions, subject, topic, grade, syllabus } = req.body;
     const userId = req.user?.id;
 
     if (!userId) {
@@ -44,6 +44,15 @@ router.post('/', authenticateToken, async (req: AuthRequest, res) => {
         // such drift, so the profile path keeps leniency 0 and stays exactly as it is
         // today for every existing account.
         let award = shouldAwardPoints(gateGrade, grade, gateSource === 'age' ? GATE_LENIENCY : 0);
+
+        // Cross-syllabus music exemption: the "Grade N" rank space is shared by both
+        // music syllabi, so without this a Grade 8 Indian Music student playing a
+        // Grade 2 Western Music quiz would be gated even though the two ladders are
+        // unrelated. A music quiz under a DIFFERENT syllabus than the student's own
+        // always awards. (Same-syllabus music quizzes stay gated on the shared ladder.)
+        if (!award && typeof syllabus === 'string' && isMusicSyllabus(syllabus) && syllabus !== user.gradeSyllabus) {
+            award = true;
+        }
 
         console.log(
             `[GATE] user=${userId} birthday=${user.birthday ? user.birthday.toISOString().slice(0, 10) : 'none'} ` +

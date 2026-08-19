@@ -1,0 +1,410 @@
+{
+  "note": "Open/viva questions — NOT seeded into QuestionBank (MCQ-only). Kept for a future flashcard/viva mode.",
+  "defaults": {
+    "subject": "Sangeetham (Vocal)",
+    "grade": "Grade 8",
+    "syllabus": "Indian Music"
+  },
+  "questions": [
+    {
+      "id": "seed-sgt-g8-open-001",
+      "question": "What is a Kriti?",
+      "expectedAnswer": "A Kriti is a mature Carnatic composition that combines music, lyrics, devotion and the character of a raga.",
+      "difficulty": "Easy",
+      "topic": "Kriti",
+      "subtopic": "Meaning"
+    },
+    {
+      "id": "seed-sgt-g8-open-002",
+      "question": "Why is a Kriti important in Carnatic music?",
+      "expectedAnswer": "A Kriti is important because it expresses musical beauty, devotion, poetry and raga depth.",
+      "difficulty": "Easy",
+      "topic": "Kriti",
+      "subtopic": "Importance"
+    },
+    {
+      "id": "seed-sgt-g8-open-003",
+      "question": "State one difference between a Geetham and a Kriti.",
+      "expectedAnswer": "A Geetham is a simple beginner composition, while a Kriti is a more mature composition with greater musical and lyrical depth.",
+      "difficulty": "Easy",
+      "topic": "Kriti",
+      "subtopic": "Difference from Geetham and Varnam"
+    },
+    {
+      "id": "seed-sgt-g8-open-004",
+      "question": "State one difference between a Varnam and a Kriti.",
+      "expectedAnswer": "A Varnam mainly develops raga, voice and rhythmic control, while a Kriti gives greater importance to lyrics, devotion and emotional expression.",
+      "difficulty": "Easy",
+      "topic": "Kriti",
+      "subtopic": "Difference from Geetham and Varnam"
+    },
+    {
+      "id": "seed-sgt-g8-open-005",
+      "question": "What are the three main parts of a Kriti?",
+      "expectedAnswer": "Pallavi, Anupallavi and Charanam.",
+      "difficulty": "Easy",
+      "topic": "Kriti Structure",
+      "subtopic": "Pallavi, Anupallavi, Charanam"
+    },
+    {
+      "id": "seed-sgt-g8-open-006",
+      "question": "What is the Pallavi of a Kriti?",
+      "expectedAnswer": "The Pallavi is the opening section and the main musical idea of the Kriti.",
+      "difficulty": "Easy",
+      "topic": "Kriti Structure",
+      "subtopic": "Pallavi"
+    },
+    {
+      "id": "seed-sgt-g8-open-007",
+      "question": "What is the Anupallavi?",
+      "expectedAnswer": "The Anupallavi is the section that follows the Pallavi and develops the musical and lyrical idea further.",
+      "difficulty": "Easy",
+      "topic": "Kriti Structure",
+      "subtopic": "Anupallavi"
+    },
+    {
+      "id": "seed-sgt-g8-open-008",
+      "question": "What is the Charanam?",
+      "expectedAnswer": "The Charanam is the concluding major section of a Kriti and usually contains an expanded lyrical message.",
+      "difficulty": "Easy",
+      "topic": "Kriti Structure",
+      "subtopic": "Charanam"
+    },
+    {
+      "id": "seed-sgt-g8-open-009",
+      "question": "Name the four composers included in Grade 8.",
+      "expectedAnswer": "Tyagaraja, Muthuswami Dikshitar, Syama Sastri and Purandaradasa.",
+      "difficulty": "Easy",
+      "topic": "Composer Study",
+      "subtopic": "Major composers"
+    },
+    {
+      "id": "seed-sgt-g8-open-010",
+      "question": "Who was Tyagaraja?",
+      "expectedAnswer": "Tyagaraja was a great Carnatic composer known especially for devotional compositions.",
+      "difficulty": "Easy",
+      "topic": "Composer Study",
+      "subtopic": "Tyagaraja"
+    },
+    {
+      "id": "seed-sgt-g8-open-011",
+      "question": "Who was Muthuswami Dikshitar?",
+      "expectedAnswer": "Muthuswami Dikshitar was a major Carnatic composer known for dignified compositions, many of which were written in Sanskrit.",
+      "difficulty": "Easy",
+      "topic": "Composer Study",
+      "subtopic": "Muthuswami Dikshitar"
+    },
+    {
+      "id": "seed-sgt-g8-open-012",
+      "question": "Who was Syama Sastri?",
+      "expectedAnswer": "Syama Sastri was a major Carnatic composer known for deeply devotional and musically rich compositions.",
+      "difficulty": "Easy",
+      "topic": "Composer Study",
+      "subtopic": "Syama Sastri"
+    },
+    {
+      "id": "seed-sgt-g8-open-013",
+      "question": "Why is Purandaradasa important in Carnatic music?",
+      "expectedAnswer": "Purandaradasa made an important contribution to Carnatic music teaching and devotional composition.",
+      "difficulty": "Easy",
+      "topic": "Composer Study",
+      "subtopic": "Purandaradasa"
+    },
+    {
+      "id": "seed-sgt-g8-open-014",
+      "question": "What does Sahitya mean?",
+      "expectedAnswer": "Sahitya means the lyrics or words of a musical composition.",
+      "difficulty": "Easy",
+      "topic": "Sahitya Meaning",
+      "subtopic": "Word meaning"
+    },
+    {
+      "id": "seed-sgt-g8-open-015",
+      "question": "What is a Sangati?",
+      "expectedAnswer": "A Sangati is a melodic variation developed from the same lyrical line.",
+      "difficulty": "Easy",
+      "topic": "Sangati",
+      "subtopic": "Simple Sangati"
+    },
+    {
+      "id": "seed-sgt-g8-open-016",
+      "question": "Why should students understand the Sahitya before singing a Kriti?",
+      "expectedAnswer": "Understanding the Sahitya helps students communicate the meaning, devotion and emotion of the composition correctly.",
+      "difficulty": "Medium",
+      "topic": "Sahitya Meaning",
+      "subtopic": "Word meaning"
+    },
+    {
+      "id": "seed-sgt-g8-open-017",
+      "question": "What is the difference between word meaning and devotional meaning?",
+      "expectedAnswer": "Word meaning explains what each word says, while devotional meaning explains the deeper spiritual or emotional message of the lyrics.",
+      "difficulty": "Medium",
+      "topic": "Sahitya Meaning",
+      "subtopic": "Word meaning and devotional meaning"
+    },
+    {
+      "id": "seed-sgt-g8-open-018",
+      "question": "Why is correct pronunciation important when singing a Kriti?",
+      "expectedAnswer": "Correct pronunciation preserves the meaning of the lyrics and shows respect for the language and composer.",
+      "difficulty": "Medium",
+      "topic": "Sahitya Meaning",
+      "subtopic": "Pronunciation"
+    },
+    {
+      "id": "seed-sgt-g8-open-019",
+      "question": "What is a simple Sangati?",
+      "expectedAnswer": "A simple Sangati is an easy melodic variation of a line without major musical expansion.",
+      "difficulty": "Medium",
+      "topic": "Sangati",
+      "subtopic": "Simple Sangati"
+    },
+    {
+      "id": "seed-sgt-g8-open-020",
+      "question": "What is a progressive Sangati?",
+      "expectedAnswer": "A progressive Sangati is a variation that gradually becomes more developed than the previous version.",
+      "difficulty": "Medium",
+      "topic": "Sangati",
+      "subtopic": "Progressive Sangati"
+    },
+    {
+      "id": "seed-sgt-g8-open-021",
+      "question": "What is meant by controlled variation in Sangati singing?",
+      "expectedAnswer": "Controlled variation means singing each Sangati with accuracy, discipline and proper connection to the original line.",
+      "difficulty": "Medium",
+      "topic": "Sangati",
+      "subtopic": "Controlled variation"
+    },
+    {
+      "id": "seed-sgt-g8-open-022",
+      "question": "What is Eduppu?",
+      "expectedAnswer": "Eduppu is the point at which a composition or musical line begins in relation to the Tala beat.",
+      "difficulty": "Medium",
+      "topic": "Eduppu",
+      "subtopic": "Meaning"
+    },
+    {
+      "id": "seed-sgt-g8-open-023",
+      "question": "What is Samam Eduppu?",
+      "expectedAnswer": "Samam Eduppu means that the composition begins exactly on the main beat of the Tala cycle.",
+      "difficulty": "Medium",
+      "topic": "Eduppu",
+      "subtopic": "Samam"
+    },
+    {
+      "id": "seed-sgt-g8-open-024",
+      "question": "What is a before-beat Eduppu?",
+      "expectedAnswer": "It is an entry in which the composition begins before the main beat of the Tala cycle.",
+      "difficulty": "Medium",
+      "topic": "Eduppu",
+      "subtopic": "Before beat"
+    },
+    {
+      "id": "seed-sgt-g8-open-025",
+      "question": "What is an after-beat Eduppu?",
+      "expectedAnswer": "It is an entry in which the composition begins after the main beat of the Tala cycle.",
+      "difficulty": "Medium",
+      "topic": "Eduppu",
+      "subtopic": "After beat"
+    },
+    {
+      "id": "seed-sgt-g8-open-026",
+      "question": "During a listening exercise, a Kriti begins exactly with the first Tala beat. What type of Eduppu is used?",
+      "expectedAnswer": "Samam Eduppu.",
+      "difficulty": "Medium",
+      "topic": "Eduppu",
+      "subtopic": "Samam"
+    },
+    {
+      "id": "seed-sgt-g8-open-027",
+      "question": "During a listening exercise, the Tala begins first and the singer enters slightly later. What type of Eduppu is used?",
+      "expectedAnswer": "After-beat Eduppu.",
+      "difficulty": "Medium",
+      "topic": "Eduppu",
+      "subtopic": "After beat"
+    },
+    {
+      "id": "seed-sgt-g8-open-028",
+      "question": "What does Bhava mean in Kriti presentation?",
+      "expectedAnswer": "Bhava means expressing the meaning, feeling and emotional quality of the composition through singing.",
+      "difficulty": "Medium",
+      "topic": "Bhava and Presentation",
+      "subtopic": "Expression"
+    },
+    {
+      "id": "seed-sgt-g8-open-029",
+      "question": "How can a student show respect for the composer while presenting a Kriti?",
+      "expectedAnswer": "The student should preserve the composition, pronounce the lyrics correctly, understand the meaning and avoid careless changes.",
+      "difficulty": "Medium",
+      "topic": "Bhava and Presentation",
+      "subtopic": "Respect for composer"
+    },
+    {
+      "id": "seed-sgt-g8-open-030",
+      "question": "Mention two qualities of a confident Kriti presentation.",
+      "expectedAnswer": "Steady singing, clear pronunciation, correct lyrics, controlled Sangatis, suitable expression and proper posture. Any two are acceptable.",
+      "difficulty": "Medium",
+      "topic": "Bhava and Presentation",
+      "subtopic": "Confident delivery"
+    },
+    {
+      "id": "seed-sgt-g8-open-031",
+      "question": "Compare a Geetham, a Varnam and a Kriti according to their main learning purpose.",
+      "expectedAnswer": "A Geetham introduces simple composition singing. A Varnam develops voice, raga and rhythmic control. A Kriti develops musical maturity, Sahitya understanding, devotion, Sangati and expressive presentation.",
+      "difficulty": "Hard",
+      "topic": "Kriti",
+      "subtopic": "Difference from Geetham and Varnam"
+    },
+    {
+      "id": "seed-sgt-g8-open-032",
+      "question": "Explain how the Pallavi, Anupallavi and Charanam help organise a Kriti.",
+      "expectedAnswer": "The Pallavi introduces the main idea, the Anupallavi develops it, and the Charanam expands or completes the musical and lyrical message.",
+      "difficulty": "Hard",
+      "topic": "Kriti Structure",
+      "subtopic": "Pallavi, Anupallavi, Charanam"
+    },
+    {
+      "id": "seed-sgt-g8-open-033",
+      "question": "In a listening test, a section is heard after the Pallavi but before the Charanam. Identify the section and explain its function.",
+      "expectedAnswer": "It is the Anupallavi. It develops the musical and lyrical idea introduced in the Pallavi.",
+      "difficulty": "Hard",
+      "topic": "Kriti Structure",
+      "subtopic": "Anupallavi"
+    },
+    {
+      "id": "seed-sgt-g8-open-034",
+      "question": "A singer repeats the same lyrical line several times, with each repetition becoming more developed. What concept is being demonstrated?",
+      "expectedAnswer": "Progressive Sangati. The melody is gradually expanded while the lyrical line remains the same.",
+      "difficulty": "Hard",
+      "topic": "Sangati",
+      "subtopic": "Progressive Sangati"
+    },
+    {
+      "id": "seed-sgt-g8-open-035",
+      "question": "What may happen when a student sings Sangatis without control?",
+      "expectedAnswer": "The melody may become inaccurate, the lyrics may become unclear, the raga character may be weakened and the composition may lose dignity.",
+      "difficulty": "Hard",
+      "topic": "Sangati",
+      "subtopic": "Controlled variation"
+    },
+    {
+      "id": "seed-sgt-g8-open-036",
+      "question": "Explain how incorrect pronunciation can affect both meaning and Bhava.",
+      "expectedAnswer": "Incorrect pronunciation can change or confuse the meaning of the words. When the meaning becomes unclear, the correct emotion and devotional message cannot be expressed properly.",
+      "difficulty": "Hard",
+      "topic": "Sahitya Meaning",
+      "subtopic": "Pronunciation and devotional meaning"
+    },
+    {
+      "id": "seed-sgt-g8-open-037",
+      "question": "Describe a simple method for identifying the Eduppu of a Kriti by listening.",
+      "expectedAnswer": "The student should keep the Tala steadily, observe the main beat and listen carefully to whether the song begins on, before or after that beat.",
+      "difficulty": "Hard",
+      "topic": "Eduppu",
+      "subtopic": "Samam, before beat, after beat"
+    },
+    {
+      "id": "seed-sgt-g8-open-038",
+      "question": "Compare Samam, before-beat and after-beat Eduppu.",
+      "expectedAnswer": "Samam begins on the main beat, before-beat Eduppu begins before it, and after-beat Eduppu begins after it.",
+      "difficulty": "Hard",
+      "topic": "Eduppu",
+      "subtopic": "Samam, before beat, after beat"
+    },
+    {
+      "id": "seed-sgt-g8-open-039",
+      "question": "Explain why a Kriti should not be treated as only a melody.",
+      "expectedAnswer": "A Kriti contains melody, raga depth, poetry, devotion and meaning. Singing only the notes without understanding the Sahitya and Bhava gives an incomplete presentation.",
+      "difficulty": "Hard",
+      "topic": "Kriti",
+      "subtopic": "Meaning and importance"
+    },
+    {
+      "id": "seed-sgt-g8-open-040",
+      "question": "A student sings all the notes correctly but shows no understanding of the words. What should be improved?",
+      "expectedAnswer": "The student should study the word meaning, devotional message and pronunciation, and then sing with suitable Bhava and dignified expression.",
+      "difficulty": "Hard",
+      "topic": "Bhava and Presentation",
+      "subtopic": "Expression and confident delivery"
+    },
+    {
+      "id": "seed-sgt-g8-open-041",
+      "question": "Explain the meaning of Kriti in your own words.",
+      "expectedAnswer": "The student should explain that a Kriti is a mature Carnatic composition combining melody, lyrics, devotion, poetry and raga expression.",
+      "difficulty": "Viva Style",
+      "topic": "Kriti",
+      "subtopic": "Meaning"
+    },
+    {
+      "id": "seed-sgt-g8-open-042",
+      "question": "Name and explain the three main sections of a Kriti.",
+      "expectedAnswer": "Pallavi: opening and main idea. Anupallavi: development of the idea. Charanam: expanded or concluding major section.",
+      "difficulty": "Viva Style",
+      "topic": "Kriti Structure",
+      "subtopic": "Pallavi, Anupallavi, Charanam"
+    },
+    {
+      "id": "seed-sgt-g8-open-043",
+      "question": "Name one composer from this grade and explain one basic fact about that composer.",
+      "expectedAnswer": "The student may name Tyagaraja, Muthuswami Dikshitar, Syama Sastri or Purandaradasa and state one accurate basic fact.",
+      "difficulty": "Viva Style",
+      "topic": "Composer Study",
+      "subtopic": "Major composers"
+    },
+    {
+      "id": "seed-sgt-g8-open-044",
+      "question": "Choose one line from a Kriti you have learnt. Explain its word meaning and devotional meaning.",
+      "expectedAnswer": "The student should give a clear meaning of the words and explain the emotional or devotional message of the chosen line.",
+      "difficulty": "Viva Style",
+      "topic": "Sahitya Meaning",
+      "subtopic": "Word meaning and devotional meaning"
+    },
+    {
+      "id": "seed-sgt-g8-open-045",
+      "question": "Sing or demonstrate one simple Sangati and one progressive Sangati from a Kriti you have learnt.",
+      "expectedAnswer": "The student should sing the basic melodic line first and then a correctly developed variation with control.",
+      "difficulty": "Viva Style",
+      "topic": "Sangati",
+      "subtopic": "Simple and progressive Sangati"
+    },
+    {
+      "id": "seed-sgt-g8-open-046",
+      "question": "Demonstrate Samam Eduppu using Tala and a suitable line from a Kriti.",
+      "expectedAnswer": "The student should keep the Tala steadily and begin the line exactly on the main beat.",
+      "difficulty": "Viva Style",
+      "topic": "Eduppu",
+      "subtopic": "Samam"
+    },
+    {
+      "id": "seed-sgt-g8-open-047",
+      "question": "Explain and demonstrate how a before-beat Eduppu works.",
+      "expectedAnswer": "The student should explain that the musical line starts before the main beat and demonstrate the entry correctly with Tala.",
+      "difficulty": "Viva Style",
+      "topic": "Eduppu",
+      "subtopic": "Before beat"
+    },
+    {
+      "id": "seed-sgt-g8-open-048",
+      "question": "Explain and demonstrate how an after-beat Eduppu works.",
+      "expectedAnswer": "The student should explain that the Tala begins first and the musical line enters after the main beat.",
+      "difficulty": "Viva Style",
+      "topic": "Eduppu",
+      "subtopic": "After beat"
+    },
+    {
+      "id": "seed-sgt-g8-open-049",
+      "question": "Sing one line of a Kriti with Bhava. Then explain how your expression matches the meaning.",
+      "expectedAnswer": "The student should sing with clear pronunciation, suitable emotion and dignity, and explain the connection between the lyrics and expression.",
+      "difficulty": "Viva Style",
+      "topic": "Bhava and Presentation",
+      "subtopic": "Expression"
+    },
+    {
+      "id": "seed-sgt-g8-open-050",
+      "question": "Listen to a short Kriti presentation by the teacher. Identify two strengths or weaknesses related to pronunciation, Sangati, Bhava or confidence.",
+      "expectedAnswer": "The student should identify two relevant features and explain whether they improve or weaken the presentation.",
+      "difficulty": "Viva Style",
+      "topic": "Bhava and Presentation",
+      "subtopic": "Expression, pronunciation and confident delivery"
+    }
+  ]
+}

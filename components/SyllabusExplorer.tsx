@@ -86,15 +86,22 @@ const SUBJECT_DATA: Record<string, { name: string; subjects: any[]; syllabus?: S
             syllabus: Syllabus.WESTERN_MUSIC,
             subjects: [
                 { id: Subject.MUSIC_THEORY, label: 'Music Theory', icon: '🎼', color: 'bg-rose-100 text-rose-700' },
-                { id: Subject.AURAL_PRACTICAL, label: 'Aural & Practical', icon: '🎧', color: 'bg-violet-100 text-violet-700' },
+                { id: Subject.PIANO, label: 'Piano', icon: '🎹', color: 'bg-sky-100 text-sky-700' },
+                { id: Subject.VIOLIN, label: 'Violin', icon: '🎻', color: 'bg-violet-100 text-violet-700' },
+                { id: Subject.GUITAR, label: 'Guitar', icon: '🎸', color: 'bg-emerald-100 text-emerald-700' },
+                { id: Subject.WESTERN_VOCAL, label: 'Vocal', icon: '🎤', color: 'bg-pink-100 text-pink-700' },
             ]
         },
         {
-            name: 'Indian Music (Grade 1-8)',
+            name: 'Indian Music (Grade 1-10)',
             syllabus: Syllabus.INDIAN_MUSIC,
             subjects: [
-                { id: Subject.MUSIC_THEORY, label: 'Music Theory', icon: '🎼', color: 'bg-rose-100 text-rose-700' },
-                { id: Subject.AURAL_PRACTICAL, label: 'Aural & Practical', icon: '🎧', color: 'bg-violet-100 text-violet-700' },
+                { id: Subject.SANGEETHAM, label: 'Sangeetham (Vocal)', icon: '🎙️', color: 'bg-rose-100 text-rose-700' },
+                { id: Subject.MRIDANGAM, label: 'Mridangam', icon: '🥁', color: 'bg-amber-100 text-amber-700' },
+                { id: Subject.VEENA, label: 'Veena', icon: '🪕', color: 'bg-orange-100 text-orange-700' },
+                { id: Subject.KEYBOARD_CARNATIC, label: 'Keyboard', icon: '🎹', color: 'bg-fuchsia-100 text-fuchsia-700' },
+                { id: Subject.HARMONIUM, label: 'Harmonium', icon: '🪗', color: 'bg-lime-100 text-lime-700' },
+                { id: Subject.TABLA, label: 'Tabla', icon: '🥁', color: 'bg-stone-200 text-stone-700' },
             ]
         }
     ]

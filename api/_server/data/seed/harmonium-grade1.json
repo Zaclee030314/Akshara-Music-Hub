@@ -1,0 +1,810 @@
+{
+  "shuffle": false,
+  "defaults": {
+    "subject": "Harmonium",
+    "grade": "Grade 1",
+    "syllabus": "Indian Music"
+  },
+  "questions": [
+    {
+      "id": "seed-hrm-g1-001",
+      "topic": "Harmonium Foundation",
+      "question": "Which hand normally operates the bellows in the Akshara Fine Arts beginner method?",
+      "options": [
+        "Left hand",
+        "Right hand",
+        "Both feet",
+        "Both hands together"
+      ],
+      "correctIndex": 0,
+      "explanation": "The left hand normally operates the bellows while the right hand plays the keyboard.",
+      "difficulty": "Easy",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-001"
+    },
+    {
+      "id": "seed-hrm-g1-002",
+      "topic": "Harmonium Foundation",
+      "question": "Which hand normally plays the Harmonium keyboard?",
+      "options": [
+        "Left hand",
+        "Right hand",
+        "Both elbows",
+        "Left foot"
+      ],
+      "correctIndex": 1,
+      "explanation": "In the standard beginner method, the right hand plays the keyboard.",
+      "difficulty": "Easy",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-002"
+    },
+    {
+      "id": "seed-hrm-g1-003",
+      "topic": "Harmonium Foundation",
+      "question": "Which number represents the right-hand middle finger?",
+      "options": [
+        "1",
+        "2",
+        "3",
+        "5"
+      ],
+      "correctIndex": 2,
+      "explanation": "Finger 3 is the middle finger.",
+      "difficulty": "Easy",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-003"
+    },
+    {
+      "id": "seed-hrm-g1-004",
+      "topic": "Harmonium Foundation",
+      "question": "Which shoulder position is correct while operating the bellows?",
+      "options": [
+        "Lifted very high",
+        "Pulled tightly backwards",
+        "Moving up on every count",
+        "Relaxed and comfortable"
+      ],
+      "correctIndex": 3,
+      "explanation": "A relaxed shoulder supports smooth bellows movement and reduces tension.",
+      "difficulty": "Easy",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-004"
+    },
+    {
+      "id": "seed-hrm-g1-005",
+      "topic": "Harmonium Foundation",
+      "question": "How should a Grade 1 student move the bellows?",
+      "options": [
+        "Smoothly and gently",
+        "As fast as possible",
+        "With sudden jerks",
+        "Only after the sound stops"
+      ],
+      "correctIndex": 0,
+      "explanation": "Smooth, gentle movement creates more stable airflow.",
+      "difficulty": "Easy",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-005"
+    },
+    {
+      "id": "seed-hrm-g1-006",
+      "topic": "Harmonium Foundation",
+      "question": "Which black-key groups repeat across the keyboard?",
+      "options": [
+        "Groups of one and four",
+        "Groups of two and three",
+        "Groups of five and six",
+        "Groups of seven and eight"
+      ],
+      "correctIndex": 1,
+      "explanation": "Black keys appear in repeating groups of two and three.",
+      "difficulty": "Easy",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-006"
+    },
+    {
+      "id": "seed-hrm-g1-007",
+      "topic": "Harmonium Foundation",
+      "question": "How should the fingers generally be positioned over the keys?",
+      "options": [
+        "Completely flat and stiff",
+        "Closed into a fist",
+        "Naturally curved and relaxed",
+        "Lifted as high as possible"
+      ],
+      "correctIndex": 2,
+      "explanation": "Naturally curved fingers support control and relaxed playing.",
+      "difficulty": "Easy",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-007"
+    },
+    {
+      "id": "seed-hrm-g1-008",
+      "topic": "Harmonium Foundation",
+      "question": "Where should the Harmonium normally be placed?",
+      "options": [
+        "Behind the student",
+        "Far to the left",
+        "Above the student's head",
+        "Comfortably in front of the student"
+      ],
+      "correctIndex": 3,
+      "explanation": "The instrument should be comfortably in front so both hands can work without twisting.",
+      "difficulty": "Easy",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-008"
+    },
+    {
+      "id": "seed-hrm-g1-009",
+      "topic": "Harmonium Foundation",
+      "question": "On a standard keyboard, moving towards the right generally produces what?",
+      "options": [
+        "Higher notes",
+        "Lower notes",
+        "No sound",
+        "Slower Tala"
+      ],
+      "correctIndex": 0,
+      "explanation": "Keyboard pitch normally rises as the player moves to the right.",
+      "difficulty": "Easy",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-009"
+    },
+    {
+      "id": "seed-hrm-g1-010",
+      "topic": "Harmonium Foundation",
+      "question": "Moving towards the left side of the keyboard generally produces what?",
+      "options": [
+        "Faster notes",
+        "Lower notes",
+        "Louder Tala",
+        "A different instrument"
+      ],
+      "correctIndex": 1,
+      "explanation": "Keyboard pitch normally becomes lower towards the left.",
+      "difficulty": "Easy",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-010"
+    },
+    {
+      "id": "seed-hrm-g1-011",
+      "topic": "Harmonium Foundation",
+      "question": "Which number represents the little finger?",
+      "options": [
+        "2",
+        "3",
+        "5",
+        "1"
+      ],
+      "correctIndex": 2,
+      "explanation": "Finger 5 is the little finger.",
+      "difficulty": "Easy",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-011"
+    },
+    {
+      "id": "seed-hrm-g1-012",
+      "topic": "Harmonium Foundation",
+      "question": "What may happen when the bellows are pushed with excessive pressure?",
+      "options": [
+        "The keys disappear",
+        "The raga changes automatically",
+        "The Tala becomes longer",
+        "The sound may become too loud or harsh"
+      ],
+      "correctIndex": 3,
+      "explanation": "Excessive air pressure can make the sound unnecessarily loud or harsh.",
+      "difficulty": "Easy",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-012"
+    },
+    {
+      "id": "seed-hrm-g1-013",
+      "topic": "Harmonium Foundation",
+      "question": "What may happen when the bellows pressure is too weak?",
+      "options": [
+        "The sound may become faint or unstable",
+        "Upper Sa changes into Pa",
+        "White keys become black",
+        "The student automatically plays faster"
+      ],
+      "correctIndex": 0,
+      "explanation": "Insufficient airflow can make the sound weak or unstable.",
+      "difficulty": "Easy",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-013"
+    },
+    {
+      "id": "seed-hrm-g1-014",
+      "topic": "Harmonium Foundation",
+      "question": "How should a beginner press a Harmonium key?",
+      "options": [
+        "With the entire arm",
+        "Gently and fully enough to sound the note",
+        "With a closed fist",
+        "As hard as possible"
+      ],
+      "correctIndex": 1,
+      "explanation": "The key should be pressed clearly without unnecessary force.",
+      "difficulty": "Easy",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-014"
+    },
+    {
+      "id": "seed-hrm-g1-015",
+      "topic": "Harmonium Foundation",
+      "question": "Which number represents the index finger?",
+      "options": [
+        "1",
+        "5",
+        "2",
+        "4"
+      ],
+      "correctIndex": 2,
+      "explanation": "Finger 2 is the index finger.",
+      "difficulty": "Easy",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-015"
+    },
+    {
+      "id": "seed-hrm-g1-016",
+      "topic": "Harmonium Foundation",
+      "question": "Which item should be kept away from the Harmonium?",
+      "options": [
+        "Music notebook",
+        "Teacher's pencil",
+        "Clean practice cloth",
+        "Open drink container"
+      ],
+      "correctIndex": 3,
+      "explanation": "Liquids can damage the wooden body, keys, and internal reeds.",
+      "difficulty": "Easy",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-016"
+    },
+    {
+      "id": "seed-hrm-g1-017",
+      "topic": "Harmonium Foundation",
+      "question": "What must continue while a note is being sustained?",
+      "options": [
+        "Controlled airflow",
+        "Finger-number recitation only",
+        "Changing the tonic",
+        "Closing the keyboard cover"
+      ],
+      "correctIndex": 0,
+      "explanation": "A sustained Harmonium sound requires continuous airflow.",
+      "difficulty": "Easy",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-017"
+    },
+    {
+      "id": "seed-hrm-g1-018",
+      "topic": "Harmonium Foundation",
+      "question": "Which sitting position is best for beginner practice?",
+      "options": [
+        "Twisted sideways",
+        "Naturally upright and comfortable",
+        "Lying on the floor",
+        "Leaning heavily over the keyboard"
+      ],
+      "correctIndex": 1,
+      "explanation": "A naturally upright posture supports breathing, balance, and relaxed hand movement.",
+      "difficulty": "Easy",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-018"
+    },
+    {
+      "id": "seed-hrm-g1-019",
+      "topic": "Harmonium Foundation",
+      "question": "Which description is correct?",
+      "options": [
+        "Keyboard contains only black keys",
+        "Keyboard contains only white keys",
+        "Keyboard contains white and black keys",
+        "Keyboard contains drum skins"
+      ],
+      "correctIndex": 2,
+      "explanation": "A Harmonium keyboard normally contains both white and black keys.",
+      "difficulty": "Easy",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-019"
+    },
+    {
+      "id": "seed-hrm-g1-020",
+      "topic": "Harmonium Foundation",
+      "question": "What should the student do before playing the teacher's Sa?",
+      "options": [
+        "Play any nearby note",
+        "Close the bellows",
+        "Increase the speed",
+        "Listen carefully to the teacher's pitch"
+      ],
+      "correctIndex": 3,
+      "explanation": "Listening first helps the student locate and match the correct Sa.",
+      "difficulty": "Easy",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-020"
+    },
+    {
+      "id": "seed-hrm-g1-021",
+      "topic": "Harmonium Foundation",
+      "question": "What is the main function of the bellows?",
+      "options": [
+        "To supply air",
+        "To count Tala",
+        "To change finger numbers",
+        "To cover the keys"
+      ],
+      "correctIndex": 0,
+      "explanation": "The bellows supply the air required to create sound.",
+      "difficulty": "Easy",
+      "classification": "Theory",
+      "source": "Akshara Fine Arts Official Bank — H-G1-021"
+    },
+    {
+      "id": "seed-hrm-g1-022",
+      "topic": "Harmonium Foundation",
+      "question": "What does the keyboard help the player select?",
+      "options": [
+        "The student's seat",
+        "Different pitches",
+        "The instrument cover",
+        "The practice duration"
+      ],
+      "correctIndex": 1,
+      "explanation": "Different keys produce different pitches.",
+      "difficulty": "Easy",
+      "classification": "Theory",
+      "source": "Akshara Fine Arts Official Bank — H-G1-022"
+    },
+    {
+      "id": "seed-hrm-g1-023",
+      "topic": "Harmonium Foundation",
+      "question": "Which number represents the ring finger?",
+      "options": [
+        "2",
+        "5",
+        "4",
+        "1"
+      ],
+      "correctIndex": 2,
+      "explanation": "Finger 4 is the ring finger.",
+      "difficulty": "Easy",
+      "classification": "Theory",
+      "source": "Akshara Fine Arts Official Bank — H-G1-023"
+    },
+    {
+      "id": "seed-hrm-g1-024",
+      "topic": "Harmonium Foundation",
+      "question": "Which two actions are required to produce a normal Harmonium note?",
+      "options": [
+        "Clapping and singing",
+        "Turning and shaking the instrument",
+        "Closing the lid and pressing a stop",
+        "Supplying air and pressing a key"
+      ],
+      "correctIndex": 3,
+      "explanation": "Air activates the reeds while the pressed key selects the pitch.",
+      "difficulty": "Easy",
+      "classification": "Theory",
+      "source": "Akshara Fine Arts Official Bank — H-G1-024"
+    },
+    {
+      "id": "seed-hrm-g1-025",
+      "topic": "Harmonium Foundation",
+      "question": "Which number represents the thumb?",
+      "options": [
+        "1",
+        "2",
+        "4",
+        "5"
+      ],
+      "correctIndex": 0,
+      "explanation": "Finger 1 is the thumb.",
+      "difficulty": "Easy",
+      "classification": "Theory",
+      "source": "Akshara Fine Arts Official Bank — H-G1-025"
+    },
+    {
+      "id": "seed-hrm-g1-026",
+      "topic": "Harmonium Foundation",
+      "question": "What should happen immediately before the first key is pressed?",
+      "options": [
+        "Close the instrument",
+        "Prepare gentle airflow",
+        "Lift the shoulder",
+        "Play Pa first"
+      ],
+      "correctIndex": 1,
+      "explanation": "Gentle airflow should be prepared so the first note begins clearly.",
+      "difficulty": "Medium",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-026"
+    },
+    {
+      "id": "seed-hrm-g1-027",
+      "topic": "Harmonium Foundation",
+      "question": "Which student shows the better posture?",
+      "options": [
+        "Twisting away from the keyboard",
+        "Stretching both shoulders upwards",
+        "Sitting upright with relaxed shoulders",
+        "Leaning heavily on the instrument"
+      ],
+      "correctIndex": 2,
+      "explanation": "Upright and relaxed posture supports comfortable technique.",
+      "difficulty": "Medium",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-027"
+    },
+    {
+      "id": "seed-hrm-g1-028",
+      "topic": "Harmonium Foundation",
+      "question": "A student presses Sa correctly, but the sound stops after two counts. What is the most likely cause?",
+      "options": [
+        "Student used finger 2",
+        "Note was a white key",
+        "Teacher counted slowly",
+        "Bellows movement stopped"
+      ],
+      "correctIndex": 3,
+      "explanation": "When airflow stops, the reed can no longer sustain the sound.",
+      "difficulty": "Medium",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-028"
+    },
+    {
+      "id": "seed-hrm-g1-029",
+      "topic": "Harmonium Foundation",
+      "question": "If Sa = E, which key is Pa?",
+      "options": [
+        "B",
+        "A",
+        "C",
+        "D"
+      ],
+      "correctIndex": 0,
+      "explanation": "Pa is seven semitones above Sa. When Sa is E, Pa is B.",
+      "difficulty": "Medium",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-029"
+    },
+    {
+      "id": "seed-hrm-g1-030",
+      "topic": "Harmonium Foundation",
+      "question": "If Sa = G, which key is Pa?",
+      "options": [
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
+      "correctIndex": 1,
+      "explanation": "Pa is seven semitones above Sa. When Sa is G, Pa is D.",
+      "difficulty": "Medium",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-030"
+    },
+    {
+      "id": "seed-hrm-g1-031",
+      "topic": "Harmonium Foundation",
+      "question": "A student's sound becomes louder and softer repeatedly even though the same key is held. What is a likely reason?",
+      "options": [
+        "Note is Sa",
+        "Right hand uses finger 1",
+        "Bellows movement is uneven",
+        "Student counts four beats"
+      ],
+      "correctIndex": 2,
+      "explanation": "Uneven bellows movement can cause repeated volume changes.",
+      "difficulty": "Medium",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-031"
+    },
+    {
+      "id": "seed-hrm-g1-032",
+      "topic": "Harmonium Foundation",
+      "question": "What is the best correction for a wrist that has collapsed towards the keyboard?",
+      "options": [
+        "Press harder",
+        "Lift the entire shoulder",
+        "Use only the little finger",
+        "Restore a relaxed, neutral wrist"
+      ],
+      "correctIndex": 3,
+      "explanation": "A neutral wrist supports freer finger movement and reduces strain.",
+      "difficulty": "Medium",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-032"
+    },
+    {
+      "id": "seed-hrm-g1-033",
+      "topic": "Harmonium Foundation",
+      "question": "The student must stretch the right arm fully to reach the keys. What should be corrected?",
+      "options": [
+        "Move the Harmonium to a comfortable distance",
+        "Increase bellows pressure",
+        "Change Sa from E to G",
+        "Play only black keys"
+      ],
+      "correctIndex": 0,
+      "explanation": "The keyboard should be within comfortable reach without arm strain.",
+      "difficulty": "Medium",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-033"
+    },
+    {
+      "id": "seed-hrm-g1-034",
+      "topic": "Harmonium Foundation",
+      "question": "When should the student prepare to change the bellows direction?",
+      "options": [
+        "Only after sound stops",
+        "Before available movement is fully exhausted",
+        "After changing tonic",
+        "On every keyboard key"
+      ],
+      "correctIndex": 1,
+      "explanation": "Planning the reversal early helps preserve continuous sound.",
+      "difficulty": "Medium",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-034"
+    },
+    {
+      "id": "seed-hrm-g1-035",
+      "topic": "Harmonium Foundation",
+      "question": "The teacher sings Sa, but the student presses a different key. What should the student do first?",
+      "options": [
+        "Play faster",
+        "Increase volume",
+        "Stop, listen again, and compare pitch",
+        "Change to Pa"
+      ],
+      "correctIndex": 2,
+      "explanation": "The student should listen and compare before trying again.",
+      "difficulty": "Medium",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-035"
+    },
+    {
+      "id": "seed-hrm-g1-036",
+      "topic": "Harmonium Foundation",
+      "question": "Which count is the most suitable beginner pulse?",
+      "options": [
+        "1–2–4–8",
+        "1–3–2–4",
+        "1–2–3–5",
+        "1–2–3–4 evenly"
+      ],
+      "correctIndex": 3,
+      "explanation": "Grade 1 students should maintain an even four-count pulse.",
+      "difficulty": "Medium",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-036"
+    },
+    {
+      "id": "seed-hrm-g1-037",
+      "topic": "Harmonium Foundation",
+      "question": "What should the left hand do while the right hand moves from Sa to Pa?",
+      "options": [
+        "Continue supplying controlled air",
+        "Stop completely",
+        "Move to the keyboard",
+        "Close the instrument"
+      ],
+      "correctIndex": 0,
+      "explanation": "Airflow must continue while the right hand changes keys.",
+      "difficulty": "Medium",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-037"
+    },
+    {
+      "id": "seed-hrm-g1-038",
+      "topic": "Harmonium Foundation",
+      "question": "Why should a beginner avoid lifting the fingers very high above the keyboard?",
+      "options": [
+        "It changes raga automatically",
+        "It creates unnecessary movement and reduces control",
+        "It stops the bellows",
+        "It makes the instrument heavier"
+      ],
+      "correctIndex": 1,
+      "explanation": "Keeping the fingers close to the keys improves efficiency and control.",
+      "difficulty": "Medium",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-038"
+    },
+    {
+      "id": "seed-hrm-g1-039",
+      "topic": "Harmonium Foundation",
+      "question": "A student raises the left shoulder every time the bellows are closed. What is the best correction?",
+      "options": [
+        "Close bellows faster",
+        "Press keyboard harder",
+        "Relax shoulder and use controlled arm movement",
+        "Change hands after each count"
+      ],
+      "correctIndex": 2,
+      "explanation": "The shoulder should remain relaxed while the arm controls the bellows.",
+      "difficulty": "Medium",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-039"
+    },
+    {
+      "id": "seed-hrm-g1-040",
+      "topic": "Harmonium Foundation",
+      "question": "What should the student do before covering and storing the Harmonium?",
+      "options": [
+        "Leave bellows fully open",
+        "Leave keys pressed",
+        "Place a drink on the lid",
+        "Close carefully according to the teacher's method"
+      ],
+      "correctIndex": 3,
+      "explanation": "Careful closing protects the bellows, keys, and body.",
+      "difficulty": "Medium",
+      "classification": "Practical",
+      "source": "Akshara Fine Arts Official Bank — H-G1-040"
+    },
+    {
+      "id": "seed-hrm-g1-041",
+      "topic": "Harmonium Foundation",
+      "question": "Which swara is commonly used with Sa to establish the basic Sa–Pa relationship?",
+      "options": [
+        "Pa",
+        "Ri",
+        "Ga",
+        "Ni"
+      ],
+      "correctIndex": 0,
+      "explanation": "Sa and Pa form an important stable tonal relationship.",
+      "difficulty": "Medium",
+      "classification": "Theory",
+      "source": "Akshara Fine Arts Official Bank — H-G1-041"
+    },
+    {
+      "id": "seed-hrm-g1-042",
+      "topic": "Harmonium Foundation",
+      "question": "What should a Grade 1 student do before pulling an unfamiliar stop?",
+      "options": [
+        "Pull every stop",
+        "Ask the teacher for guidance",
+        "Strike keyboard loudly",
+        "Turn Harmonium upside down"
+      ],
+      "correctIndex": 1,
+      "explanation": "Different Harmoniums have different stops, so beginners should use them under teacher guidance.",
+      "difficulty": "Medium",
+      "classification": "Theory",
+      "source": "Akshara Fine Arts Official Bank — H-G1-042"
+    },
+    {
+      "id": "seed-hrm-g1-043",
+      "topic": "Harmonium Foundation",
+      "question": "Why must a pitch question state the selected Sa?",
+      "options": [
+        "Finger numbers change daily",
+        "Bellows can play Tala",
+        "Western key for each swara depends on tonic",
+        "Every white key is always Pa"
+      ],
+      "correctIndex": 2,
+      "explanation": "Swara positions move when the selected tonic changes.",
+      "difficulty": "Medium",
+      "classification": "Theory",
+      "source": "Akshara Fine Arts Official Bank — H-G1-043"
+    },
+    {
+      "id": "seed-hrm-g1-044",
+      "topic": "Harmonium Foundation",
+      "question": "A key is pressed fully, but no sound is produced. The instrument is otherwise functioning normally. Which action should be checked first?",
+      "options": [
+        "Whether student knows Adi Tala",
+        "Whether key is white or black",
+        "Whether finger 3 was used",
+        "Whether air is supplied through bellows"
+      ],
+      "correctIndex": 3,
+      "explanation": "A Harmonium note requires airflow as well as a pressed key.",
+      "difficulty": "Hard",
+      "classification": "Theory",
+      "source": "Akshara Fine Arts Official Bank — H-G1-044"
+    },
+    {
+      "id": "seed-hrm-g1-045",
+      "topic": "Harmonium Foundation",
+      "question": "If Madhya Sa is E, where is the next upper Sa?",
+      "options": [
+        "Next E to the right",
+        "F immediately to the right",
+        "B to the right",
+        "D-sharp before E"
+      ],
+      "correctIndex": 0,
+      "explanation": "Upper Sa is the same note name one octave higher.",
+      "difficulty": "Hard",
+      "classification": "Theory",
+      "source": "Akshara Fine Arts Official Bank — H-G1-045"
+    },
+    {
+      "id": "seed-hrm-g1-046",
+      "topic": "Harmonium Foundation",
+      "question": "A student sustains Sa. The note begins clearly, becomes very loud, then stops suddenly. Which explanation is best?",
+      "options": [
+        "Student selected Pa",
+        "Pressure became excessive and direction change was late",
+        "Student used a curved finger",
+        "Student counted four beats"
+      ],
+      "correctIndex": 1,
+      "explanation": "Excessive pressure explains the loudness, while a late reversal can cause the sudden stop.",
+      "difficulty": "Hard",
+      "classification": "Theory",
+      "source": "Akshara Fine Arts Official Bank — H-G1-046"
+    },
+    {
+      "id": "seed-hrm-g1-047",
+      "topic": "Harmonium Foundation",
+      "question": "A student leans sideways, raises the left shoulder, and pumps the bellows quickly. Which correction is best?",
+      "options": [
+        "Play faster",
+        "Move Harmonium farther away",
+        "Re-centre body, relax shoulder, and slow bellows",
+        "Use only black keys"
+      ],
+      "correctIndex": 2,
+      "explanation": "The correction addresses body alignment, shoulder tension, and uneven bellows movement together.",
+      "difficulty": "Hard",
+      "classification": "Theory",
+      "source": "Akshara Fine Arts Official Bank — H-G1-047"
+    },
+    {
+      "id": "seed-hrm-g1-048",
+      "topic": "Harmonium Foundation",
+      "question": "Which task is not appropriate as a compulsory Grade 1 assessment?",
+      "options": [
+        "Sustaining Sa for four counts",
+        "Identifying finger 1",
+        "Recognising bellows hand",
+        "Accompanying advanced Kalpana Swara independently"
+      ],
+      "correctIndex": 3,
+      "explanation": "Independent Kalpana Swara accompaniment belongs to an advanced grade.",
+      "difficulty": "Hard",
+      "classification": "Theory",
+      "source": "Akshara Fine Arts Official Bank — H-G1-048"
+    },
+    {
+      "id": "seed-hrm-g1-049",
+      "topic": "Harmonium Foundation",
+      "question": "The teacher sustains a soft Sa. Which Grade 1 Harmonium response is most suitable?",
+      "options": [
+        "Match Sa softly with steady airflow",
+        "Play unrelated fast notes",
+        "Activate every stop",
+        "Change tonic without asking"
+      ],
+      "correctIndex": 0,
+      "explanation": "Grade 1 accompaniment begins by matching and sustaining the teacher's tonic softly.",
+      "difficulty": "Hard",
+      "classification": "Theory",
+      "source": "Akshara Fine Arts Official Bank — H-G1-049"
+    },
+    {
+      "id": "seed-hrm-g1-050",
+      "topic": "Harmonium Foundation",
+      "question": "Which practice sequence is most appropriate for a Grade 1 beginner?",
+      "options": [
+        "Play fast, select chords, then locate Sa",
+        "Sit correctly, prepare airflow, locate Sa, and play slowly",
+        "Begin advanced songs and correct posture later",
+        "Pull every stop and press several keys"
+      ],
+      "correctIndex": 1,
+      "explanation": "Correct posture and airflow must be established before slow, accurate playing begins.",
+      "difficulty": "Hard",
+      "classification": "Theory",
+      "source": "Akshara Fine Arts Official Bank — H-G1-050"
+    }
+  ]
+}

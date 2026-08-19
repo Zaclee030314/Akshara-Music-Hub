@@ -40,11 +40,16 @@ export const getGradesBySyllabus = (syll: Syllabus): { primary: GradeLevel[]; se
                 secondary: all.filter(g => [GradeLevel.FORM_4, GradeLevel.FORM_5, GradeLevel.FORM_6].includes(g as GradeLevel))
             };
         case Syllabus.WESTERN_MUSIC:
-        case Syllabus.INDIAN_MUSIC:
-            // Music grades: Grade 1-4 (foundation) + Grade 5-8 (advanced)
+            // Western music (ABRSM/Trinity-style): Grade 1-4 (foundation) + Grade 5-8 (advanced)
             return {
                 primary: all.filter(g => ['Grade 1', 'Grade 2', 'Grade 3', 'Grade 4'].includes(g)),
                 secondary: all.filter(g => ['Grade 5', 'Grade 6', 'Grade 7', 'Grade 8'].includes(g))
+            };
+        case Syllabus.INDIAN_MUSIC:
+            // Akshara Fine Arts Carnatic curriculum: Grade 1-5 (foundation) + Grade 6-10 (advanced)
+            return {
+                primary: all.filter(g => ['Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5'].includes(g)),
+                secondary: all.filter(g => ['Grade 6', 'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10'].includes(g))
             };
         case Syllabus.KSSR_KSSM:
         default:

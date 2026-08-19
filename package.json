@@ -14,6 +14,7 @@
     "preview": "vite preview",
     "vercel-build": "prisma generate --schema=api/_server/prisma/schema.prisma && prisma db push --schema=api/_server/prisma/schema.prisma --accept-data-loss && vite build",
     "start:all": "concurrently \"npm run dev\" \"npm run dev:server\"",
+    "seed:music": "npx tsx scripts/seedMusicQuestionBank.ts",
     "postinstall": "prisma generate --schema=api/_server/prisma/schema.prisma"
   },
   "dependencies": {

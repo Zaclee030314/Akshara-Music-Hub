@@ -1,0 +1,710 @@
+{
+  "shuffle": true,
+  "defaults": {
+    "subject": "Mridangam",
+    "grade": "Grade 1",
+    "syllabus": "Indian Music"
+  },
+  "questions": [
+    {
+      "id": "seed-mrd-b50-001",
+      "topic": "General",
+      "question": "Which instrument family does the Mridangam belong to?",
+      "options": [
+        "String instrument",
+        "Wind instrument",
+        "Percussion instrument",
+        "Keyboard instrument"
+      ],
+      "correctIndex": 2,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-002",
+      "topic": "General",
+      "question": "The Mridangam is mainly used in which classical music tradition?",
+      "options": [
+        "Western classical music",
+        "Carnatic music",
+        "Chinese opera",
+        "Jazz music"
+      ],
+      "correctIndex": 1,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-003",
+      "topic": "General",
+      "question": "How many main playing sides does a Mridangam have?",
+      "options": [
+        "One",
+        "Two",
+        "Three",
+        "Four"
+      ],
+      "correctIndex": 1,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-004",
+      "topic": "General",
+      "question": "The smaller side of the Mridangam usually produces a:",
+      "options": [
+        "Higher-pitched sound",
+        "Very silent sound",
+        "Guitar sound",
+        "Flute sound"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-005",
+      "topic": "General",
+      "question": "The larger side of the Mridangam usually produces a:",
+      "options": [
+        "Higher treble sound only",
+        "Bass or deeper sound",
+        "Violin sound",
+        "Keyboard sound"
+      ],
+      "correctIndex": 1,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-006",
+      "topic": "General",
+      "question": "When sitting to play Mridangam, the student should keep the body:",
+      "options": [
+        "Bent and stiff",
+        "Relaxed and upright",
+        "Lying down",
+        "Twisted sideways"
+      ],
+      "correctIndex": 1,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-007",
+      "topic": "General",
+      "question": "Why should the shoulders be relaxed while playing Mridangam?",
+      "options": [
+        "To make the face serious",
+        "To avoid tension and improve control",
+        "To play louder only",
+        "To avoid listening to tala"
+      ],
+      "correctIndex": 1,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-008",
+      "topic": "General",
+      "question": "The right-hand fingers should strike the Mridangam with:",
+      "options": [
+        "Heavy force always",
+        "Controlled and clear movement",
+        "Random hitting",
+        "Closed fist only"
+      ],
+      "correctIndex": 1,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-009",
+      "topic": "General",
+      "question": "The left hand is mainly used to create:",
+      "options": [
+        "Bass effect and support",
+        "Violin bowing",
+        "Keyboard chord sound",
+        "Singing pitch"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-010",
+      "topic": "General",
+      "question": "In basic Mridangam practice, clarity is more important than:",
+      "options": [
+        "Speed",
+        "Sitting posture",
+        "Listening",
+        "Counting"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-011",
+      "topic": "General",
+      "question": "The syllable \"Ta\" in basic practice should be played with:",
+      "options": [
+        "A careless strike",
+        "A clear and controlled stroke",
+        "A closed-eye movement",
+        "A random hand movement"
+      ],
+      "correctIndex": 1,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-012",
+      "topic": "General",
+      "question": "What is the purpose of saying solkattu before playing?",
+      "options": [
+        "To memorize lyrics",
+        "To understand rhythm before playing",
+        "To avoid using the hands",
+        "To make the lesson shorter"
+      ],
+      "correctIndex": 1,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-013",
+      "topic": "General",
+      "question": "\"Ta Ki Ta\" contains how many syllables?",
+      "options": [
+        "Two",
+        "Three",
+        "Four",
+        "Five"
+      ],
+      "correctIndex": 1,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-014",
+      "topic": "General",
+      "question": "\"Ta Ka\" contains how many syllables?",
+      "options": [
+        "One",
+        "Two",
+        "Three",
+        "Four"
+      ],
+      "correctIndex": 1,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-015",
+      "topic": "General",
+      "question": "\"Ta Ri Ki Ta\" contains how many syllables?",
+      "options": [
+        "Two",
+        "Three",
+        "Four",
+        "Six"
+      ],
+      "correctIndex": 2,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-016",
+      "topic": "General",
+      "question": "While playing \"Ta Ki Ta,\" the student should maintain:",
+      "options": [
+        "Uneven speed",
+        "Equal spacing between syllables",
+        "Sudden stopping",
+        "Random volume"
+      ],
+      "correctIndex": 1,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-017",
+      "topic": "General",
+      "question": "In basic fingering, the wrist should be:",
+      "options": [
+        "Locked tightly",
+        "Flexible and relaxed",
+        "Completely still always",
+        "Hidden behind the drum"
+      ],
+      "correctIndex": 1,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-018",
+      "topic": "General",
+      "question": "Why is finger placement important in Mridangam?",
+      "options": [
+        "It changes the colour and clarity of sound",
+        "It makes the drum look bigger",
+        "It changes the student's voice",
+        "It removes the need for practice"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-019",
+      "topic": "General",
+      "question": "The black central area on the playing head helps to produce:",
+      "options": [
+        "Tuned resonance and tonal quality",
+        "Only decoration",
+        "A wooden sound",
+        "A string sound"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-020",
+      "topic": "General",
+      "question": "When practising basic strokes, the student should first aim for:",
+      "options": [
+        "Speed and showmanship",
+        "Clarity and correct fingering",
+        "Loudness only",
+        "Complicated patterns"
+      ],
+      "correctIndex": 1,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-021",
+      "topic": "General",
+      "question": "Which of the following is a basic rhythm syllable used in Mridangam?",
+      "options": [
+        "Sa",
+        "Pa",
+        "Ta",
+        "Ma"
+      ],
+      "correctIndex": 2,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-022",
+      "topic": "General",
+      "question": "What should a student do before playing a lesson on Mridangam?",
+      "options": [
+        "Say the solkattu clearly",
+        "Play as fast as possible",
+        "Avoid counting",
+        "Hit both sides randomly"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-023",
+      "topic": "General",
+      "question": "When playing basic lessons, both hands should work with:",
+      "options": [
+        "Confusion",
+        "Coordination",
+        "Laziness",
+        "Tension"
+      ],
+      "correctIndex": 1,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-024",
+      "topic": "General",
+      "question": "If a stroke sounds unclear, the student should check:",
+      "options": [
+        "Fingering and hand position",
+        "The colour of the room",
+        "The student's school bag",
+        "The teacher's chair"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-025",
+      "topic": "General",
+      "question": "The purpose of repeating \"Ta Ki Ta\" many times is to improve:",
+      "options": [
+        "Rhythm control and hand memory",
+        "Drawing skill",
+        "Singing lyrics",
+        "Instrument decoration"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-026",
+      "topic": "General",
+      "question": "Which practice method is best for a beginner?",
+      "options": [
+        "Slow, steady, and clear practice",
+        "Fast and careless practice",
+        "Practising only once",
+        "Skipping difficult parts"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-027",
+      "topic": "General",
+      "question": "In Mridangam, \"nadai\" generally refers to:",
+      "options": [
+        "Walking style only",
+        "Rhythmic subdivision or flow",
+        "Instrument colour",
+        "Stage costume"
+      ],
+      "correctIndex": 1,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-028",
+      "topic": "General",
+      "question": "A beginner should practise with tala because it helps to develop:",
+      "options": [
+        "Time sense",
+        "Instrument weight",
+        "Hand size",
+        "Singing volume"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-029",
+      "topic": "General",
+      "question": "Which of the following is a correct basic solkattu pattern?",
+      "options": [
+        "Ta Ki Ta",
+        "Sa Ri Ga",
+        "Do Re Mi",
+        "ABCD"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-030",
+      "topic": "General",
+      "question": "\"Ta Ka Ta Ri Ki Ta\" should be practised with:",
+      "options": [
+        "Uneven breaks",
+        "Equal rhythm and clear pronunciation",
+        "No counting",
+        "Only left hand randomly"
+      ],
+      "correctIndex": 1,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-031",
+      "topic": "General",
+      "question": "What happens if the student plays with too much force?",
+      "options": [
+        "The sound may become harsh and uncontrolled",
+        "The tala becomes perfect automatically",
+        "The Mridangam becomes lighter",
+        "The lesson becomes easier without practice"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-032",
+      "topic": "General",
+      "question": "The fingers should return after each stroke to prepare for:",
+      "options": [
+        "The next clear stroke",
+        "Closing the book",
+        "Changing the instrument",
+        "Stopping the lesson"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-033",
+      "topic": "General",
+      "question": "In beginner practice, why should the student listen carefully to each stroke?",
+      "options": [
+        "To check clarity, tone, and timing",
+        "To ignore mistakes",
+        "To avoid counting",
+        "To play without rhythm"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-034",
+      "topic": "General",
+      "question": "What is the best speed for learning a new Mridangam pattern?",
+      "options": [
+        "Very fast immediately",
+        "Slow and steady first",
+        "Random speed",
+        "Only maximum speed"
+      ],
+      "correctIndex": 1,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-035",
+      "topic": "General",
+      "question": "Which part of the hand should not be stiff while playing?",
+      "options": [
+        "Wrist",
+        "Hair",
+        "Shoulder bag",
+        "Footwear"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-036",
+      "topic": "General",
+      "question": "The pattern \"Ta Ri Ki Ta\" should be counted as:",
+      "options": [
+        "1 syllable",
+        "2 syllables",
+        "4 syllables",
+        "8 syllables"
+      ],
+      "correctIndex": 2,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-037",
+      "topic": "General",
+      "question": "When practising \"Ta Ki Ta,\" the student should avoid:",
+      "options": [
+        "Clear counting",
+        "Correct fingering",
+        "Rushing the rhythm",
+        "Listening to sound"
+      ],
+      "correctIndex": 2,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-038",
+      "topic": "General",
+      "question": "The main role of the teacher in basic Mridangam fingering is to guide:",
+      "options": [
+        "Correct hand placement and stroke clarity",
+        "Only costume selection",
+        "Only stage lighting",
+        "Only song lyrics"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-039",
+      "topic": "General",
+      "question": "Which is a good beginner practice routine?",
+      "options": [
+        "Say, clap, then play",
+        "Run, shout, then hit",
+        "Skip, guess, then stop",
+        "Talk, laugh, then rush"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-040",
+      "topic": "General",
+      "question": "Why should a student practise both vocal solkattu and hand strokes?",
+      "options": [
+        "To connect rhythm knowledge with playing action",
+        "To avoid learning rhythm",
+        "To replace the instrument",
+        "To make the lesson confusing"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-041",
+      "topic": "General",
+      "question": "The phrase \"Ta Ka\" should be played with:",
+      "options": [
+        "Two clear rhythmic actions",
+        "One long random sound",
+        "No hand movement",
+        "Only shaking the drum"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-042",
+      "topic": "General",
+      "question": "What should a beginner do if the left-hand bass sound is not clear?",
+      "options": [
+        "Adjust hand placement and practise slowly",
+        "Hit harder without control",
+        "Stop learning Mridangam",
+        "Ignore the sound completely"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-043",
+      "topic": "General",
+      "question": "In basic Mridangam learning, the student's eyes should mainly help with:",
+      "options": [
+        "Observing hand position and teacher demonstration",
+        "Looking away always",
+        "Counting ceiling lights",
+        "Watching unrelated videos"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-044",
+      "topic": "General",
+      "question": "Which quality is most important for a beginner Mridangam student?",
+      "options": [
+        "Patience",
+        "Rushing",
+        "Carelessness",
+        "Laziness"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-045",
+      "topic": "General",
+      "question": "What is the correct attitude during basic fingering correction?",
+      "options": [
+        "Accept correction and repeat patiently",
+        "Get angry and stop",
+        "Play faster to hide mistakes",
+        "Avoid the teacher's advice"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-046",
+      "topic": "General",
+      "question": "The Mridangam should be placed in a stable position because:",
+      "options": [
+        "It helps comfortable and controlled playing",
+        "It makes the room brighter",
+        "It changes into another instrument",
+        "It removes the need for tala"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-047",
+      "topic": "General",
+      "question": "What should remain steady when playing basic patterns like \"Ta Ki Ta\" and \"Ta Ka\"?",
+      "options": [
+        "Rhythm and tempo",
+        "Random speed",
+        "Shoulder tension",
+        "Loud shouting"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-048",
+      "topic": "General",
+      "question": "Which of the following shows a correct beginner learning order?",
+      "options": [
+        "Listen, say, count, play",
+        "Play fast, guess, stop, forget",
+        "Hit hard, ignore, rush, finish",
+        "Skip basics, play advanced lessons"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-049",
+      "topic": "General",
+      "question": "Why is daily short practice better than rare long practice for beginners?",
+      "options": [
+        "It builds regular hand memory and rhythm discipline",
+        "It makes the Mridangam unnecessary",
+        "It avoids learning fingering",
+        "It removes the need for tala"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    },
+    {
+      "id": "seed-mrd-b50-050",
+      "topic": "General",
+      "question": "The main goal of basic Mridangam lessons up to \"Ta Ki Ta\" and \"Ta Ri Ki Ta\" patterns is to build:",
+      "options": [
+        "Clear fingering, steady rhythm, and basic playing confidence",
+        "Only speed",
+        "Only loudness",
+        "Only stage costume style"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level"
+    }
+  ]
+}

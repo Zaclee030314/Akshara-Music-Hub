@@ -6,6 +6,8 @@ import { generateAIContent } from '../utils/ai.js';
 
 import { authenticateToken, AuthRequest } from '../middleware/authMiddleware.js';
 import { checkExpiredSubscriptions } from '../middleware/checkExpiredSubscriptions.js';
+import { isMusicSyllabus } from '../utils/ageGrade.js';
+import { getCuratedTopics } from '../data/musicCurriculum.js';
 
 const router = express.Router();
 
@@ -41,6 +43,64 @@ const getSubjectCategory = (subject: string) => {
     if (langs.includes(subject as Subject)) return 'LANGS';
     if (hums.includes(subject as Subject)) return 'HUMS';
     return 'VALUES';
+};
+
+// Convert QuestionBank rows to the frontend Question shape (shared by the
+// past-year branch and the music bank-first path).
+const formatBankQuestions = (rows: any[], sourceLabel: string) =>
+    rows.map((q: any) => {
+        let options: string[] = [];
+        try { options = JSON.parse(q.options); } catch { options = ['A', 'B', 'C', 'D']; }
+        const letterMap: Record<string, number> = { A: 0, B: 1, C: 2, D: 3 };
+        const correctAnswerIndex = letterMap[q.correctAnswer?.toUpperCase()] ?? 0;
+
+        return {
+            id: `real-${q.id}`,
+            text: q.question,
+            options,
+            correctAnswerIndex,
+            explanation: q.explanation || 'No explanation provided.',
+            source: q.source || sourceLabel,
+            isRealQuestion: true,
+        };
+    });
+
+// ─── MUSIC PROMPT RULES ────────────────────────────────────────────────
+// Keep the subject lists in sync with lib/musicSubjects.ts.
+const INDIAN_TECHNIQUE_FOCUS: Record<string, string> = {
+    'Sangeetham (Vocal)': 'voice culture, breath control, swara singing, and compositions (Geetham, Varnam, Kriti)',
+    'Mridangam': 'fingering, strokes (Tha, Dhi, Nam, Thom, Chapu), sollukattu recitation, and tala accompaniment',
+    'Tabla': 'basic bols, hand technique, and tala accompaniment',
+    'Veena': 'meettu (plucking), fretting, gamaka, and raga playing',
+    'Keyboard (Carnatic)': 'swara-to-key mapping (always state the selected Sa, e.g. Sa = E), fingering (thumb 1 to little finger 5), and raga playing',
+    'Harmonium': 'left-hand bellows control, right-hand fingering, and swara-to-key mapping (always state the selected Sa)'
+};
+
+const musicPromptRules = (syllabus: string, subject: string, grade: string): string => {
+    if (!isMusicSyllabus(syllabus)) return '';
+    const curated = getCuratedTopics(syllabus, subject, grade);
+    const gradeProtection = curated
+        ? `GRADE PROTECTION — the official ${grade} scope for ${subject} is EXACTLY these topics:\n${curated.map(t => `- ${t}`).join('\n')}\nTest ONLY these topics. NEVER include concepts from higher grades.`
+        : `GRADE PROTECTION: Test only concepts appropriate for ${grade}. NEVER include concepts from higher grades.`;
+
+    if (syllabus === 'Indian Music') {
+        return `
+MUSIC SYLLABUS RULES (Indian Music — Carnatic):
+- This is a CARNATIC MUSIC examination for ${subject} students of Akshara Fine Arts (Grades 1-10).
+- Use authentic Carnatic terminology: swara (Sa Ri Ga Ma Pa Da Ni), shruti, sthayi, tala (Adi, Rupaka, Eka, Misra Chapu, Khanda Chapu), raga, sarali/janta/dhatu varisai, alankaram, geetham, varnam, kriti, sollukattu.
+- Anchor beginner content (Grades 1-3) on raga Mayamalavagowla.
+- Emphasise ${subject}-specific technique: ${INDIAN_TECHNIQUE_FOCUS[subject] || 'instrument technique and theory'}.
+- Questions must be answerable in text form without audio or images — describe sounds and techniques in words.
+${gradeProtection}
+`;
+    }
+    return `
+MUSIC SYLLABUS RULES (Western Music):
+- This is an ABRSM/Trinity-style graded music examination for ${subject}, ${grade} (Grades 1-8).
+- Cover grade-appropriate content: staff notation, note values, time signatures, scales and key signatures, intervals, chords and cadences, musical terms (Italian/German/French), composers and periods${subject !== 'Music Theory' ? `, plus ${subject}-specific technique and repertoire knowledge` : ''}.
+- Describe any staff-notation content in WORDS only (e.g. "the note on the second line of the treble clef") — no images are available.
+${gradeProtection}
+`;
 };
 
 // ─── LANGUAGE RESOLUTION ───────────────────────────────────────────────
@@ -224,6 +284,33 @@ router.post('/quest', authenticateToken, checkExpiredSubscriptions, async (req: 
 
     console.log(`[GEN] Request: ${subject} / ${grade} / ${topic || 'Full Paper'} / ${syllabus} ${isPastYear ? `(Past Year ${year})` : ''}`);
 
+    // ─── MUSIC: BANK-FIRST ────────────────────────────────────────────
+    // Music quests serve real questions from the official Akshara bank when
+    // enough exist for the subject/grade. Placed BEFORE the API-key and
+    // mock-mode checks so seeded content works with no AI configured.
+    if (!isPastYear && typeof syllabus === 'string' && isMusicSyllabus(syllabus)) {
+        try {
+            let rows = await prisma.questionBank.findMany({
+                where: { subject, grade, syllabus }
+            });
+            // Soft topic filter: prefer questions tagged with the chosen topic,
+            // but never shrink below a serveable pool.
+            if (topic && topic !== 'Full Paper' && rows.length > 0) {
+                const t = String(topic).toLowerCase();
+                const filtered = rows.filter((r: any) => r.topic && t.includes(r.topic.toLowerCase()));
+                if (filtered.length >= 12) rows = filtered;
+            }
+            if (rows.length >= 12) {
+                const shuffled = [...rows].sort(() => Math.random() - 0.5).slice(0, 20);
+                console.log(`✅ [GEN] Serving ${shuffled.length} official bank questions for ${subject}/${grade} (${syllabus})`);
+                return res.json(formatBankQuestions(shuffled, `${subject} ${grade} — Akshara Official Bank`));
+            }
+            console.log(`[GEN] Music bank has only ${rows.length} rows for ${subject}/${grade} — falling through to AI.`);
+        } catch (dbErr: any) {
+            console.error(`❌ [GEN] Music bank lookup failed: ${dbErr.message} — falling through to AI.`);
+        }
+    }
+
     // Check API Key
     if (!process.env.GEMINI_API_KEY) {
         console.error("❌ [GEN] GEMINI_API_KEY is MISSING in environment.");
@@ -277,22 +364,7 @@ router.post('/quest', authenticateToken, checkExpiredSubscriptions, async (req: 
                 if (realQuestions.length > 0) {
                     console.log(`✅ [GEN] Found ${realQuestions.length} real QuestionBank questions for ${subject}/${grade}/${parsedYear} (Variations: ${gradeVariations.join(', ')})`);
 
-                    const formatted = realQuestions.map((q: any) => {
-                        let options: string[] = [];
-                        try { options = JSON.parse(q.options); } catch { options = ['A', 'B', 'C', 'D']; }
-                        const letterMap: Record<string, number> = { A: 0, B: 1, C: 2, D: 3 };
-                        const correctAnswerIndex = letterMap[q.correctAnswer?.toUpperCase()] ?? 0;
-
-                        return {
-                            id: `real-${q.id}`,
-                            text: q.question,
-                            options,
-                            correctAnswerIndex,
-                            explanation: q.explanation || 'No explanation provided.',
-                            source: q.source || `${subject} ${year}`,
-                            isRealQuestion: true,
-                        };
-                    });
+                    const formatted = formatBankQuestions(realQuestions, `${subject} ${year}`);
 
                     // Return all found questions (max 50 to keep it manageable but satisfying)
                     return res.json(formatted.sort(() => Math.random() - 0.5).slice(0, 50));
@@ -379,7 +451,7 @@ ${syllabus.toLowerCase().includes('igcse') || syllabus.toLowerCase().includes('c
             1. Language: Write the entire output (questions, options, explanations) in ${targetLanguage}.
             2. Format: ${grade} level, ${syllabus} standards
             3. Content: 4 options (A-D), correct index (0-3)
-            `;
+            ${musicPromptRules(syllabus, subject, grade)}`;
         }
 
         prompt += `
@@ -483,6 +555,16 @@ router.post('/syllabus', async (req, res) => {
     const langCode = resolveLangCode(language, subject);
     console.log(`[SYLLABUS] Request: ${subject} / ${grade} / ${syllabus} [lang=${langCode}]${forceRefresh ? ' (FORCE REFRESH)' : ''}`);
 
+    // Curated music topic trees — deterministic, instant, no AI or DB needed.
+    // Served in English for every UI language (Carnatic/ABRSM terms don't translate).
+    if (typeof syllabus === 'string' && isMusicSyllabus(syllabus)) {
+        const curated = getCuratedTopics(syllabus, subject, grade);
+        if (curated) {
+            console.log(`✅ [SYLLABUS] Serving curated music topics for ${subject} / ${grade}`);
+            return res.json(curated);
+        }
+    }
+
     if (isMockMode()) {
         console.log(`✅ [SYLLABUS] Using mock mode, returning mock data`);
         return res.json(generateMockSyllabus());
@@ -524,6 +606,9 @@ router.post('/syllabus', async (req, res) => {
            Example: "Topic 1: Quadratic Functions (Graphs, Roots, Completing the Square)"
         8. UNIVERSAL APPLICABILITY: This must work for ANY subject (Mathematics, Computer Science, Biology, Languages, etc.).
         9. LANGUAGE: The topic names MUST be written in ${targetLanguage}.
+        ${typeof syllabus === 'string' && isMusicSyllabus(syllabus) ? (syllabus === 'Indian Music'
+            ? `10. CARNATIC MUSIC: This is the Akshara Fine Arts Carnatic curriculum for ${subject}. Use authentic Carnatic terminology (swara, shruti, tala, raga, sarali/janta/dhatu varisai, alankaram, geetham, varnam, kriti, sollukattu). Topics must fit ${grade} only — never include higher-grade concepts.`
+            : `10. WESTERN MUSIC: Follow ABRSM/Trinity graded standards for ${subject} at ${grade}. Cover notation, scales, intervals, chords, musical terms, composers and instrument technique appropriate to this grade only.`) : ''}
 
         JSON SPECIFICATION:
         Return ONLY a JSON object with a "topics" key containing a flat array of strings.

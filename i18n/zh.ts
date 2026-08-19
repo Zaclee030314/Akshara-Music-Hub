@@ -266,6 +266,8 @@ const zh: Record<string, string> = {
   'setup.primary': '小学',
   'setup.secondary': '中学',
   'setup.advanced': '高级 / 大学先修',
+  'setup.musicFoundation': '基础级别',
+  'setup.musicAdvanced': '高级级别',
   'setup.step3': '3. 选择科目',
   'setup.selectGradeFirst': '请先选择年级以查看可用科目',
   'setup.step4': '4. 选择主题',

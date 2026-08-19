@@ -139,9 +139,9 @@ export const SeasonShowcase: React.FC<Props> = ({ onJoin }) => {
                                     >
                                         {rankIcon(w.rank)}
                                         {w.avatar ? (
-                                            <img src={w.avatar} alt={w.name} className="w-9 h-9 rounded-full object-cover" />
+                                            <img src={w.avatar} alt={w.name} className="w-9 h-9 shrink-0 rounded-full object-cover" />
                                         ) : (
-                                            <UserCircle2 size={28} className="text-brand-dark/30" />
+                                            <UserCircle2 size={36} className="shrink-0 text-brand-dark/30" />
                                         )}
                                         <div className="min-w-0 flex-1">
                                             <p className="font-bold text-brand-dark truncate">{w.name}</p>

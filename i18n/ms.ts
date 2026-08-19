@@ -266,6 +266,8 @@ const ms: Record<string, string> = {
   'setup.primary': 'Rendah',
   'setup.secondary': 'Menengah',
   'setup.advanced': 'Lanjutan / Pra-U',
+  'setup.musicFoundation': 'Gred Asas',
+  'setup.musicAdvanced': 'Gred Lanjutan',
   'setup.step3': '3. Pilih Subjek',
   'setup.selectGradeFirst': 'Pilih tahun dahulu untuk melihat subjek yang tersedia',
   'setup.step4': '4. Pilih Topik',

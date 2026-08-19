@@ -266,6 +266,8 @@ const en: Record<string, string> = {
   'setup.primary': 'Primary / Elementary',
   'setup.secondary': 'Secondary / Middle School',
   'setup.advanced': 'Advanced / Pre-U',
+  'setup.musicFoundation': 'Foundation Grades',
+  'setup.musicAdvanced': 'Advanced Grades',
   'setup.step3': '3. Choose Subject',
   'setup.selectGradeFirst': 'Select a grade first to see available subjects',
   'setup.step4': '4. Select Topic',

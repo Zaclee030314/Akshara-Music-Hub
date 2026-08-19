@@ -48,11 +48,12 @@ export const LeaderboardRow: React.FC<Props> = ({ player, unitLabel }) => {
                         <img
                             src={player.avatar}
                             alt={player.name}
-                            className={`w-10 h-10 shrink-0 rounded-full object-cover border-2 ${isCurrentUser ? 'border-brand-blue' : 'border-gray-200'}`}
+                            className={`w-14 h-14 shrink-0 rounded-full object-cover border-2 ${isCurrentUser ? 'border-brand-blue' : 'border-gray-200'}`}
                         />
                     ) : (
+                        // p-2 (8px) + icon 40px = 56px — keep in lockstep with the w-14 image above
                         <div className={`p-2 shrink-0 rounded-full ${isCurrentUser ? 'bg-brand-blue/20 text-brand-blue' : 'bg-gray-200 text-gray-500'}`}>
-                            <UserCircle2 size={24} />
+                            <UserCircle2 size={40} />
                         </div>
                     )}
                     <div className="min-w-0">

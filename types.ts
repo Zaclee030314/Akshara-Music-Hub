@@ -16,7 +16,20 @@ export enum Subject {
   BUSINESS = 'Business Studies',
   COMPUTER_SCIENCE = 'Computer Science',
   MUSIC_THEORY = 'Music Theory',
-  AURAL_PRACTICAL = 'Aural & Practical'
+  /** @deprecated No longer offered in pickers; kept because historical Results/Quests store this string. */
+  AURAL_PRACTICAL = 'Aural & Practical',
+  // Indian Music (Carnatic) — instrument subjects (Akshara Fine Arts, Grades 1-10)
+  SANGEETHAM = 'Sangeetham (Vocal)',
+  MRIDANGAM = 'Mridangam',
+  VEENA = 'Veena',
+  KEYBOARD_CARNATIC = 'Keyboard (Carnatic)',
+  HARMONIUM = 'Harmonium',
+  TABLA = 'Tabla',
+  // Western Music — instrument subjects (Grades 1-8; MUSIC_THEORY above is reused)
+  PIANO = 'Piano',
+  VIOLIN = 'Violin',
+  GUITAR = 'Guitar',
+  WESTERN_VOCAL = 'Vocal (Western)'
 }
 
 export enum Syllabus {
@@ -62,7 +75,7 @@ export enum GradeLevel {
   SEC_3 = 'Secondary 3',
   SEC_4 = 'Secondary 4',
   SEC_5 = 'Secondary 5',
-  // Music (Western & Indian)
+  // Music (Western: Grade 1-8; Indian: Grade 1-10)
   MUSIC_GRADE_1 = 'Grade 1',
   MUSIC_GRADE_2 = 'Grade 2',
   MUSIC_GRADE_3 = 'Grade 3',
@@ -70,7 +83,9 @@ export enum GradeLevel {
   MUSIC_GRADE_5 = 'Grade 5',
   MUSIC_GRADE_6 = 'Grade 6',
   MUSIC_GRADE_7 = 'Grade 7',
-  MUSIC_GRADE_8 = 'Grade 8'
+  MUSIC_GRADE_8 = 'Grade 8',
+  MUSIC_GRADE_9 = 'Grade 9',
+  MUSIC_GRADE_10 = 'Grade 10'
 }
 
 export interface Question {

@@ -1,0 +1,710 @@
+{
+  "shuffle": true,
+  "defaults": {
+    "subject": "Sangeetham (Vocal)",
+    "grade": "Grade 8",
+    "syllabus": "Indian Music"
+  },
+  "questions": [
+    {
+      "id": "seed-sgt-g8-001",
+      "topic": "Kriti",
+      "question": "What is a Kriti?",
+      "options": [
+        "A basic scale exercise",
+        "A mature Carnatic composition",
+        "A Tala hand movement",
+        "A percussion pattern"
+      ],
+      "correctIndex": 1,
+      "difficulty": "Easy",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-002",
+      "topic": "Kriti",
+      "question": "A Kriti mainly combines music with:",
+      "options": [
+        "Exercise and speed only",
+        "Devotion, poetry and raga depth",
+        "Dance movements only",
+        "Instrument tuning only"
+      ],
+      "correctIndex": 1,
+      "difficulty": "Easy",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-003",
+      "topic": "Kriti",
+      "question": "Which composition is generally simpler than a Kriti?",
+      "options": [
+        "Geetham",
+        "Kriti",
+        "Charanam",
+        "Sangati"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Easy",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-004",
+      "topic": "Kriti",
+      "question": "Which composition is mainly used to develop raga, voice and rhythmic control?",
+      "options": [
+        "Kriti",
+        "Varnam",
+        "Pallavi",
+        "Sahitya"
+      ],
+      "correctIndex": 1,
+      "difficulty": "Easy",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-005",
+      "topic": "Kriti",
+      "question": "How many main sections are commonly found in a Kriti?",
+      "options": [
+        "Two",
+        "Three",
+        "Four",
+        "Five"
+      ],
+      "correctIndex": 1,
+      "difficulty": "Easy",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-006",
+      "topic": "Kriti",
+      "question": "Which is the opening section of a Kriti?",
+      "options": [
+        "Charanam",
+        "Anupallavi",
+        "Pallavi",
+        "Sangati"
+      ],
+      "correctIndex": 2,
+      "difficulty": "Easy",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-007",
+      "topic": "Kriti",
+      "question": "Which section usually follows the Pallavi?",
+      "options": [
+        "Anupallavi",
+        "Geetham",
+        "Varnam",
+        "Eduppu"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Easy",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-008",
+      "topic": "Kriti",
+      "question": "Which section usually contains an expanded or concluding lyrical message?",
+      "options": [
+        "Pallavi",
+        "Charanam",
+        "Eduppu",
+        "Sangati"
+      ],
+      "correctIndex": 1,
+      "difficulty": "Easy",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-009",
+      "topic": "Kriti",
+      "question": "Which of the following is a major Carnatic composer?",
+      "options": [
+        "Tyagaraja",
+        "Kalidasa",
+        "Tansen",
+        "Valmiki"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Easy",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-010",
+      "topic": "Kriti",
+      "question": "Tyagaraja is especially known for:",
+      "options": [
+        "Devotional Carnatic compositions",
+        "Western orchestral works",
+        "Tabla compositions",
+        "Dance choreography"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Easy",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-011",
+      "topic": "Kriti",
+      "question": "Muthuswami Dikshitar composed many songs in:",
+      "options": [
+        "English",
+        "Sanskrit",
+        "French",
+        "Arabic"
+      ],
+      "correctIndex": 1,
+      "difficulty": "Easy",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-012",
+      "topic": "Kriti",
+      "question": "Syama Sastri is remembered as:",
+      "options": [
+        "A major Carnatic composer",
+        "A percussion instrument",
+        "A Tala movement",
+        "A type of Sangati"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Easy",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-013",
+      "topic": "Kriti",
+      "question": "Purandaradasa contributed greatly to:",
+      "options": [
+        "Carnatic music teaching and devotional composition",
+        "Western piano technique",
+        "Film direction",
+        "Instrument manufacturing"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Easy",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-014",
+      "topic": "Kriti",
+      "question": "What does Sahitya mean?",
+      "options": [
+        "The Tala speed",
+        "The lyrics of a composition",
+        "The pitch of the Tambura",
+        "The ending beat"
+      ],
+      "correctIndex": 1,
+      "difficulty": "Easy",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-015",
+      "topic": "Kriti",
+      "question": "What is a Sangati?",
+      "options": [
+        "A melodic variation of a lyrical line",
+        "A composer's name",
+        "A percussion instrument",
+        "A type of posture"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Easy",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-016",
+      "topic": "Kriti",
+      "question": "Why should a student understand the Sahitya of a Kriti?",
+      "options": [
+        "To sing faster",
+        "To communicate its meaning and emotion",
+        "To avoid keeping Tala",
+        "To change the composition"
+      ],
+      "correctIndex": 1,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-017",
+      "topic": "Kriti",
+      "question": "Word meaning explains:",
+      "options": [
+        "The meaning of each word in the lyrics",
+        "The speed of the song",
+        "The posture of the singer",
+        "The number of Sangatis"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-018",
+      "topic": "Kriti",
+      "question": "Devotional meaning explains:",
+      "options": [
+        "The deeper spiritual or emotional message",
+        "The number of beats",
+        "The order of the composers",
+        "The volume of the voice"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-019",
+      "topic": "Kriti",
+      "question": "Why is correct pronunciation important?",
+      "options": [
+        "It preserves the meaning of the lyrics",
+        "It increases the speed automatically",
+        "It changes the Tala",
+        "It removes the need for Bhava"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-020",
+      "topic": "Kriti",
+      "question": "A simple Sangati is:",
+      "options": [
+        "An easy melodic variation of a line",
+        "A completely different song",
+        "A Tala cycle",
+        "A composer's signature"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-021",
+      "topic": "Kriti",
+      "question": "A progressive Sangati:",
+      "options": [
+        "Gradually develops the melodic line",
+        "Removes the original lyrics",
+        "Changes the composer",
+        "Always begins before the beat"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-022",
+      "topic": "Kriti",
+      "question": "Controlled variation means:",
+      "options": [
+        "Singing Sangatis accurately and with discipline",
+        "Changing every note freely",
+        "Singing without Tala",
+        "Singing as loudly as possible"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-023",
+      "topic": "Kriti",
+      "question": "What is Eduppu?",
+      "options": [
+        "The entry point of a composition in relation to Tala",
+        "The final word of the Charanam",
+        "The composer's name",
+        "The meaning of the Sahitya"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-024",
+      "topic": "Kriti",
+      "question": "In Samam Eduppu, the composition begins:",
+      "options": [
+        "Exactly on the main beat",
+        "Before the main beat",
+        "After the main beat",
+        "Without Tala"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-025",
+      "topic": "Kriti",
+      "question": "A before-beat Eduppu begins:",
+      "options": [
+        "Before the main Tala beat",
+        "Exactly on the main beat",
+        "After the entire composition",
+        "Only during the Charanam"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-026",
+      "topic": "Kriti",
+      "question": "An after-beat Eduppu begins:",
+      "options": [
+        "After the main Tala beat",
+        "Before the Tala begins",
+        "Exactly with the main beat",
+        "Without any rhythm"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-027",
+      "topic": "Kriti",
+      "question": "The teacher begins the Tala, and the student starts singing exactly on the first beat. This is:",
+      "options": [
+        "Samam Eduppu",
+        "Before-beat Eduppu",
+        "After-beat Eduppu",
+        "Progressive Sangati"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-028",
+      "topic": "Kriti",
+      "question": "The Tala begins first, and the singer enters slightly later. This is:",
+      "options": [
+        "After-beat Eduppu",
+        "Samam Eduppu",
+        "Pallavi",
+        "Simple Sangati"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-029",
+      "topic": "Kriti",
+      "question": "The singer begins the musical phrase just before the main Tala beat. This is:",
+      "options": [
+        "Before-beat Eduppu",
+        "After-beat Eduppu",
+        "Samam Eduppu",
+        "Charanam"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-030",
+      "topic": "Kriti",
+      "question": "What does Bhava mean in Kriti singing?",
+      "options": [
+        "Expression of meaning and emotion",
+        "Singing at maximum speed",
+        "Changing the lyrics",
+        "Avoiding pronunciation"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-031",
+      "topic": "Kriti",
+      "question": "Which action shows respect for the composer?",
+      "options": [
+        "Preserving the lyrics and melody carefully",
+        "Changing the words without reason",
+        "Ignoring the pronunciation",
+        "Singing without understanding"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-032",
+      "topic": "Kriti",
+      "question": "Which is a quality of confident Kriti delivery?",
+      "options": [
+        "Clear pronunciation",
+        "Careless entry",
+        "Uncontrolled variation",
+        "Incorrect lyrics"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-033",
+      "topic": "Kriti",
+      "question": "A student sings the notes correctly but does not understand the words. What should the student improve?",
+      "options": [
+        "Sahitya meaning and Bhava",
+        "Sitting height only",
+        "Instrument tuning",
+        "Hand movements"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-034",
+      "topic": "Kriti",
+      "question": "What may happen when Sangatis are sung without control?",
+      "options": [
+        "The melody and lyrics may become unclear",
+        "The composer changes",
+        "The Kriti becomes a Geetham",
+        "The Tala disappears permanently"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-035",
+      "topic": "Kriti",
+      "question": "What is the main function of the Charanam?",
+      "options": [
+        "To expand or complete the lyrical message",
+        "To begin the Kriti",
+        "To name the Tala",
+        "To tune the voice"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Medium",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-036",
+      "topic": "Kriti",
+      "question": "A section introduces the main musical and lyrical idea of a Kriti. Which section is it?",
+      "options": [
+        "Pallavi",
+        "Anupallavi",
+        "Charanam",
+        "Sahitya"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Hard",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-037",
+      "topic": "Kriti",
+      "question": "A section is sung after the Pallavi and develops its musical idea further. Which section is it?",
+      "options": [
+        "Anupallavi",
+        "Charanam",
+        "Geetham",
+        "Eduppu"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Hard",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-038",
+      "topic": "Kriti",
+      "question": "Which statement correctly compares a Geetham and a Kriti?",
+      "options": [
+        "A Geetham is simple, while a Kriti has greater musical and lyrical depth",
+        "A Kriti is always simpler than a Geetham",
+        "Both have no lyrics",
+        "A Geetham contains more Sangatis than every Kriti"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Hard",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-039",
+      "topic": "Kriti",
+      "question": "Which statement correctly compares a Varnam and a Kriti?",
+      "options": [
+        "A Varnam develops musical control, while a Kriti gives greater importance to Sahitya and devotion",
+        "A Kriti has no raga",
+        "A Varnam has no melody",
+        "Both are only Tala exercises"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Hard",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-040",
+      "topic": "Kriti",
+      "question": "During a listening test, the same lyrical line is repeated with increasingly developed melodic forms. What is being demonstrated?",
+      "options": [
+        "Progressive Sangati",
+        "Samam Eduppu",
+        "Charanam",
+        "Word meaning"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Hard",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-041",
+      "topic": "Kriti",
+      "question": "Which method is most suitable for identifying the Eduppu of a Kriti?",
+      "options": [
+        "Keep Tala steadily and observe when the song enters",
+        "Ignore the Tala and listen only to volume",
+        "Count the number of words",
+        "Observe the singer's clothing"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Hard",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-042",
+      "topic": "Kriti",
+      "question": "How can incorrect pronunciation affect Bhava?",
+      "options": [
+        "It can change the meaning and weaken the expression",
+        "It automatically improves the emotion",
+        "It creates Samam Eduppu",
+        "It changes the Pallavi into a Charanam"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Hard",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-043",
+      "topic": "Kriti",
+      "question": "Which student is showing the greatest respect for the composition?",
+      "options": [
+        "A student who learns the meaning and pronounces the lyrics carefully",
+        "A student who changes the melody to appear creative",
+        "A student who sings without keeping Tala",
+        "A student who ignores the composer"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Hard",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-044",
+      "topic": "Kriti",
+      "question": "Which is the best example of dignified Kriti presentation?",
+      "options": [
+        "Clear lyrics, suitable expression and controlled singing",
+        "Loud singing without meaning",
+        "Fast singing with incorrect pronunciation",
+        "Random melodic changes"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Hard",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-045",
+      "topic": "Kriti",
+      "question": "The lyrics remain the same, but the melody changes in a disciplined manner. This is called:",
+      "options": [
+        "Sangati",
+        "Eduppu",
+        "Sahitya",
+        "Charanam"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Hard",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-046",
+      "topic": "Kriti",
+      "question": "Which option gives the correct order of the three main Kriti sections?",
+      "options": [
+        "Pallavi, Anupallavi, Charanam",
+        "Charanam, Pallavi, Anupallavi",
+        "Anupallavi, Charanam, Pallavi",
+        "Sangati, Eduppu, Sahitya"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Hard",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-047",
+      "topic": "Kriti",
+      "question": "Which is the most complete description of a Kriti?",
+      "options": [
+        "A mature Carnatic composition containing music, lyrics, devotion, poetry and raga depth",
+        "A basic voice-warming exercise without lyrics",
+        "A percussion pattern used before a concert",
+        "A simple Tala hand movement"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Hard",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-048",
+      "topic": "Kriti",
+      "question": "Before learning to present an unfamiliar Kriti, what should a student study?",
+      "options": [
+        "The lyrics, pronunciation, meaning and structure",
+        "Only the final note",
+        "Only the volume level",
+        "Only the composer's photograph"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Hard",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-049",
+      "topic": "Kriti",
+      "question": "Which composer-description pair is correctly matched?",
+      "options": [
+        "Muthuswami Dikshitar — known for many Sanskrit compositions",
+        "Tyagaraja — creator of Western opera",
+        "Syama Sastri — percussion instrument maker",
+        "Purandaradasa — film music director"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Hard",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    },
+    {
+      "id": "seed-sgt-g8-050",
+      "topic": "Kriti",
+      "question": "During an assessment, which group of qualities should the examiner observe in a Kriti presentation?",
+      "options": [
+        "Pronunciation, Sangati control, Bhava and confidence",
+        "Clothing, height, age and handwriting",
+        "Speed alone",
+        "Loudness alone"
+      ],
+      "correctIndex": 0,
+      "difficulty": "Hard",
+      "source": "Akshara Fine Arts Official Bank — Sangeetham Grade 8 Kriti"
+    }
+  ]
+}

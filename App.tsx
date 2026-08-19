@@ -71,12 +71,24 @@ const SUBJECTS = [
   { id: Subject.BUSINESS, icon: <span className="text-2xl">💼</span>, color: 'bg-amber-100' },
   { id: Subject.COMPUTER_SCIENCE, icon: <span className="text-2xl">💻</span>, color: 'bg-slate-200' },
   { id: Subject.MUSIC_THEORY, icon: <span className="text-2xl">🎼</span>, color: 'bg-rose-100' },
-  { id: Subject.AURAL_PRACTICAL, icon: <span className="text-2xl">🎧</span>, color: 'bg-violet-100' },
+  // Indian Music (Carnatic) — Akshara Fine Arts instrument subjects
+  { id: Subject.SANGEETHAM, icon: <span className="text-2xl">🎙️</span>, color: 'bg-rose-100' },
+  { id: Subject.MRIDANGAM, icon: <span className="text-2xl">🥁</span>, color: 'bg-amber-100' },
+  { id: Subject.VEENA, icon: <span className="text-2xl">🪕</span>, color: 'bg-orange-100' },
+  { id: Subject.KEYBOARD_CARNATIC, icon: <span className="text-2xl">🎹</span>, color: 'bg-fuchsia-100' },
+  { id: Subject.HARMONIUM, icon: <span className="text-2xl">🪗</span>, color: 'bg-lime-100' },
+  { id: Subject.TABLA, icon: <span className="text-2xl">🥁</span>, color: 'bg-stone-200' },
+  // Western Music — instrument subjects
+  { id: Subject.PIANO, icon: <span className="text-2xl">🎹</span>, color: 'bg-sky-100' },
+  { id: Subject.VIOLIN, icon: <span className="text-2xl">🎻</span>, color: 'bg-violet-100' },
+  { id: Subject.GUITAR, icon: <span className="text-2xl">🎸</span>, color: 'bg-emerald-100' },
+  { id: Subject.WESTERN_VOCAL, icon: <span className="text-2xl">🎤</span>, color: 'bg-pink-100' },
 ];
 
 import { useNavigate, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { getSyllabusesByCountry, getGradesBySyllabus } from './lib/curriculum';
+import { musicSubjectsFor } from './lib/musicSubjects';
 
 export default function App() {
   const { user, login, signup, verifyCode, resendCode, logout, subscribe, refreshUser, isLoading: authLoading } = useAuth();
@@ -433,10 +445,8 @@ export default function App() {
 
     // ─── Music (Western & Indian) ──────────────────────────────────────────────
     if (syllabus === Syllabus.WESTERN_MUSIC || syllabus === Syllabus.INDIAN_MUSIC || grade.startsWith('Grade ')) {
-      return SUBJECTS.filter(s => [
-        Subject.MUSIC_THEORY,
-        Subject.AURAL_PRACTICAL,
-      ].includes(s.id as Subject));
+      const musicSubjects = musicSubjectsFor(syllabus);
+      return SUBJECTS.filter(s => musicSubjects.includes(s.id as Subject));
     }
 
     // ─── UEC (Unified Examination Certificate) ─────────────────────────────────
@@ -934,7 +944,8 @@ export default function App() {
             totalQuestions: questions.length,
             subject: gameMode === 'AI' ? selectedSubject : selectedCustomQuest?.subject,
             topic: gameMode === 'AI' ? selectedTopic : undefined,
-            grade: selectedCustomQuest?.grade || selectedGrade
+            grade: selectedCustomQuest?.grade || selectedGrade,
+            syllabus: gameMode === 'AI' ? selectedSyllabus : undefined
           })
         });
         if (res.ok) {
@@ -1812,7 +1823,7 @@ export default function App() {
                     <>
                       {grades.primary.length > 0 && (
                         <div>
-                          <span className="text-xs font-bold text-brand-dark/40 mb-2 block uppercase">{t('setup.primary')}</span>
+                          <span className="text-xs font-bold text-brand-dark/40 mb-2 block uppercase">{(selectedSyllabus === Syllabus.WESTERN_MUSIC || selectedSyllabus === Syllabus.INDIAN_MUSIC) ? t('setup.musicFoundation') : t('setup.primary')}</span>
                           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
                             {grades.primary.map((grade) => (
                               <button
@@ -1828,7 +1839,7 @@ export default function App() {
                       )}
                       {grades.secondary.length > 0 && (
                         <div>
-                          <span className="text-xs font-bold text-brand-dark/40 mb-2 block uppercase">{t('setup.secondary')}</span>
+                          <span className="text-xs font-bold text-brand-dark/40 mb-2 block uppercase">{(selectedSyllabus === Syllabus.WESTERN_MUSIC || selectedSyllabus === Syllabus.INDIAN_MUSIC) ? t('setup.musicAdvanced') : t('setup.secondary')}</span>
                           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
                             {grades.secondary.map((grade) => (
                               <button
@@ -2203,7 +2214,7 @@ export default function App() {
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
                   title="Profile Menu"
                 >
-                  {user.avatar ? <img src={user.avatar} alt="avatar" /> : user.name.charAt(0)}
+                  {user.avatar ? <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" /> : user.name.charAt(0)}
                 </div>
 
                 {showProfileMenu && (

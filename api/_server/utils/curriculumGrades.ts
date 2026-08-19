@@ -10,8 +10,12 @@ const YEARS = [
     'Year 8', 'Year 9', 'Year 10', 'Year 11', 'Year 12', 'Year 13'
 ];
 const SECONDARIES = ['Secondary 1', 'Secondary 2', 'Secondary 3', 'Secondary 4', 'Secondary 5'];
-const MUSIC_GRADES = [
+const MUSIC_GRADES_WESTERN = [
     'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6', 'Grade 7', 'Grade 8'
+];
+const MUSIC_GRADES_INDIAN = [
+    'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5',
+    'Grade 6', 'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10'
 ];
 
 // The 7 Syllabus enum string values.
@@ -39,8 +43,9 @@ export const gradesForSyllabus = (syllabus: string): string[] => {
         case 'Unified Examination Certificate (UEC)':
             return [...FORMS];
         case 'Western Music':
+            return [...MUSIC_GRADES_WESTERN];
         case 'Indian Music':
-            return [...MUSIC_GRADES];
+            return [...MUSIC_GRADES_INDIAN];
         case 'Malaysia National Curriculum':
         default:
             return [...STANDARDS, ...FORMS];
