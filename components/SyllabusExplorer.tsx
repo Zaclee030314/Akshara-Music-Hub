@@ -85,7 +85,6 @@ const SUBJECT_DATA: Record<string, { name: string; subjects: any[]; syllabus?: S
             name: 'Western Music (Grade 1-8)',
             syllabus: Syllabus.WESTERN_MUSIC,
             subjects: [
-                { id: Subject.MUSIC_THEORY, label: 'Music Theory', icon: '🎼', color: 'bg-rose-100 text-rose-700' },
                 { id: Subject.PIANO, label: 'Piano', icon: '🎹', color: 'bg-sky-100 text-sky-700' },
                 { id: Subject.VIOLIN, label: 'Violin', icon: '🎻', color: 'bg-violet-100 text-violet-700' },
                 { id: Subject.GUITAR, label: 'Guitar', icon: '🎸', color: 'bg-emerald-100 text-emerald-700' },

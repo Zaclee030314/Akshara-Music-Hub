@@ -29,6 +29,7 @@ interface SeedQuestion {
     correctIndex: number;
     explanation?: string;
     difficulty: string;
+    classification?: string; // "Theory" | "Practical"; absent = fits both focuses
     source: string;
     subject?: string;
     grade?: string;
@@ -104,6 +105,7 @@ async function main() {
                 correctAnswer: 'ABCD'[correctIndex],
                 explanation: q.explanation ?? 'This is the correct answer according to the official Akshara Fine Arts curriculum.',
                 difficulty: q.difficulty,
+                classification: q.classification ?? null,
                 source: q.source
             };
 

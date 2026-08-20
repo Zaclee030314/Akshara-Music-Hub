@@ -76,7 +76,19 @@ const INDIAN_TECHNIQUE_FOCUS: Record<string, string> = {
     'Harmonium': 'left-hand bellows control, right-hand fingering, and swara-to-key mapping (always state the selected Sa)'
 };
 
-const musicPromptRules = (syllabus: string, subject: string, grade: string): string => {
+// focus: 'Theory' | 'Aural & Practical' — the per-instrument study focus
+// chosen by the student. Undefined = mixed.
+const musicFocusRules = (subject: string, focus?: string): string => {
+    if (focus === 'Theory') {
+        return `- STUDY FOCUS = THEORY: Test concepts, definitions, terminology, notation, structure, history and composers relevant to ${subject}. Avoid pure playing-technique questions.`;
+    }
+    if (focus === 'Aural & Practical') {
+        return `- STUDY FOCUS = AURAL & PRACTICAL: Test playing technique, fingering/hand method, posture, practice discipline, and listening scenarios described in words (e.g. "the teacher plays a note higher than Sa — what should the student notice?"). Avoid pure book-theory questions.`;
+    }
+    return '- STUDY FOCUS: Mix theory and practical questions.';
+};
+
+const musicPromptRules = (syllabus: string, subject: string, grade: string, focus?: string): string => {
     if (!isMusicSyllabus(syllabus)) return '';
     const curated = getCuratedTopics(syllabus, subject, grade);
     const gradeProtection = curated
@@ -90,6 +102,7 @@ MUSIC SYLLABUS RULES (Indian Music — Carnatic):
 - Use authentic Carnatic terminology: swara (Sa Ri Ga Ma Pa Da Ni), shruti, sthayi, tala (Adi, Rupaka, Eka, Misra Chapu, Khanda Chapu), raga, sarali/janta/dhatu varisai, alankaram, geetham, varnam, kriti, sollukattu.
 - Anchor beginner content (Grades 1-3) on raga Mayamalavagowla.
 - Emphasise ${subject}-specific technique: ${INDIAN_TECHNIQUE_FOCUS[subject] || 'instrument technique and theory'}.
+${musicFocusRules(subject, focus)}
 - Questions must be answerable in text form without audio or images — describe sounds and techniques in words.
 ${gradeProtection}
 `;
@@ -98,6 +111,7 @@ ${gradeProtection}
 MUSIC SYLLABUS RULES (Western Music):
 - This is an ABRSM/Trinity-style graded music examination for ${subject}, ${grade} (Grades 1-8).
 - Cover grade-appropriate content: staff notation, note values, time signatures, scales and key signatures, intervals, chords and cadences, musical terms (Italian/German/French), composers and periods${subject !== 'Music Theory' ? `, plus ${subject}-specific technique and repertoire knowledge` : ''}.
+${musicFocusRules(subject, focus)}
 - Describe any staff-notation content in WORDS only (e.g. "the note on the second line of the treble clef") — no images are available.
 ${gradeProtection}
 `;
@@ -252,7 +266,7 @@ const superRepairJSON = (text: string): any => {
 
 // ... Limit Check & Increment ...
 router.post('/quest', authenticateToken, checkExpiredSubscriptions, async (req: AuthRequest, res) => {
-    const { subject, grade, topic, syllabus, isPastYear, year, language } = req.body;
+    const { subject, grade, topic, syllabus, isPastYear, year, language, focus } = req.body;
     const userId = req.user?.id;
 
     if (userId) {
@@ -293,6 +307,13 @@ router.post('/quest', authenticateToken, checkExpiredSubscriptions, async (req: 
             let rows = await prisma.questionBank.findMany({
                 where: { subject, grade, syllabus }
             });
+            // Soft focus filter: prefer questions matching the chosen study focus
+            // (Theory vs Aural & Practical); rows with no classification fit both.
+            if (focus && rows.length > 0) {
+                const wanted = focus === 'Theory' ? 'Theory' : 'Practical';
+                const byFocus = rows.filter((r: any) => !r.classification || r.classification === wanted);
+                if (byFocus.length >= 12) rows = byFocus;
+            }
             // Soft topic filter: prefer questions tagged with the chosen topic,
             // but never shrink below a serveable pool.
             if (topic && topic !== 'Full Paper' && rows.length > 0) {
@@ -451,7 +472,7 @@ ${syllabus.toLowerCase().includes('igcse') || syllabus.toLowerCase().includes('c
             1. Language: Write the entire output (questions, options, explanations) in ${targetLanguage}.
             2. Format: ${grade} level, ${syllabus} standards
             3. Content: 4 options (A-D), correct index (0-3)
-            ${musicPromptRules(syllabus, subject, grade)}`;
+            ${musicPromptRules(syllabus, subject, grade, focus)}`;
         }
 
         prompt += `

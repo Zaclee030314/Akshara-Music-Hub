@@ -3,8 +3,9 @@ import { Subject, Syllabus } from '../types';
 // Single frontend source of truth for which subjects belong to each music syllabus.
 // Keep in sync with the AI prompt rules in api/_server/routes/generation.ts.
 
+// Instruments only — each instrument then splits into a "Theory" or
+// "Aural & Practical" study focus (MUSIC_FOCUSES below).
 export const WESTERN_MUSIC_SUBJECTS: Subject[] = [
-    Subject.MUSIC_THEORY,
     Subject.PIANO,
     Subject.VIOLIN,
     Subject.GUITAR,
@@ -19,6 +20,12 @@ export const INDIAN_MUSIC_SUBJECTS: Subject[] = [
     Subject.HARMONIUM,
     Subject.TABLA
 ];
+
+// Per-instrument study focus: every music quest is either Theory (concepts,
+// notation, terminology, structure) or Aural & Practical (technique, playing
+// method, listening, performance practice).
+export type MusicFocus = 'Theory' | 'Aural & Practical';
+export const MUSIC_FOCUSES: MusicFocus[] = ['Theory', 'Aural & Practical'];
 
 /** Subjects offered under a music syllabus; union when the syllabus is unknown. */
 export const musicSubjectsFor = (syllabus: Syllabus | string | null | undefined): Subject[] => {

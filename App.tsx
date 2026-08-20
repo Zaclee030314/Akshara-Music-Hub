@@ -88,7 +88,7 @@ const SUBJECTS = [
 import { useNavigate, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { getSyllabusesByCountry, getGradesBySyllabus } from './lib/curriculum';
-import { musicSubjectsFor } from './lib/musicSubjects';
+import { musicSubjectsFor, MUSIC_FOCUSES, MusicFocus } from './lib/musicSubjects';
 
 export default function App() {
   const { user, login, signup, verifyCode, resendCode, logout, subscribe, refreshUser, isLoading: authLoading } = useAuth();
@@ -159,6 +159,8 @@ export default function App() {
   const [topics, setTopics] = useState<string[]>([]);
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [loadingTopics, setLoadingTopics] = useState(false);
+  // Music-only: per-instrument study focus (Theory vs Aural & Practical)
+  const [selectedMusicFocus, setSelectedMusicFocus] = useState<MusicFocus>('Theory');
 
   // Custom Quest State
   const [customQuests, setCustomQuests] = useState<CustomQuest[]>([]);
@@ -880,13 +882,15 @@ export default function App() {
     }
 
     try {
+      const isMusicSetup = selectedSyllabus === Syllabus.WESTERN_MUSIC || selectedSyllabus === Syllabus.INDIAN_MUSIC;
       const generatedQuestions = await geminiService.generateContent(
         selectedSubject,
         selectedGrade,
         gameMode === 'PAST_YEAR' ? 'Full Exam Paper' : selectedTopic!,
         selectedSyllabus,
         gameMode === 'PAST_YEAR',
-        selectedYear || undefined
+        selectedYear || undefined,
+        isMusicSetup ? selectedMusicFocus : undefined
       );
 
       if (generatedQuestions.length > 0) {
@@ -1898,6 +1902,25 @@ export default function App() {
                 </div>
               )}
             </div>
+
+            {/* Step 3b (music only): Study Focus — Theory vs Aural & Practical */}
+            {(selectedSyllabus === Syllabus.WESTERN_MUSIC || selectedSyllabus === Syllabus.INDIAN_MUSIC) && (
+              <div className="mb-8">
+                <label className="block text-sm font-bold text-brand-dark/60 uppercase tracking-wider mb-3">{t('setup.stepFocus')}</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg">
+                  {MUSIC_FOCUSES.map((focus) => (
+                    <button
+                      key={focus}
+                      onClick={() => setSelectedMusicFocus(focus)}
+                      className={`p-3 py-4 rounded-xl border-2 font-bold text-sm transition-all flex items-center justify-center gap-2 ${selectedMusicFocus === focus ? 'border-brand-blue bg-blue-50 text-brand-blue' : 'border-transparent bg-brand-dark/5 hover:bg-brand-dark/10'}`}
+                    >
+                      <span className="text-xl">{focus === 'Theory' ? '🎼' : '🎧'}</span>
+                      {focus === 'Theory' ? t('setup.focusTheory') : t('setup.focusAural')}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Step 4: Topic Selection */}
             <div className="flex justify-between items-center mb-3">

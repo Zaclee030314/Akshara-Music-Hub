@@ -248,11 +248,12 @@ model QuestionBank {
   topic         String
   subtopic      String?
   year          Int      // e.g., 2023
-  question      String   
+  question      String
   options       String    // JSON string: ["A", "B", "C", "D"]
   correctAnswer String
-  explanation   String   
+  explanation   String
   difficulty    String   // Easy, Medium, Hard
+  classification String? // Music focus: "Theory" | "Practical" (null = fits both)
   source        String?  // e.g., "SPM 2023 Paper 1"
   createdAt     DateTime @default(now())
 

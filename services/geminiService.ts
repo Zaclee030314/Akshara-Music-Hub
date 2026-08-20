@@ -51,7 +51,7 @@ const generateMockSyllabus = async (subject: string, grade: string, syllabus: st
   return ["Mock Topic 1", "Mock Topic 2", "Mock Topic 3", "Mock Topic 4", "Mock Topic 5"];
 };
 
-const generateContent = async (subject: Subject, grade: GradeLevel, topic: string, syllabus: Syllabus, isPastYear?: boolean, year?: string): Promise<Question[]> => {
+const generateContent = async (subject: Subject, grade: GradeLevel, topic: string, syllabus: Syllabus, isPastYear?: boolean, year?: string, focus?: string): Promise<Question[]> => {
   if (isMockMode) {
     return generateMockContent(subject, grade, topic, syllabus, isPastYear, year);
   }
@@ -68,7 +68,7 @@ const generateContent = async (subject: Subject, grade: GradeLevel, topic: strin
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ subject, grade, topic, syllabus, isPastYear, year, language: currentLang() }),
+      body: JSON.stringify({ subject, grade, topic, syllabus, isPastYear, year, language: currentLang(), focus }),
     });
 
     if (!response.ok) {
