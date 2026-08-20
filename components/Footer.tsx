@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, Facebook, Instagram, Twitter, Youtube, Mail } from 'lucide-react';
+import { Facebook, Instagram, Twitter, Youtube, Mail } from 'lucide-react';
 import { useT } from '../contexts/LanguageContext';
 
 export const Footer: React.FC = () => {
@@ -11,7 +11,7 @@ export const Footer: React.FC = () => {
             <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 border-b border-white/10 pb-10 md:pb-12 text-center sm:text-left">
                 <div className="space-y-4 flex flex-col items-center sm:items-start col-span-1 sm:col-span-2 lg:col-span-1">
                     <div className="flex items-center gap-2">
-                        <BookOpen className="text-brand-orange w-6 h-6 md:w-7 md:h-7" />
+                        <img src="/logo.jpg" alt="Akshara Fine Arts" className="w-9 h-9 md:w-10 md:h-10 rounded-lg object-cover" />
                         <span className="font-display font-bold text-lg md:text-xl tracking-tight">Akshara Music Hub</span>
                     </div>
                     <p className="text-white/50 leading-relaxed text-xs md:text-sm max-w-xs">

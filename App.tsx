@@ -2194,7 +2194,7 @@ export default function App() {
       {/* Navbar */}
       <nav className="p-3 md:p-4 lg:p-5 flex justify-between items-center max-w-6xl mx-auto z-50 relative">
         <div className="flex items-center gap-2 cursor-pointer min-w-0" onClick={() => navigate('/')}>
-          <BookOpen className="text-brand-orange w-5 h-5 md:w-6 md:h-6 shrink-0" />
+          <img src="/logo.jpg" alt="Akshara Fine Arts" className="w-8 h-8 md:w-10 md:h-10 shrink-0 rounded-lg object-cover ring-1 ring-black/5" />
           <span className="font-display font-bold text-sm sm:text-base md:text-lg tracking-tight truncate">Akshara Music Hub</span>
         </div>
 
