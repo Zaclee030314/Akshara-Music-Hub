@@ -694,6 +694,230 @@ const WESTERN_VOCAL: GradeTopics = {
     ]
 };
 
+// ─── Other Western instruments (generated ABRSM/Trinity-style scaffolds) ────────
+// Each instrument supplies three technique descriptors (foundation / intermediate /
+// advanced) that slot into a shared per-grade scaffold, so every instrument gets
+// grade-scoped topics without hand-authoring 8 grades × 16 instruments.
+
+interface InstrumentTechnique {
+    found: string;   // Grades 1-2 technique focus
+    inter: string;   // Grades 3-5 technique focus
+    adv: string;     // Grades 6-8 technique focus
+}
+
+const makeWesternInstrumentTopics = (name: string, t: InstrumentTechnique): GradeTopics => ({
+    'Grade 1': [
+        `Topic 1: Instrument Basics (Parts of the ${name}, care, posture and hold)`,
+        `Topic 2: Sound Production (${t.found})`,
+        'Topic 3: Note Reading Basics (Staff notation, note names, simple rhythms)',
+        'Topic 4: First Scales (C and G major, one octave)',
+        'Topic 5: Rhythm and Pulse (Crotchets, minims, quavers, steady beat)',
+        'Topic 6: Simple Pieces (Easy melodies and folk tunes)'
+    ],
+    'Grade 2': [
+        `Topic 1: Technique Development (${t.found})`,
+        'Topic 2: Scales (Major keys to two sharps and flats, minor scale introduction)',
+        'Topic 3: Articulation and Dynamics (Legato, staccato, soft and loud playing)',
+        'Topic 4: Sight-Reading Basics (Simple stepwise melodies)',
+        'Topic 5: Aural Skills (Echo patterns, pitch matching, pulse recognition)',
+        'Topic 6: Repertoire (Contrasting short pieces)'
+    ],
+    'Grade 3': [
+        `Topic 1: Intermediate Technique (${t.inter})`,
+        'Topic 2: Scales and Arpeggios (Majors and minors to four sharps and flats)',
+        'Topic 3: Tone Quality (Evenness, control, projection)',
+        'Topic 4: Phrasing (Shaping musical lines, breathing/bowing/picking plans)',
+        'Topic 5: Sight-Reading (Keys to two sharps and flats)',
+        'Topic 6: Repertoire (Dances and character pieces)'
+    ],
+    'Grade 4': [
+        `Topic 1: Technique Expansion (${t.inter})`,
+        'Topic 2: Scales and Arpeggios (Wider keys and ranges)',
+        'Topic 3: Ornaments (Grace notes, trills, simple decorations)',
+        'Topic 4: Ensemble Skills (Playing in time with others, balance)',
+        'Topic 5: Sight-Reading (Pieces with position or register changes)',
+        'Topic 6: Repertoire (Contrasting styles with character and expression)'
+    ],
+    'Grade 5': [
+        `Topic 1: Advanced-Intermediate Technique (${t.inter})`,
+        'Topic 2: Scales (All common keys, extended range)',
+        'Topic 3: Expressive Playing (Rubato, dynamics shading, tonal colour)',
+        'Topic 4: Style Awareness (Baroque, Classical, Romantic and modern styles)',
+        'Topic 5: Sight-Reading (Moderate difficulty with expression marks)',
+        'Topic 6: Repertoire (Sonatina-level and characteristic works)'
+    ],
+    'Grade 6': [
+        `Topic 1: Advanced Technique (${t.adv})`,
+        'Topic 2: Scales and Arpeggios (All keys, faster tempi)',
+        'Topic 3: Interpretation (Structural awareness, period style)',
+        'Topic 4: Extended Works (Longer movements, stamina)',
+        'Topic 5: Sight-Reading (Full textures with expression)',
+        'Topic 6: Repertoire (Intermediate-advanced literature)'
+    ],
+    'Grade 7': [
+        `Topic 1: Virtuosic Foundations (${t.adv})`,
+        'Topic 2: Complete Key Command (All scales and arpeggios at speed)',
+        'Topic 3: Advanced Interpretation (Stylistic fidelity across periods)',
+        'Topic 4: Performance Stamina (Extended programmes, memory)',
+        'Topic 5: Sight-Reading (Complex rhythms and keys)',
+        'Topic 6: Repertoire (Advanced concert works)'
+    ],
+    'Grade 8': [
+        `Topic 1: Complete Technical Command (${t.adv})`,
+        'Topic 2: Concert Repertoire (Major works of the instrument’s literature)',
+        'Topic 3: Personal Interpretation (Individual voice with stylistic fidelity)',
+        'Topic 4: Performance Skills (Stage presence, memory security, recovery)',
+        'Topic 5: Advanced Sight-Reading and Quick Study',
+        'Topic 6: Programme Building (Balancing a recital programme)'
+    ]
+});
+
+// Drums are unpitched — scales/keys don't apply, so it gets its own tree.
+const DRUMS: GradeTopics = {
+    'Grade 1': [
+        'Topic 1: Kit Basics (Parts of the drum kit, setup, posture, stick grip)',
+        'Topic 2: First Strokes (Full, down, tap and up strokes on the snare)',
+        'Topic 3: Reading Drum Notation (Kit staff, note values, rests)',
+        'Topic 4: Basic Rock Beat (Kick, snare and hi-hat coordination in 4/4)',
+        'Topic 5: Simple Fills (One-bar crotchet and quaver fills)',
+        'Topic 6: Pulse and Timing (Playing with a metronome, steady tempo)'
+    ],
+    'Grade 2': [
+        'Topic 1: Rudiment Foundations (Single stroke roll, double stroke roll, single paradiddle)',
+        'Topic 2: Groove Development (Eighth-note rock and pop beats, hi-hat variations)',
+        'Topic 3: Fills and Dynamics (Two-bar fills, accents, ghost note introduction)',
+        'Topic 4: Reading Development (Groove charts, repeat signs)',
+        'Topic 5: Aural Skills (Echo rhythms, recognising tempo changes)',
+        'Topic 6: Song Playing (Keeping a beat through a full song form)'
+    ],
+    'Grade 3': [
+        'Topic 1: Rudiment Development (Flams, drags, paradiddle variations)',
+        'Topic 2: Groove Styles (Rock, pop and 12/8 blues shuffles)',
+        'Topic 3: Sixteenth-Note Patterns (Hands and kick drum sixteenths)',
+        'Topic 4: Hi-Hat Technique (Foot splashes, open and closed sounds)',
+        'Topic 5: Sight-Reading (Simple kit parts with fills)',
+        'Topic 6: Musical Form (Intros, verses, choruses, endings)'
+    ],
+    'Grade 4': [
+        'Topic 1: Advanced Rudiments (Five and nine stroke rolls, flam taps)',
+        'Topic 2: Groove Vocabulary (Funk sixteenth grooves, syncopation, ghost notes)',
+        'Topic 3: Coordination Studies (Four-way independence foundations)',
+        'Topic 4: Odd Time Introduction (3/4 and 6/8 grooves)',
+        'Topic 5: Sight-Reading (Charts with dynamics and accents)',
+        'Topic 6: Style Studies (Rock, funk, blues and pop feels)'
+    ],
+    'Grade 5': [
+        'Topic 1: Rudiment Application (Applying rudiments around the kit)',
+        'Topic 2: Latin and World Grooves (Bossa nova, samba introduction)',
+        'Topic 3: Jazz Foundations (Swing ride pattern, comping introduction)',
+        'Topic 4: Odd Time Signatures (5/4 and 7/8 grooves)',
+        'Topic 5: Soloing Basics (Two and four bar solo phrases, trading fours)',
+        'Topic 6: Sight-Reading (Medium-difficulty charts)'
+    ],
+    'Grade 6': [
+        'Topic 1: Advanced Coordination (Full four-way independence)',
+        'Topic 2: Jazz Development (Comping, brushes introduction, up-tempo swing)',
+        'Topic 3: Latin Styles (Afro-Cuban patterns, songo and mambo introduction)',
+        'Topic 4: Advanced Fills and Phrasing (Over-the-barline ideas, quintuplets)',
+        'Topic 5: Chart Reading (Big band style figures and kicks)',
+        'Topic 6: Dynamic Control (Playing musically at all volumes)'
+    ],
+    'Grade 7': [
+        'Topic 1: Virtuosic Technique (Speed, endurance, finger control, Moeller technique)',
+        'Topic 2: Advanced Styles (Fusion, drum and bass, metal double kick foundations)',
+        'Topic 3: Metric Modulation (Implied time and tempo shifts)',
+        'Topic 4: Extended Soloing (Structured solos, thematic development)',
+        'Topic 5: Advanced Reading (Complex charts at sight)',
+        'Topic 6: Studio Awareness (Playing to click, tone choices)'
+    ],
+    'Grade 8': [
+        'Topic 1: Complete Technical Command (All rudiments at speed around the kit)',
+        'Topic 2: Complete Style Command (Rock, jazz, Latin, funk and odd-time mastery)',
+        'Topic 3: Musical Leadership (Driving a band, arrangement awareness)',
+        'Topic 4: Concert Solo Performance (Extended solo construction)',
+        'Topic 5: Advanced Sight-Reading and Quick Study',
+        'Topic 6: Professional Practice (Gig preparation, sound checks, equipment care)'
+    ]
+};
+
+const OTHER_WESTERN_INSTRUMENTS: Record<string, InstrumentTechnique> = {
+    'Trumpet': {
+        found: 'Embouchure formation, breath support, first valve combinations',
+        inter: 'Lip flexibility, tonguing styles, slurs across harmonics',
+        adv: 'Double and triple tonguing, extended range, vibrato control'
+    },
+    'Saxophone': {
+        found: 'Embouchure, reed care, breath support, first fingerings',
+        inter: 'Tonguing styles, dynamic control, register evenness',
+        adv: 'Altissimo preparation, vibrato, advanced articulation and subtone'
+    },
+    'Flute': {
+        found: 'Embouchure and air stream, head-joint tone, first fingerings',
+        inter: 'Breath control, tonguing, second octave and tone colours',
+        adv: 'Vibrato, third octave, double tonguing and harmonics'
+    },
+    'Bass Guitar': {
+        found: 'Right-hand plucking, fretting-hand position, open-string grooves',
+        inter: 'Scale patterns across the neck, slap basics, locking with the drums',
+        adv: 'Advanced grooves, soloing, harmonics, slap and tap techniques'
+    },
+    'Cello': {
+        found: 'Bow hold, sitting posture, open strings, first position',
+        inter: 'Shifting to fourth position, vibrato preparation, string crossings',
+        adv: 'Thumb position, advanced vibrato, double stops'
+    },
+    'Trombone': {
+        found: 'Embouchure, breath support, slide positions one to three',
+        inter: 'Legato tonguing, all seven slide positions, lip slurs',
+        adv: 'Alternate positions, extended range, advanced legato style'
+    },
+    'Organ': {
+        found: 'Manual technique, posture at the console, basic registration',
+        inter: 'Pedal technique, legato fingering and substitution, hymn playing',
+        adv: 'Advanced registration, trio textures, organ literature'
+    },
+    'Ukulele': {
+        found: 'Holding and tuning, first chords (C, F, G7), simple strums',
+        inter: 'Fingerpicking patterns, barre chords, movable shapes',
+        adv: 'Campanella style, solo arrangements, advanced strumming'
+    },
+    'Clarinet': {
+        found: 'Embouchure, reed care, breath support, first fingerings',
+        inter: 'Crossing the break, tonguing, dynamic control',
+        adv: 'Altissimo register, advanced articulation, tone colours'
+    },
+    'Harmonica': {
+        found: 'Single-note playing, breath control, hole numbering',
+        inter: 'Note bending, cross-harp second position, articulation',
+        adv: 'Overblows, advanced positions, tongue-blocking textures'
+    },
+    'Viola': {
+        found: 'Bow hold, posture, open strings, alto clef basics, first position',
+        inter: 'Third position shifting, vibrato preparation, tone development',
+        adv: 'Higher positions, double stops, advanced vibrato'
+    },
+    'Oboe': {
+        found: 'Embouchure, reed basics, breath support, first fingerings',
+        inter: 'Breath management, tonguing, half-hole and octave keys',
+        adv: 'Reed adjustment, vibrato, advanced fingerings'
+    },
+    'French Horn': {
+        found: 'Embouchure, right-hand position in the bell, first harmonics',
+        inter: 'Lip slurs, accuracy across harmonics, stopped horn introduction',
+        adv: 'Extended range, stopped horn technique, transposition'
+    },
+    'Banjo': {
+        found: 'Holding and tuning, basic rolls (forward, backward), first chords',
+        inter: 'Alternating rolls, slides, hammer-ons and pull-offs',
+        adv: 'Melodic style, up-the-neck playing, backup techniques'
+    },
+    'Accordion': {
+        found: 'Bellows control, right-hand keyboard position, first bass buttons',
+        inter: 'Bellows shading, stradella bass patterns, register switches',
+        adv: 'Advanced bellows techniques, complex bass work, style repertoire'
+    }
+};
+
 // ─── Lookup ─────────────────────────────────────────────────────────────────────
 
 export const INDIAN_MUSIC_TOPICS: TopicMap = {
@@ -709,7 +933,11 @@ export const WESTERN_MUSIC_TOPICS: TopicMap = {
     'Piano': PIANO,
     'Violin': VIOLIN,
     'Guitar': GUITAR,
-    'Vocal (Western)': WESTERN_VOCAL
+    'Vocal (Western)': WESTERN_VOCAL,
+    'Drums': DRUMS,
+    ...Object.fromEntries(
+        Object.entries(OTHER_WESTERN_INSTRUMENTS).map(([name, t]) => [name, makeWesternInstrumentTopics(name, t)])
+    )
 };
 
 /** Curated topic list for a music subject/grade, or null when none exists (→ AI fallback). */

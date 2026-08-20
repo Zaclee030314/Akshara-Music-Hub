@@ -25,11 +25,27 @@ export enum Subject {
   KEYBOARD_CARNATIC = 'Keyboard (Carnatic)',
   HARMONIUM = 'Harmonium',
   TABLA = 'Tabla',
-  // Western Music — instrument subjects (Grades 1-8; MUSIC_THEORY above is reused)
+  // Western Music — instrument subjects (Grades 1-8)
   PIANO = 'Piano',
   VIOLIN = 'Violin',
   GUITAR = 'Guitar',
-  WESTERN_VOCAL = 'Vocal (Western)'
+  WESTERN_VOCAL = 'Vocal (Western)',
+  DRUMS = 'Drums',
+  TRUMPET = 'Trumpet',
+  SAXOPHONE = 'Saxophone',
+  FLUTE = 'Flute',
+  BASS_GUITAR = 'Bass Guitar',
+  CELLO = 'Cello',
+  TROMBONE = 'Trombone',
+  ORGAN = 'Organ',
+  UKULELE = 'Ukulele',
+  CLARINET = 'Clarinet',
+  HARMONICA = 'Harmonica',
+  VIOLA = 'Viola',
+  OBOE = 'Oboe',
+  FRENCH_HORN = 'French Horn',
+  BANJO = 'Banjo',
+  ACCORDION = 'Accordion'
 }
 
 export enum Syllabus {

@@ -6,10 +6,26 @@ import { Subject, Syllabus } from '../types';
 // Instruments only — each instrument then splits into a "Theory" or
 // "Aural & Practical" study focus (MUSIC_FOCUSES below).
 export const WESTERN_MUSIC_SUBJECTS: Subject[] = [
-    Subject.PIANO,
-    Subject.VIOLIN,
     Subject.GUITAR,
-    Subject.WESTERN_VOCAL
+    Subject.PIANO,
+    Subject.DRUMS,
+    Subject.WESTERN_VOCAL,
+    Subject.VIOLIN,
+    Subject.TRUMPET,
+    Subject.SAXOPHONE,
+    Subject.FLUTE,
+    Subject.BASS_GUITAR,
+    Subject.CELLO,
+    Subject.TROMBONE,
+    Subject.ORGAN,
+    Subject.UKULELE,
+    Subject.CLARINET,
+    Subject.HARMONICA,
+    Subject.VIOLA,
+    Subject.OBOE,
+    Subject.FRENCH_HORN,
+    Subject.BANJO,
+    Subject.ACCORDION
 ];
 
 export const INDIAN_MUSIC_SUBJECTS: Subject[] = [

@@ -110,7 +110,9 @@ ${gradeProtection}
     return `
 MUSIC SYLLABUS RULES (Western Music):
 - This is an ABRSM/Trinity-style graded music examination for ${subject}, ${grade} (Grades 1-8).
-- Cover grade-appropriate content: staff notation, note values, time signatures, scales and key signatures, intervals, chords and cadences, musical terms (Italian/German/French), composers and periods${subject !== 'Music Theory' ? `, plus ${subject}-specific technique and repertoire knowledge` : ''}.
+${subject === 'Drums'
+        ? '- Cover grade-appropriate drum kit content: rudiments, grooves and styles, fills, coordination, drum notation reading, timing and dynamics. Drums are unpitched — do NOT ask about scales, keys or melody.'
+        : `- Cover grade-appropriate content: staff notation, note values, time signatures, scales and key signatures, intervals, chords and cadences, musical terms (Italian/German/French), composers and periods${subject !== 'Music Theory' ? `, plus ${subject}-specific technique and repertoire knowledge` : ''}.`}
 ${musicFocusRules(subject, focus)}
 - Describe any staff-notation content in WORDS only (e.g. "the note on the second line of the treble clef") — no images are available.
 ${gradeProtection}

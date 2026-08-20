@@ -79,10 +79,26 @@ const SUBJECTS = [
   { id: Subject.HARMONIUM, icon: <span className="text-2xl">🪗</span>, color: 'bg-lime-100' },
   { id: Subject.TABLA, icon: <span className="text-2xl">🥁</span>, color: 'bg-stone-200' },
   // Western Music — instrument subjects
-  { id: Subject.PIANO, icon: <span className="text-2xl">🎹</span>, color: 'bg-sky-100' },
-  { id: Subject.VIOLIN, icon: <span className="text-2xl">🎻</span>, color: 'bg-violet-100' },
   { id: Subject.GUITAR, icon: <span className="text-2xl">🎸</span>, color: 'bg-emerald-100' },
+  { id: Subject.PIANO, icon: <span className="text-2xl">🎹</span>, color: 'bg-sky-100' },
+  { id: Subject.DRUMS, icon: <span className="text-2xl">🥁</span>, color: 'bg-red-100' },
   { id: Subject.WESTERN_VOCAL, icon: <span className="text-2xl">🎤</span>, color: 'bg-pink-100' },
+  { id: Subject.VIOLIN, icon: <span className="text-2xl">🎻</span>, color: 'bg-violet-100' },
+  { id: Subject.TRUMPET, icon: <span className="text-2xl">🎺</span>, color: 'bg-yellow-100' },
+  { id: Subject.SAXOPHONE, icon: <span className="text-2xl">🎷</span>, color: 'bg-amber-100' },
+  { id: Subject.FLUTE, icon: <span className="text-2xl">🪈</span>, color: 'bg-cyan-100' },
+  { id: Subject.BASS_GUITAR, icon: <span className="text-2xl">🎸</span>, color: 'bg-slate-200' },
+  { id: Subject.CELLO, icon: <span className="text-2xl">🎻</span>, color: 'bg-orange-100' },
+  { id: Subject.TROMBONE, icon: <span className="text-2xl">🎺</span>, color: 'bg-lime-100' },
+  { id: Subject.ORGAN, icon: <span className="text-2xl">🎹</span>, color: 'bg-indigo-100' },
+  { id: Subject.UKULELE, icon: <span className="text-2xl">🪕</span>, color: 'bg-teal-100' },
+  { id: Subject.CLARINET, icon: <span className="text-2xl">🎶</span>, color: 'bg-purple-100' },
+  { id: Subject.HARMONICA, icon: <span className="text-2xl">🎵</span>, color: 'bg-rose-100' },
+  { id: Subject.VIOLA, icon: <span className="text-2xl">🎻</span>, color: 'bg-fuchsia-100' },
+  { id: Subject.OBOE, icon: <span className="text-2xl">🪈</span>, color: 'bg-green-100' },
+  { id: Subject.FRENCH_HORN, icon: <span className="text-2xl">🎺</span>, color: 'bg-blue-100' },
+  { id: Subject.BANJO, icon: <span className="text-2xl">🪕</span>, color: 'bg-stone-200' },
+  { id: Subject.ACCORDION, icon: <span className="text-2xl">🪗</span>, color: 'bg-gray-100' },
 ];
 
 import { useNavigate, Routes, Route, useLocation, Navigate } from 'react-router-dom';
