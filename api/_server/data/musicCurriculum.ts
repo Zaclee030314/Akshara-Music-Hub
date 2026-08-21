@@ -918,6 +918,62 @@ const OTHER_WESTERN_INSTRUMENTS: Record<string, InstrumentTechnique> = {
     }
 };
 
+// ─── Authoritative instrument facts (AI grounding) ──────────────────────────────
+// Injected verbatim into quest-generation prompts so the AI never invents
+// physical, posture or technique "facts". If a fact is not listed here and the
+// model is not fully certain, the prompt tells it to test something else.
+
+const INSTRUMENT_FACTS: Record<string, string[]> = {
+    'Veena': [
+        'The player sits cross-legged on the floor.',
+        'The kudam (large resonator) rests ON THE FLOOR at the player\'s right side — never on the lap, shoulder or head.',
+        'The small gourd (surakkai) rests on or near the player\'s left thigh; the neck slopes diagonally up to the left.',
+        'The right hand plucks the strings (index and middle fingers on the main strings, little finger strums the tala strings); the left hand presses and slides on the frets.',
+        'The Saraswati veena has 4 main playing strings and 3 tala (side/drone) strings, with 24 fixed frets.',
+        'The instrument is tuned to the selected Sa; always state Sa in any pitch-dependent question.'
+    ],
+    'Mridangam': [
+        'The Valanthalai is the smaller RIGHT-side head and produces the higher/treble sound.',
+        'The Thoppi is the larger LEFT-side head and produces the bass sound.',
+        'The black central spot (karanai) is on the right head.',
+        'Basic strokes: Tha, Dhi and Nam are right-hand strokes; Thom is the left-hand bass stroke; Chapu is a sharp right-hand stroke.',
+        'The player sits cross-legged with the mridangam placed horizontally and stable in front, right head to the right.',
+        'Adi Tala has 8 counts (clap + 3 finger counts + clap + wave + clap + wave).'
+    ],
+    'Tabla': [
+        'The tabla is a PAIR of drums: the smaller wooden dayan (right drum) and the larger metal-bodied bayan (left/bass drum).',
+        'Both drum heads carry a black tuning paste (syahi).',
+        'It is played with the fingers and palms, never with sticks.',
+        'The player sits cross-legged with both drums in front.'
+    ],
+    'Harmonium': [
+        'The LEFT hand pumps the bellows; the RIGHT hand plays the keyboard.',
+        'Sound is produced by air from the bellows passing over free reeds.',
+        'Black keys repeat in groups of two and three; there is no black key between E-F or B-C.',
+        'Finger numbering: thumb = 1, index = 2, middle = 3, ring = 4, little = 5.',
+        'The tonic Sa must be stated in any pitch question (e.g. if Sa = E, then Pa = B; if Sa = G, then Pa = D).'
+    ],
+    'Keyboard (Carnatic)': [
+        'Swara-to-semitone distances above Sa: S=0, R1=1, R2/G1=2, R3/G2=3, G3=4, M1=5, M2=6, P=7, D1=8, D2/N1=9, D3/N2=10, N3=11, upper S=12.',
+        'Shared physical positions: R2=G1, R3=G2, D2=N1, D3=N2.',
+        'If Sa = E: R1=F, G3=G#, M1=A, P=B, N3=D#. If Sa = G: R1=G#, G3=B, M1=C, P=D.',
+        'Finger numbering: thumb = 1, index = 2, middle = 3, ring = 4, little = 5.',
+        'Always state the selected Sa in any pitch-dependent question.'
+    ],
+    'Sangeetham (Vocal)': [
+        'The sapta swaras are Sa Ri Ga Ma Pa Da Ni.',
+        'Adi Tala = Chatusra Jathi Triputa Tala = 4+2+2 = 8 counts.',
+        'Mayamalavagowla is the traditional beginner raga for Sarali Varisai.',
+        'The Carnatic Trinity: Tyagaraja, Muthuswami Dikshitar, Syama Sastri (Purandaradasa is the Pitamaha/father of Carnatic music).',
+        'Kriti sections in order: Pallavi, Anupallavi, Charanam.',
+        'Eduppu types: Samam (starts on the beat), Ateeta (starts before the beat), Anagata (starts after the beat).'
+    ]
+};
+
+/** Authoritative facts to ground AI question generation; empty when none exist. */
+export const getInstrumentFacts = (subject: string): string[] =>
+    INSTRUMENT_FACTS[subject] ?? [];
+
 // ─── Lookup ─────────────────────────────────────────────────────────────────────
 
 export const INDIAN_MUSIC_TOPICS: TopicMap = {

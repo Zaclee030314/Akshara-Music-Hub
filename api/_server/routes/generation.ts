@@ -7,7 +7,7 @@ import { generateAIContent } from '../utils/ai.js';
 import { authenticateToken, AuthRequest } from '../middleware/authMiddleware.js';
 import { checkExpiredSubscriptions } from '../middleware/checkExpiredSubscriptions.js';
 import { isMusicSyllabus } from '../utils/ageGrade.js';
-import { getCuratedTopics } from '../data/musicCurriculum.js';
+import { getCuratedTopics, getInstrumentFacts } from '../data/musicCurriculum.js';
 
 const router = express.Router();
 
@@ -95,6 +95,12 @@ const musicPromptRules = (syllabus: string, subject: string, grade: string, focu
         ? `GRADE PROTECTION — the official ${grade} scope for ${subject} is EXACTLY these topics:\n${curated.map(t => `- ${t}`).join('\n')}\nTest ONLY these topics. NEVER include concepts from higher grades.`
         : `GRADE PROTECTION: Test only concepts appropriate for ${grade}. NEVER include concepts from higher grades.`;
 
+    const facts = getInstrumentFacts(subject);
+    const factGrounding = facts.length
+        ? `AUTHORITATIVE INSTRUMENT FACTS — every physical, posture or technique question MUST agree with these:\n${facts.map(f => `- ${f}`).join('\n')}\n`
+        : '';
+    const factualSafety = `FACTUAL SAFETY: Before finalising each question, verify the marked correct answer is factually true${facts.length ? ' and consistent with the authoritative facts above' : ''}. If you are not 100% certain of a physical or factual detail (posture, instrument construction, hand usage), DO NOT test it — write a question about a concept you are certain of instead. A wrong marked answer is a serious failure.`;
+
     if (syllabus === 'Indian Music') {
         return `
 MUSIC SYLLABUS RULES (Indian Music — Carnatic):
@@ -104,6 +110,7 @@ MUSIC SYLLABUS RULES (Indian Music — Carnatic):
 - Emphasise ${subject}-specific technique: ${INDIAN_TECHNIQUE_FOCUS[subject] || 'instrument technique and theory'}.
 ${musicFocusRules(subject, focus)}
 - Questions must be answerable in text form without audio or images — describe sounds and techniques in words.
+${factGrounding}${factualSafety}
 ${gradeProtection}
 `;
     }
@@ -115,6 +122,7 @@ ${subject === 'Drums'
         : `- Cover grade-appropriate content: staff notation, note values, time signatures, scales and key signatures, intervals, chords and cadences, musical terms (Italian/German/French), composers and periods${subject !== 'Music Theory' ? `, plus ${subject}-specific technique and repertoire knowledge` : ''}.`}
 ${musicFocusRules(subject, focus)}
 - Describe any staff-notation content in WORDS only (e.g. "the note on the second line of the treble clef") — no images are available.
+${factualSafety}
 ${gradeProtection}
 `;
 };
