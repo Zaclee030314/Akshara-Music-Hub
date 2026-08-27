@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Card } from './Card';
 import { Button } from './Button';
 import { ArrowLeft, LogIn, Mail, Loader2, KeyRound, ShieldCheck, Lock, Eye, EyeOff, CheckCircle2, X } from 'lucide-react';
@@ -11,6 +11,10 @@ import { suggestGrade, isMusicSyllabus } from '../lib/ageGrade';
 
 interface LoginModalProps {
     onClose: () => void;
+    /** Where to land after a successful login — preserves the user's intent
+     *  (e.g. they clicked a subject or "Rewards" before logging in). Falls back
+     *  to the role dashboard when not provided. */
+    postLoginPath?: string | null;
 }
 
 type ModalView = 'login' | 'verify' | 'forgot_email' | 'forgot_otp' | 'forgot_newpass';
@@ -44,7 +48,7 @@ const PasswordInput = ({ value, onChange, placeholder, onEnter }: {
                 value={value}
                 onChange={e => onChange(e.target.value)}
                 className="w-full p-3 pr-11 rounded-lg border-2 border-brand-dark/10 focus:outline-none focus:border-brand-orange transition-colors"
-                placeholder={placeholder || 'â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢'}
+                placeholder={placeholder || '••••••••'}
                 onKeyDown={e => e.key === 'Enter' && onEnter?.()}
             />
             <button type="button" onClick={() => setShow(s => !s)}
@@ -82,7 +86,7 @@ const getStoredUserRole = (): { isAdmin?: boolean; role?: string } | null => {
     return null;
 };
 
-export const LoginModal = ({ onClose }: LoginModalProps) => {
+export const LoginModal = ({ onClose, postLoginPath }: LoginModalProps) => {
     const { login, signup, verifyCode, resendCode, user: authUser } = useAuth();
     const { t } = useT();
     const navigate = useNavigate();
@@ -113,7 +117,7 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
     }, [selectedSyllabus]);
 
     // Auto-suggest the standard from the birthday until the student overrides it.
-    // Music syllabi have no ageâ†’grade relationship, so they are never suggested.
+    // Music syllabi have no age→grade relationship, so they are never suggested.
     const suggestedGrade = React.useMemo(() => {
         if (!birthday || !selectedSyllabus || isMusicSyllabus(selectedSyllabus)) return null;
         return suggestGrade(selectedSyllabus, birthday);
@@ -144,14 +148,15 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
         const ok = await verifyCode(email, code);
         if (ok) {
             onClose();
-            navigate(dashboardFor(getStoredUserRole()));
+            navigate(postLoginPath || dashboardFor(getStoredUserRole()));
         }
     });
 
     const handleResend = () => wrap(async () => { await resendCode(email); });
 
     const handleSubmit = () => wrap(async () => {
-        if (!email) { alert(t('login.alertEnterEmailOrName')); return; }
+        // Sign-up has a dedicated email field, so use the email-specific message there.
+        if (!email) { alert(isSignUp ? t('login.alertValidEmail') : t('login.alertEnterEmailOrName')); return; }
         if (isSignUp && !validEmail(email)) { alert(t('login.alertValidEmail')); return; }
         if (isSignUp) {
             if (!name || !password) { alert(t('login.alertFillAll')); return; }
@@ -172,7 +177,7 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
             if (typeof r === 'object' && r.needsVerification) { setEmail(r.email); setView('verify'); }
             else if (r === true) {
                 onClose();
-                navigate(dashboardFor(getStoredUserRole()));
+                navigate(postLoginPath || dashboardFor(getStoredUserRole()));
             }
         } else {
             if (!password) { alert(t('login.alertEnterPassword')); return; }
@@ -180,7 +185,7 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
             if (typeof r === 'object' && r.needsVerification) { setEmail(r.email); setView('verify'); }
             else if (r === true) {
                 onClose();
-                navigate(dashboardFor(getStoredUserRole()));
+                navigate(postLoginPath || dashboardFor(getStoredUserRole()));
             }
         }
     });
@@ -220,7 +225,7 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
         }
     });
 
-    // â”€â”€ EMAIL VERIFICATION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── EMAIL VERIFICATION ──────────────────────────────────────────────────
     if (view === 'verify') return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-start sm:items-center justify-center p-4 overflow-y-auto">
             <Card className="max-w-md w-full p-8 relative my-8">
@@ -253,7 +258,7 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
         </div>
     );
 
-    // â”€â”€ FORGOT PASSWORD: STEP 1 â€“ Email â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── FORGOT PASSWORD: STEP 1 – Email ─────────────────────────────────────
     if (view === 'forgot_email') return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-start sm:items-center justify-center p-4 overflow-y-auto">
             <Card className="max-w-md w-full p-8 relative my-8">
@@ -285,7 +290,7 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
         </div>
     );
 
-    // â”€â”€ FORGOT PASSWORD: STEP 2 â€“ OTP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── FORGOT PASSWORD: STEP 2 – OTP ───────────────────────────────────────
     if (view === 'forgot_otp') return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-start sm:items-center justify-center p-4 overflow-y-auto">
             <Card className="max-w-md w-full p-8 relative my-8">
@@ -317,7 +322,7 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
         </div>
     );
 
-    // â”€â”€ FORGOT PASSWORD: STEP 3 â€“ New Password â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── FORGOT PASSWORD: STEP 3 – New Password ──────────────────────────────
     if (view === 'forgot_newpass') return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-start sm:items-center justify-center p-4 overflow-y-auto">
             <Card className="max-w-md w-full p-8 relative my-8">
@@ -353,7 +358,7 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
         </div>
     );
 
-    // â”€â”€ MAIN LOGIN / SIGNUP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── MAIN LOGIN / SIGNUP ─────────────────────────────────────────────────
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-start sm:items-center justify-center p-4 overflow-y-auto">
             <Card className="max-w-md w-full p-8 relative my-8">
@@ -455,7 +460,7 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
                     <div>
                         <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-1">{t('login.password')}</label>
                         <PasswordInput value={password} onChange={setPassword} onEnter={handleSubmit} />
-                        {/* Forgot password link â€” below the password field */}
+                        {/* Forgot password link — below the password field */}
                         {!isSignUp && (
                             <div className="text-right mt-1.5">
                                 <button

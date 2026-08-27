@@ -220,7 +220,7 @@ const zh: Record<string, string> = {
   'pricing.perMonth': '/月',
   'pricing.single.feat1': '无限问答',
   'pricing.single.feat2': '一个选定的课程大纲',
-  'pricing.single.feat3': '包含西方音乐、卡纳提克与印度斯坦音乐课程',
+  'pricing.single.feat3': '音乐选项：西方、卡纳提克或印度斯坦',
   'pricing.activeSubscription': '订阅生效中',
   'pricing.chooseSingle': '选择单一配套',
   'pricing.bestValue': '超值之选 · 全部权限',
@@ -291,6 +291,9 @@ const zh: Record<string, string> = {
 
   // ── 游戏进行中 ───────────────────────────────────────────────────────
   'game.quit': '退出',
+  'game.sessionLost': '会话已过期',
+  'game.sessionLostDesc': '您的测验会话已丢失（页面刷新后会发生这种情况）。请重新设置任务以继续。',
+  'game.backToSetup': '返回任务设置',
   'game.coins': '{count} 金币',
   'game.streak': '连胜：{count} 🔥',
   'game.question': '第 {num} 题',

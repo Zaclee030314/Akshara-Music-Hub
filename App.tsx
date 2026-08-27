@@ -143,6 +143,36 @@ export default function App() {
       const sessionId = query.get('session_id');
       const interval = query.get('interval') || 'month';
 
+      // PaymentElement redirect flow (3-D Secure etc.): Stripe returns to
+      // /dashboard?success=true&payment_intent=pi_...&redirect_status=succeeded.
+      // The in-page onSuccess never ran (the page navigated away), so activate
+      // the subscription here — confirm-payment verifies the intent with Stripe
+      // and reads plan/syllabus/credit from its metadata.
+      const paymentIntentId = query.get('payment_intent');
+      const redirectStatus = query.get('redirect_status');
+      if (!sessionId && paymentIntentId && redirectStatus === 'succeeded' && user && !user.isSubscribed) {
+        (async () => {
+          try {
+            const token = localStorage.getItem('quest_token');
+            const res = await fetch('/api/subscription/confirm-payment', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+              body: JSON.stringify({ paymentIntentId })
+            });
+            if (res.ok) {
+              const data = await res.json();
+              if (data.success) {
+                alert("🎉 Subscription Active! Thank you for upgrading to Pro!");
+                window.history.replaceState({}, document.title, window.location.pathname);
+                window.location.reload();
+              }
+            }
+          } catch (e) {
+            console.error('Redirect payment confirmation failed', e);
+          }
+        })();
+      }
+
       if (sessionId && user && !user.isSubscribed) {
         const verifySubscription = async () => {
           try {
@@ -193,6 +223,13 @@ export default function App() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loadingGame, setLoadingGame] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  // Where to send the user after logging in — set by the entry point that
+  // opened the modal so their intent (practice, rewards, classrooms…) survives.
+  const [postLoginPath, setPostLoginPath] = useState<string | null>(null);
+  const promptLogin = (path: string | null = null) => {
+    setPostLoginPath(path);
+    setShowLoginModal(true);
+  };
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [paymentClientSecret, setPaymentClientSecret] = useState<string | null>(null);
   const [paymentAmount, setPaymentAmount] = useState<number>(0);
@@ -757,7 +794,7 @@ export default function App() {
 
   const handleStartProcess = () => {
     if (!user) {
-      setShowLoginModal(true);
+      promptLogin('/practice');
       return;
     }
     // Allow everyone to play (Demo/Free)
@@ -785,7 +822,7 @@ export default function App() {
   const handleSubscribe = async (interval: 'month' | 'year', planLevel: 'single' | 'all', syllabus: Syllabus | null = null) => {
     if (!user) {
       alert("Please login or signup first to purchase a subscription.");
-      setShowLoginModal(true);
+      promptLogin('/pricing');
       return;
     }
 
@@ -1233,10 +1270,12 @@ export default function App() {
               className="bg-purple-600 hover:bg-purple-700 shadow-md shadow-purple-600/20"
               onClick={() => {
                 if (!user) setShowLoginModal(true);
-                else navigate('/teacher');
+                // /teacher is role-gated — send non-teachers to their own dashboard
+                // instead of letting ProtectedRoute bounce them there silently.
+                else navigate(user.role === 'teacher' || user.isAdmin ? '/teacher' : '/dashboard');
               }}
             >
-              <Brain size={14} className="mr-1.5" /> {t('nav.dashboard')}
+              <Brain size={14} className="mr-1.5" /> {user ? t('nav.dashboard') : t('nav.login')}
             </Button>
           </div>
         </Card>
@@ -1259,7 +1298,7 @@ export default function App() {
               size="sm"
               fullWidth
               className="bg-yellow-500 hover:bg-yellow-600 shadow-md shadow-yellow-500/20"
-              onClick={() => { if (!user) setShowLoginModal(true); else navigate('/rewards'); }}
+              onClick={() => { if (!user) promptLogin('/rewards'); else navigate('/rewards'); }}
             >
               <Coins size={14} className="mr-1.5" /> {user ? t('home.visitShop') : t('nav.login')}
             </Button>
@@ -1285,17 +1324,17 @@ export default function App() {
               fullWidth
               className="bg-indigo-600 hover:bg-indigo-700 shadow-md shadow-indigo-600/20"
               onClick={() => {
-                if (!user) setShowLoginModal(true);
+                if (!user) promptLogin('/study-plan');
                 else navigate('/study-plan');
               }}
             >
-              <Sparkles size={14} className="mr-1.5" /> {t('home.createPlan')}
+              <Sparkles size={14} className="mr-1.5" /> {user ? t('home.createPlan') : t('nav.login')}
             </Button>
           </div>
         </Card>
       </div>
 
-      <SeasonShowcase onJoin={() => { if (!user) setShowLoginModal(true); else navigate('/practice'); }} />
+      <SeasonShowcase onJoin={() => { if (!user) promptLogin('/practice'); else navigate('/practice'); }} />
 
       <HomeLeaderboard />
 
@@ -2178,7 +2217,7 @@ export default function App() {
             )}
             <button onClick={() => { setShowMobileMenu(false); if (user && (user.role === 'student' || user.role === 'teacher') && !user.isAdmin) { handleNewQuest(); } else { navigate('/'); setTimeout(() => document.getElementById('courses')?.scrollIntoView({ behavior: 'smooth' }), 200); } }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">{user && (user.role === 'student' || user.role === 'teacher') && !user.isAdmin ? `🚀 ${t('nav.newQuest')}` : `📚 ${t('nav.courses')}`}</button>
             <button onClick={() => { setShowMobileMenu(false); if (!user) setShowLoginModal(true); else navigate(user?.isAdmin ? '/admin' : user?.role === 'teacher' ? '/teacher' : '/dashboard'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">📊 {t('nav.dashboard')}</button>
-            <button onClick={() => { setShowMobileMenu(false); if (!user) setShowLoginModal(true); else navigate('/classrooms'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">🏫 {t('nav.classrooms')}</button>
+            <button onClick={() => { setShowMobileMenu(false); if (!user) promptLogin('/classrooms'); else navigate('/classrooms'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">🏫 {t('nav.classrooms')}</button>
             <button onClick={() => { setShowMobileMenu(false); navigate('/leaderboard'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">🏆 {t('nav.leaderboard')}</button>
             <button onClick={() => { setShowMobileMenu(false); navigate('/pricing'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">💎 {t('nav.pricing')}</button>
             {user && (
@@ -2208,7 +2247,7 @@ export default function App() {
         <div className="hidden md:flex items-center gap-4 lg:gap-8 flex-1 justify-center px-4">
           <button onClick={() => { if (user && (user.role === 'student' || user.role === 'teacher') && !user.isAdmin) { handleNewQuest(); } else { navigate('/'); setTimeout(() => document.getElementById('courses')?.scrollIntoView({ behavior: 'smooth' }), 100); } }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">{user && (user.role === 'student' || user.role === 'teacher') && !user.isAdmin ? t('nav.newQuest') : t('nav.courses')}</button>
           <button onClick={() => { if (!user) setShowLoginModal(true); else navigate(user?.isAdmin ? '/admin' : user?.role === 'teacher' ? '/teacher' : '/dashboard'); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">{t('nav.dashboard')}</button>
-          <button onClick={() => { if (!user) setShowLoginModal(true); else navigate('/classrooms'); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">{t('nav.classrooms')}</button>
+          <button onClick={() => { if (!user) promptLogin('/classrooms'); else navigate('/classrooms'); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">{t('nav.classrooms')}</button>
           <button onClick={() => { navigate('/leaderboard'); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">{t('nav.leaderboard')}</button>
           <button onClick={() => { navigate('/pricing'); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">{t('nav.pricing')}</button>
         </div>
@@ -2311,7 +2350,8 @@ export default function App() {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8 pb-20 relative z-10">
         {showLoginModal && <LoginModal
-          onClose={() => setShowLoginModal(false)}
+          postLoginPath={postLoginPath}
+          onClose={() => { setShowLoginModal(false); setPostLoginPath(null); }}
         />}
         {showLimitModal && <LimitReachedModal />}
         {showQuotaModal && <AiQuotaModal />}
@@ -2381,7 +2421,7 @@ export default function App() {
 
           {/* Practice – center hero button */}
           <button
-            onClick={() => { if (!user) { setShowLoginModal(true); } else { navigate('/practice'); } }}
+            onClick={() => { if (!user) { promptLogin('/practice'); } else { navigate('/practice'); } }}
             className="flex flex-col items-center gap-1 -mt-6"
           >
             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-xl transition-all relative ${location.pathname.startsWith('/practice')
@@ -2403,7 +2443,7 @@ export default function App() {
           {/* Profile */}
           <button
             onClick={() => {
-              if (!user) { setShowLoginModal(true); }
+              if (!user) { promptLogin('/profile'); }
               else if (user.isAdmin) { navigate('/admin'); }
               else if (user.role === 'teacher') { navigate('/teacher'); }
               else { navigate('/dashboard'); }

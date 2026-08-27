@@ -6,6 +6,10 @@ import { useT } from '../contexts/LanguageContext';
 export const Footer: React.FC = () => {
     const { t } = useT();
     const navigate = useNavigate();
+    const goToCourses = () => {
+        navigate('/');
+        setTimeout(() => document.getElementById('courses')?.scrollIntoView({ behavior: 'smooth' }), 100);
+    };
     // pb-28 on phones clears the fixed bottom tab bar (~74px). The footer sits
     // outside <main>, so main's pb-20 gives it no clearance.
     return (
@@ -30,10 +34,11 @@ export const Footer: React.FC = () => {
                 <div className="space-y-4 md:space-y-5">
                     <h4 className="font-bold text-sm md:text-base font-display text-white/90">{t('footer.syllabus')}</h4>
                     <ul className="space-y-2 text-white/40 font-medium text-xs md:text-sm">
-                        <li className="hover:text-brand-orange cursor-pointer transition-colors">{t('footer.syllabus.my')}</li>
-                        <li className="hover:text-brand-orange cursor-pointer transition-colors">{t('footer.syllabus.sg')}</li>
-                        <li className="hover:text-brand-orange cursor-pointer transition-colors">{t('footer.syllabus.igcse')}</li>
-                        <li className="hover:text-brand-orange cursor-pointer transition-colors">{t('footer.syllabus.alevel')}</li>
+                        {/* All syllabus links land on the homepage course explorer */}
+                        <li className="hover:text-brand-orange cursor-pointer transition-colors" onClick={goToCourses}>{t('footer.syllabus.my')}</li>
+                        <li className="hover:text-brand-orange cursor-pointer transition-colors" onClick={goToCourses}>{t('footer.syllabus.sg')}</li>
+                        <li className="hover:text-brand-orange cursor-pointer transition-colors" onClick={goToCourses}>{t('footer.syllabus.igcse')}</li>
+                        <li className="hover:text-brand-orange cursor-pointer transition-colors" onClick={goToCourses}>{t('footer.syllabus.alevel')}</li>
                     </ul>
                 </div>
 
@@ -41,10 +46,12 @@ export const Footer: React.FC = () => {
                     <h4 className="font-bold text-sm md:text-base font-display text-white/90">{t('footer.company')}</h4>
                     <ul className="space-y-2 text-white/40 font-medium text-xs md:text-sm">
                         <li className="hover:text-brand-orange cursor-pointer transition-colors" onClick={() => navigate('/pricing')}>{t('nav.pricing')}</li>
-                        <li className="hover:text-brand-orange cursor-pointer transition-colors">{t('footer.aboutUs')}</li>
-                        <li className="hover:text-brand-orange cursor-pointer transition-colors">{t('footer.ourMission')}</li>
-                        <li className="hover:text-brand-orange cursor-pointer transition-colors">{t('footer.privacy')}</li>
-                        <li className="hover:text-brand-orange cursor-pointer transition-colors">{t('footer.terms')}</li>
+                        {/* No destination pages yet — rendered as plain text (no fake hand cursor)
+                            until real About/Privacy/Terms pages exist. */}
+                        <li>{t('footer.aboutUs')}</li>
+                        <li>{t('footer.ourMission')}</li>
+                        <li>{t('footer.privacy')}</li>
+                        <li>{t('footer.terms')}</li>
                     </ul>
                 </div>
 

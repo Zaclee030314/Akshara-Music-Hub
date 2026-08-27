@@ -220,7 +220,7 @@ const en: Record<string, string> = {
   'pricing.perMonth': '/mo',
   'pricing.single.feat1': 'Unlimited Question & Answer',
   'pricing.single.feat2': 'One Selected Syllabus',
-  'pricing.single.feat3': 'Includes Western, Carnatic & Hindustani Music syllabi',
+  'pricing.single.feat3': 'Music options: Western, Carnatic or Hindustani',
   'pricing.activeSubscription': 'Active Subscription',
   'pricing.chooseSingle': 'Choose Single Plan',
   'pricing.bestValue': 'BEST VALUE · ALL ACCESS',
@@ -291,6 +291,9 @@ const en: Record<string, string> = {
 
   // ── Game session ───────────────────────────────────────────────────
   'game.quit': 'Quit',
+  'game.sessionLost': 'Session Expired',
+  'game.sessionLostDesc': 'Your quiz session was lost (this happens after a page reload). Set up a new quest to continue.',
+  'game.backToSetup': 'Back to Quest Setup',
   'game.coins': '{count} coins',
   'game.streak': 'Streak: {count} 🔥',
   'game.question': 'Question {num}',

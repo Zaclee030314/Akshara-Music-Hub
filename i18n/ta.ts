@@ -220,7 +220,7 @@ const ta: Record<string, string> = {
   'pricing.perMonth': '/மாதம்',
   'pricing.single.feat1': 'வரம்பற்ற கேள்வி & பதில்',
   'pricing.single.feat2': 'ஒரு தேர்ந்தெடுக்கப்பட்ட பாடத்திட்டம்',
-  'pricing.single.feat3': 'மேற்கத்திய, கர்நாடக & இந்துஸ்தானி இசைப் பாடத்திட்டங்கள் உள்ளடங்கும்',
+  'pricing.single.feat3': 'இசைத் தேர்வுகள்: மேற்கத்திய, கர்நாடக அல்லது இந்துஸ்தானி',
   'pricing.activeSubscription': 'செயலில் உள்ள சந்தா',
   'pricing.chooseSingle': 'ஒற்றைத் திட்டத்தைத் தேர்வுசெய்யவும்',
   'pricing.bestValue': 'சிறந்த மதிப்பு · முழு அணுகல்',
@@ -291,6 +291,9 @@ const ta: Record<string, string> = {
 
   // ── விளையாட்டு அமர்வு ──────────────────────────────────────────────
   'game.quit': 'வெளியேறு',
+  'game.sessionLost': 'அமர்வு காலாவதியானது',
+  'game.sessionLostDesc': 'உங்கள் வினாடி வினா அமர்வு இழக்கப்பட்டது (பக்கம் மீண்டும் ஏற்றப்பட்ட பிறகு இது நிகழும்). தொடர புதிய குவெஸ்டை அமைக்கவும்.',
+  'game.backToSetup': 'குவெஸ்ட் அமைப்பிற்குத் திரும்பு',
   'game.coins': '{count} நாணயங்கள்',
   'game.streak': 'தொடர்வெற்றி: {count} 🔥',
   'game.question': 'கேள்வி {num}',

@@ -100,8 +100,9 @@ export const GameSession: React.FC<GameSessionProps> = ({
 
   const handleNext = () => {
     if (isLastQuestion) {
-      onComplete(score, correctAnswersCount + (selectedOption === currentQuestion.correctAnswerIndex ? 0 : 0)); // wait, the count is already updated in handleOptionSelect
-      // Actually, correctAnswersCount is updated in handleOptionSelect.
+      // correctAnswersCount is already updated in handleOptionSelect — call
+      // onComplete exactly ONCE (a duplicate call here used to double-post the
+      // result and award XP/coins twice).
       onComplete(score, correctAnswersCount);
     } else {
       setCurrentIndex(prev => prev + 1);
@@ -109,6 +110,28 @@ export const GameSession: React.FC<GameSessionProps> = ({
       setShowExplanation(false);
     }
   };
+
+  // Read the question aloud (the speaker icon on the question card).
+  const speakQuestion = () => {
+    if (!currentQuestion || !('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(new SpeechSynthesisUtterance(currentQuestion.text));
+  };
+
+  // Questions live only in React state — a reload or direct visit to
+  // /practice/session arrives with an empty array, which used to crash on
+  // currentQuestion.text (white screen). Show a friendly recovery instead.
+  if (!currentQuestion) {
+    return (
+      <div className="max-w-xl mx-auto w-full p-8 text-center space-y-4">
+        <Card className="p-8 space-y-4">
+          <h2 className="text-xl font-display font-bold text-brand-dark">{t('game.sessionLost')}</h2>
+          <p className="text-sm text-brand-dark/60">{t('game.sessionLostDesc')}</p>
+          <Button onClick={onExit}>{t('game.backToSetup')}</Button>
+        </Card>
+      </div>
+    );
+  }
 
   const progressPercentage = ((currentIndex + 1) / questions.length) * 100;
 
@@ -144,7 +167,7 @@ export const GameSession: React.FC<GameSessionProps> = ({
 
         <div className="flex justify-between items-start mb-6">
           <span className="text-xs font-bold uppercase tracking-widest text-brand-dark/40 bg-brand-dark/5 px-2 py-1 rounded">{t('game.question', { num: currentIndex + 1 })}</span>
-          <button className="text-brand-dark/20 hover:text-brand-dark"><Volume2 size={20} /></button>
+          <button onClick={speakQuestion} className="text-brand-dark/20 hover:text-brand-dark" title="Read question aloud"><Volume2 size={20} /></button>
         </div>
 
         <h2 className="text-2xl md:text-3xl font-display font-bold text-brand-dark mb-8 relative z-10 leading-snug">

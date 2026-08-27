@@ -220,7 +220,7 @@ const ms: Record<string, string> = {
   'pricing.perMonth': '/bln',
   'pricing.single.feat1': 'Soalan & Jawapan Tanpa Had',
   'pricing.single.feat2': 'Satu Sukatan Terpilih',
-  'pricing.single.feat3': 'Termasuk sukatan Muzik Barat, Karnatik & Hindustani',
+  'pricing.single.feat3': 'Pilihan muzik: Barat, Karnatik atau Hindustani',
   'pricing.activeSubscription': 'Langganan Aktif',
   'pricing.chooseSingle': 'Pilih Pelan Tunggal',
   'pricing.bestValue': 'NILAI TERBAIK · AKSES PENUH',
@@ -291,6 +291,9 @@ const ms: Record<string, string> = {
 
   // ── Sesi permainan ─────────────────────────────────────────────────
   'game.quit': 'Keluar',
+  'game.sessionLost': 'Sesi Tamat',
+  'game.sessionLostDesc': 'Sesi kuiz anda telah hilang (ini berlaku selepas muat semula halaman). Sediakan kues baharu untuk meneruskan.',
+  'game.backToSetup': 'Kembali ke Persediaan Kues',
   'game.coins': '{count} syiling',
   'game.streak': 'Rentetan: {count} 🔥',
   'game.question': 'Soalan {num}',
