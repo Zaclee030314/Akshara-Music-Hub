@@ -6,10 +6,10 @@ export const getSyllabusesByCountry = (country: string | null): Syllabus[] => {
         return Object.values(Syllabus);
     } else if (country === 'SG') {
         // Singapore: MOE Singapore, IGCSE, IB – no KSSM or UEC – plus music programmes
-        return [Syllabus.MOE_SINGAPORE, Syllabus.IGCSE, Syllabus.IB, Syllabus.WESTERN_MUSIC, Syllabus.INDIAN_MUSIC];
+        return [Syllabus.MOE_SINGAPORE, Syllabus.IGCSE, Syllabus.IB, Syllabus.WESTERN_MUSIC, Syllabus.CARNATIC_MUSIC, Syllabus.HINDUSTANI_MUSIC];
     } else {
         // International / undetected: IGCSE and IB only – plus music programmes
-        return [Syllabus.IGCSE, Syllabus.IB, Syllabus.MOE_SINGAPORE, Syllabus.WESTERN_MUSIC, Syllabus.INDIAN_MUSIC];
+        return [Syllabus.IGCSE, Syllabus.IB, Syllabus.MOE_SINGAPORE, Syllabus.WESTERN_MUSIC, Syllabus.CARNATIC_MUSIC, Syllabus.HINDUSTANI_MUSIC];
     }
 };
 
@@ -45,8 +45,9 @@ export const getGradesBySyllabus = (syll: Syllabus): { primary: GradeLevel[]; se
                 primary: all.filter(g => ['Grade 1', 'Grade 2', 'Grade 3', 'Grade 4'].includes(g)),
                 secondary: all.filter(g => ['Grade 5', 'Grade 6', 'Grade 7', 'Grade 8'].includes(g))
             };
-        case Syllabus.INDIAN_MUSIC:
-            // Akshara Fine Arts Carnatic curriculum: Grade 1-5 (foundation) + Grade 6-10 (advanced)
+        case Syllabus.CARNATIC_MUSIC:
+        case Syllabus.HINDUSTANI_MUSIC:
+            // Akshara Fine Arts Indian classical curricula: Grade 1-5 (foundation) + Grade 6-10 (advanced)
             return {
                 primary: all.filter(g => ['Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5'].includes(g)),
                 secondary: all.filter(g => ['Grade 6', 'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10'].includes(g))

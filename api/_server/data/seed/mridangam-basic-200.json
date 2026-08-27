@@ -1,9 +1,9 @@
-{
+﻿{
   "shuffle": true,
   "defaults": {
     "subject": "Mridangam",
     "grade": "Grade 1",
-    "syllabus": "Indian Music"
+    "syllabus": "Carnatic Music"
   },
   "questions": [
     {
@@ -18,7 +18,7 @@
       ],
       "correctIndex": 1,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -33,7 +33,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -48,7 +48,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -63,7 +63,7 @@
       ],
       "correctIndex": 1,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -78,7 +78,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -93,7 +93,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -108,7 +108,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -123,7 +123,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -138,7 +138,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -153,7 +153,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -168,7 +168,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -183,7 +183,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -198,7 +198,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -213,7 +213,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -228,7 +228,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -243,7 +243,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -258,7 +258,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -273,7 +273,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -288,7 +288,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -303,7 +303,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -318,7 +318,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -333,7 +333,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -348,7 +348,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -363,7 +363,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -378,7 +378,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -393,7 +393,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -408,7 +408,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -423,7 +423,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -438,7 +438,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -453,7 +453,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -468,7 +468,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -483,7 +483,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -498,7 +498,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -513,7 +513,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -528,7 +528,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -543,7 +543,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -558,7 +558,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -573,7 +573,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -588,7 +588,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -603,7 +603,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -618,7 +618,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -633,7 +633,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -648,7 +648,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -663,7 +663,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -678,7 +678,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -693,7 +693,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -708,7 +708,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -723,7 +723,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -738,7 +738,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -753,7 +753,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -768,7 +768,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -783,7 +783,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -798,7 +798,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -813,7 +813,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -828,7 +828,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -843,7 +843,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -858,7 +858,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -873,7 +873,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -888,7 +888,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -903,7 +903,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -918,7 +918,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -933,7 +933,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -948,7 +948,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -963,7 +963,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -978,7 +978,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -993,7 +993,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1008,7 +1008,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1023,7 +1023,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1038,7 +1038,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1053,7 +1053,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1068,7 +1068,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1083,7 +1083,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1098,7 +1098,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1113,7 +1113,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1128,7 +1128,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1143,7 +1143,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1158,7 +1158,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1173,7 +1173,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1188,7 +1188,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1203,7 +1203,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1218,7 +1218,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1233,7 +1233,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1248,7 +1248,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1263,7 +1263,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1278,7 +1278,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1293,7 +1293,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1308,7 +1308,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1323,7 +1323,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1338,7 +1338,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1353,7 +1353,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1368,7 +1368,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1383,7 +1383,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1398,7 +1398,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1413,7 +1413,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1428,7 +1428,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1443,7 +1443,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1458,7 +1458,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1473,7 +1473,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1488,7 +1488,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1503,7 +1503,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1518,7 +1518,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1533,7 +1533,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1548,7 +1548,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1563,7 +1563,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1578,7 +1578,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1593,7 +1593,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1608,7 +1608,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1623,7 +1623,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1638,7 +1638,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1653,7 +1653,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1668,7 +1668,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1683,7 +1683,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1698,7 +1698,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1713,7 +1713,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1728,7 +1728,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1743,7 +1743,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1758,7 +1758,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1773,7 +1773,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1788,7 +1788,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1803,7 +1803,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1818,7 +1818,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1833,7 +1833,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1848,7 +1848,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1863,7 +1863,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1878,7 +1878,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1893,7 +1893,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1908,7 +1908,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1923,7 +1923,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1938,7 +1938,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1953,7 +1953,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1968,7 +1968,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1983,7 +1983,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -1998,7 +1998,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -2013,7 +2013,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -2028,7 +2028,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -2043,7 +2043,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -2058,7 +2058,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -2073,7 +2073,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -2088,7 +2088,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -2103,7 +2103,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -2118,7 +2118,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -2133,7 +2133,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -2148,7 +2148,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -2163,7 +2163,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -2178,7 +2178,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -2193,7 +2193,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -2208,7 +2208,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -2223,7 +2223,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -2238,7 +2238,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -2253,7 +2253,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -2268,7 +2268,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -2283,7 +2283,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -2298,7 +2298,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -2313,7 +2313,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -2328,7 +2328,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -2343,7 +2343,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -2358,7 +2358,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -2373,7 +2373,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -2388,7 +2388,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -2403,7 +2403,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Practical"
     },
     {
@@ -2418,7 +2418,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2433,7 +2433,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2448,7 +2448,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2463,7 +2463,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2478,7 +2478,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2493,7 +2493,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2508,7 +2508,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2523,7 +2523,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2538,7 +2538,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2553,7 +2553,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2568,7 +2568,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2583,7 +2583,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2598,7 +2598,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2613,7 +2613,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2628,7 +2628,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2643,7 +2643,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2658,7 +2658,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2673,7 +2673,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2688,7 +2688,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2703,7 +2703,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2718,7 +2718,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2733,7 +2733,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2748,7 +2748,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2763,7 +2763,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2778,7 +2778,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2793,7 +2793,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2808,7 +2808,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2823,7 +2823,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2838,7 +2838,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2853,7 +2853,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2868,7 +2868,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2883,7 +2883,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2898,7 +2898,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2913,7 +2913,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2928,7 +2928,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2943,7 +2943,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2958,7 +2958,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2973,7 +2973,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -2988,7 +2988,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     },
     {
@@ -3003,7 +3003,7 @@
       ],
       "correctIndex": 0,
       "difficulty": "Medium",
-      "source": "Akshara Fine Arts Official Bank — Mridangam Basic Level",
+      "source": "Akshara Fine Arts Official Bank â€” Mridangam Basic Level",
       "classification": "Theory"
     }
   ]

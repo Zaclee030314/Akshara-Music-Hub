@@ -15,6 +15,13 @@ export interface DisplayRow {
     level: number;
 }
 
+/** Adapter for GET /api/leaderboard rows ({xp} → {value}); shared by the full
+ *  leaderboard page and the homepage top-10 preview. */
+export const allTimeToRow = (p: { id: string; name: string; avatar?: string | null; grade?: string | null; rank: number; xp: number; level: number }): DisplayRow => ({
+    id: p.id, name: p.name, avatar: p.avatar, grade: p.grade,
+    rank: p.rank, value: p.xp, level: p.level,
+});
+
 interface Props {
     player: DisplayRow;
     /** Unit shown under the value — "XP" on all-time, "Season XP" on a season board. */

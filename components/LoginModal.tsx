@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Card } from './Card';
 import { Button } from './Button';
 import { ArrowLeft, LogIn, Mail, Loader2, KeyRound, ShieldCheck, Lock, Eye, EyeOff, CheckCircle2, X } from 'lucide-react';
@@ -44,7 +44,7 @@ const PasswordInput = ({ value, onChange, placeholder, onEnter }: {
                 value={value}
                 onChange={e => onChange(e.target.value)}
                 className="w-full p-3 pr-11 rounded-lg border-2 border-brand-dark/10 focus:outline-none focus:border-brand-orange transition-colors"
-                placeholder={placeholder || '••••••••'}
+                placeholder={placeholder || 'â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢'}
                 onKeyDown={e => e.key === 'Enter' && onEnter?.()}
             />
             <button type="button" onClick={() => setShow(s => !s)}
@@ -113,7 +113,7 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
     }, [selectedSyllabus]);
 
     // Auto-suggest the standard from the birthday until the student overrides it.
-    // Music syllabi have no age→grade relationship, so they are never suggested.
+    // Music syllabi have no ageâ†’grade relationship, so they are never suggested.
     const suggestedGrade = React.useMemo(() => {
         if (!birthday || !selectedSyllabus || isMusicSyllabus(selectedSyllabus)) return null;
         return suggestGrade(selectedSyllabus, birthday);
@@ -220,10 +220,10 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
         }
     });
 
-    // ── EMAIL VERIFICATION ──────────────────────────────────────────────────
+    // â”€â”€ EMAIL VERIFICATION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if (view === 'verify') return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-            <Card className="max-w-md w-full p-8 relative animate-float">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-start sm:items-center justify-center p-4 overflow-y-auto">
+            <Card className="max-w-md w-full p-8 relative my-8">
                 <button onClick={() => setView('login')} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
                     <ArrowLeft size={20} />
                 </button>
@@ -253,10 +253,10 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
         </div>
     );
 
-    // ── FORGOT PASSWORD: STEP 1 – Email ─────────────────────────────────────
+    // â”€â”€ FORGOT PASSWORD: STEP 1 â€“ Email â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if (view === 'forgot_email') return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-            <Card className="max-w-md w-full p-8 relative animate-float">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-start sm:items-center justify-center p-4 overflow-y-auto">
+            <Card className="max-w-md w-full p-8 relative my-8">
                 <button onClick={() => { setView('login'); setFpError(''); }} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
                     <ArrowLeft size={20} />
                 </button>
@@ -285,10 +285,10 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
         </div>
     );
 
-    // ── FORGOT PASSWORD: STEP 2 – OTP ───────────────────────────────────────
+    // â”€â”€ FORGOT PASSWORD: STEP 2 â€“ OTP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if (view === 'forgot_otp') return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-            <Card className="max-w-md w-full p-8 relative animate-float">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-start sm:items-center justify-center p-4 overflow-y-auto">
+            <Card className="max-w-md w-full p-8 relative my-8">
                 <button onClick={() => { setView('forgot_email'); setFpError(''); setFpOtp(''); }} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
                     <ArrowLeft size={20} />
                 </button>
@@ -317,10 +317,10 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
         </div>
     );
 
-    // ── FORGOT PASSWORD: STEP 3 – New Password ──────────────────────────────
+    // â”€â”€ FORGOT PASSWORD: STEP 3 â€“ New Password â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if (view === 'forgot_newpass') return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-            <Card className="max-w-md w-full p-8 relative animate-float">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-start sm:items-center justify-center p-4 overflow-y-auto">
+            <Card className="max-w-md w-full p-8 relative my-8">
                 <div className="text-center mb-6">
                     <div className="w-16 h-16 bg-brand-green/10 rounded-full flex items-center justify-center mx-auto mb-4 text-brand-green">
                         <Lock size={32} />
@@ -353,10 +353,10 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
         </div>
     );
 
-    // ── MAIN LOGIN / SIGNUP ─────────────────────────────────────────────────
+    // â”€â”€ MAIN LOGIN / SIGNUP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-            <Card className="max-w-md w-full p-8 relative animate-float">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-start sm:items-center justify-center p-4 overflow-y-auto">
+            <Card className="max-w-md w-full p-8 relative my-8">
                 <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
                     <ArrowLeft size={20} />
                 </button>
@@ -455,7 +455,7 @@ export const LoginModal = ({ onClose }: LoginModalProps) => {
                     <div>
                         <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-1">{t('login.password')}</label>
                         <PasswordInput value={password} onChange={setPassword} onEnter={handleSubmit} />
-                        {/* Forgot password link — below the password field */}
+                        {/* Forgot password link â€” below the password field */}
                         {!isSignUp && (
                             <div className="text-right mt-1.5">
                                 <button

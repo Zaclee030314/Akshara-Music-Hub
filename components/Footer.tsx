@@ -1,9 +1,11 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Facebook, Instagram, Twitter, Youtube, Mail } from 'lucide-react';
 import { useT } from '../contexts/LanguageContext';
 
 export const Footer: React.FC = () => {
     const { t } = useT();
+    const navigate = useNavigate();
     // pb-28 on phones clears the fixed bottom tab bar (~74px). The footer sits
     // outside <main>, so main's pb-20 gives it no clearance.
     return (
@@ -38,6 +40,7 @@ export const Footer: React.FC = () => {
                 <div className="space-y-4 md:space-y-5">
                     <h4 className="font-bold text-sm md:text-base font-display text-white/90">{t('footer.company')}</h4>
                     <ul className="space-y-2 text-white/40 font-medium text-xs md:text-sm">
+                        <li className="hover:text-brand-orange cursor-pointer transition-colors" onClick={() => navigate('/pricing')}>{t('nav.pricing')}</li>
                         <li className="hover:text-brand-orange cursor-pointer transition-colors">{t('footer.aboutUs')}</li>
                         <li className="hover:text-brand-orange cursor-pointer transition-colors">{t('footer.ourMission')}</li>
                         <li className="hover:text-brand-orange cursor-pointer transition-colors">{t('footer.privacy')}</li>

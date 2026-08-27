@@ -67,13 +67,19 @@ const formatBankQuestions = (rows: any[], sourceLabel: string) =>
 
 // ─── MUSIC PROMPT RULES ────────────────────────────────────────────────
 // Keep the subject lists in sync with lib/musicSubjects.ts.
-const INDIAN_TECHNIQUE_FOCUS: Record<string, string> = {
+const CARNATIC_TECHNIQUE_FOCUS: Record<string, string> = {
     'Sangeetham (Vocal)': 'voice culture, breath control, swara singing, and compositions (Geetham, Varnam, Kriti)',
     'Mridangam': 'fingering, strokes (Tha, Dhi, Nam, Thom, Chapu), sollukattu recitation, and tala accompaniment',
-    'Tabla': 'basic bols, hand technique, and tala accompaniment',
     'Veena': 'meettu (plucking), fretting, gamaka, and raga playing',
     'Keyboard (Carnatic)': 'swara-to-key mapping (always state the selected Sa, e.g. Sa = E), fingering (thumb 1 to little finger 5), and raga playing',
     'Harmonium': 'left-hand bellows control, right-hand fingering, and swara-to-key mapping (always state the selected Sa)'
+};
+
+const HINDUSTANI_TECHNIQUE_FOCUS: Record<string, string> = {
+    'Vocal (Hindustani)': 'voice culture, sargam singing, alankar practice, and khayal fundamentals (sthayi/antara)',
+    'Tabla': 'hand technique on dayan and bayan, basic bols (Dha, Dhin, Na, Tin, Ge, Ke), kaida practice, and taal accompaniment',
+    'Harmonium': 'left-hand bellows control, right-hand fingering, and sargam-to-key mapping (always state the selected Sa)',
+    'Sitar': 'mizrab strokes (da, ra, diri), fretting, meend (glides), and raag playing'
 };
 
 // focus: 'Theory' | 'Aural & Practical' — the per-instrument study focus
@@ -101,14 +107,28 @@ const musicPromptRules = (syllabus: string, subject: string, grade: string, focu
         : '';
     const factualSafety = `FACTUAL SAFETY: Before finalising each question, verify the marked correct answer is factually true${facts.length ? ' and consistent with the authoritative facts above' : ''}. If you are not 100% certain of a physical or factual detail (posture, instrument construction, hand usage), DO NOT test it — write a question about a concept you are certain of instead. A wrong marked answer is a serious failure.`;
 
-    if (syllabus === 'Indian Music') {
+    if (syllabus === 'Carnatic Music' || syllabus === 'Indian Music' /* legacy */) {
         return `
-MUSIC SYLLABUS RULES (Indian Music — Carnatic):
+MUSIC SYLLABUS RULES (Carnatic Music):
 - This is a CARNATIC MUSIC examination for ${subject} students of Akshara Fine Arts (Grades 1-10).
 - Use authentic Carnatic terminology: swara (Sa Ri Ga Ma Pa Da Ni), shruti, sthayi, tala (Adi, Rupaka, Eka, Misra Chapu, Khanda Chapu), raga, sarali/janta/dhatu varisai, alankaram, geetham, varnam, kriti, sollukattu.
 - Anchor beginner content (Grades 1-3) on raga Mayamalavagowla.
-- Emphasise ${subject}-specific technique: ${INDIAN_TECHNIQUE_FOCUS[subject] || 'instrument technique and theory'}.
+- Emphasise ${subject}-specific technique: ${CARNATIC_TECHNIQUE_FOCUS[subject] || 'instrument technique and theory'}.
 ${musicFocusRules(subject, focus)}
+- Questions must be answerable in text form without audio or images — describe sounds and techniques in words.
+${factGrounding}${factualSafety}
+${gradeProtection}
+`;
+    }
+    if (syllabus === 'Hindustani Music') {
+        return `
+MUSIC SYLLABUS RULES (Hindustani Music):
+- This is a HINDUSTANI (North Indian) CLASSICAL MUSIC examination for ${subject} students of Akshara Fine Arts (Grades 1-10).
+- Use authentic Hindustani terminology: sargam (Sa Re Ga Ma Pa Dha Ni), shuddha/komal/tivra swaras, saptak (mandra, madhya, taar), taal (Teentaal 16, Keherwa 8, Dadra 6, Jhaptaal 10), theka, bol, sam, khali, matra, alankar, raag, aaroh/avroh, vadi/samvadi, bandish, alap, gharana awareness.
+- Anchor beginner content (Grades 1-3) on raag Bilawal (the natural-note reference) and simple alankar patterns.
+- Emphasise ${subject}-specific technique: ${HINDUSTANI_TECHNIQUE_FOCUS[subject] || 'instrument technique and theory'}.
+${musicFocusRules(subject, focus)}
+- Do NOT use Carnatic-specific terms (varnam, kriti, sarali varisai, sollukattu) — this is the Hindustani tradition.
 - Questions must be answerable in text form without audio or images — describe sounds and techniques in words.
 ${factGrounding}${factualSafety}
 ${gradeProtection}
@@ -637,8 +657,11 @@ router.post('/syllabus', async (req, res) => {
            Example: "Topic 1: Quadratic Functions (Graphs, Roots, Completing the Square)"
         8. UNIVERSAL APPLICABILITY: This must work for ANY subject (Mathematics, Computer Science, Biology, Languages, etc.).
         9. LANGUAGE: The topic names MUST be written in ${targetLanguage}.
-        ${typeof syllabus === 'string' && isMusicSyllabus(syllabus) ? (syllabus === 'Indian Music'
+        ${typeof syllabus === 'string' && isMusicSyllabus(syllabus) ? (
+            (syllabus === 'Carnatic Music' || syllabus === 'Indian Music')
             ? `10. CARNATIC MUSIC: This is the Akshara Fine Arts Carnatic curriculum for ${subject}. Use authentic Carnatic terminology (swara, shruti, tala, raga, sarali/janta/dhatu varisai, alankaram, geetham, varnam, kriti, sollukattu). Topics must fit ${grade} only — never include higher-grade concepts.`
+            : syllabus === 'Hindustani Music'
+            ? `10. HINDUSTANI MUSIC: This is the Akshara Fine Arts Hindustani (North Indian) curriculum for ${subject}. Use authentic Hindustani terminology (sargam, saptak, taal, theka, bol, alankar, raag, aaroh/avroh, bandish, alap). Do NOT use Carnatic terms. Topics must fit ${grade} only — never include higher-grade concepts.`
             : `10. WESTERN MUSIC: Follow ABRSM/Trinity graded standards for ${subject} at ${grade}. Cover notation, scales, intervals, chords, musical terms, composers and instrument technique appropriate to this grade only.`) : ''}
 
         JSON SPECIFICATION:

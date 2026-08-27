@@ -3,7 +3,7 @@ import { Card } from './Card';
 import { Button } from './Button';
 import { useAuth } from '../contexts/useAuth';
 import { useT } from '../contexts/LanguageContext';
-import { Loader2, Camera, User as UserIcon, Save, CheckCircle2, Gift, Copy, Check, Sparkles } from 'lucide-react';
+import { Loader2, Camera, User as UserIcon, Save, CheckCircle2, Gift, Copy, Check, Sparkles, Plus, Trash2 } from 'lucide-react';
 import { StandardEditor } from './StandardEditor';
 
 interface Profile {
@@ -19,6 +19,8 @@ interface Profile {
     parentName?: string | null;
     parentPhone?: string | null;
     parentEmail?: string | null;
+    children?: Array<{ name: string; birthday: string }>;
+    createdAt?: string | null;
     profileCompleted: boolean;
     referralCreditCents?: number;
 }
@@ -49,6 +51,7 @@ export const ProfilePage: React.FC = () => {
     const [parentPhone, setParentPhone] = useState('');
     const [parentEmail, setParentEmail] = useState('');
     const [sameAsEmail, setSameAsEmail] = useState(false);
+    const [childrenList, setChildrenList] = useState<Array<{ name: string; birthday: string }>>([]);
     const [savingFamily, setSavingFamily] = useState(false);
     const [familySaved, setFamilySaved] = useState(false);
 
@@ -66,6 +69,7 @@ export const ProfilePage: React.FC = () => {
             setParentName(data.parentName || '');
             setParentPhone(data.parentPhone || '');
             setParentEmail(data.parentEmail || '');
+            setChildrenList(data.children && data.children.length > 0 ? data.children : [{ name: '', birthday: '' }]);
             if (data.parentEmail && data.parentEmail === data.email) setSameAsEmail(true);
         } catch (err) {
             console.error(err);
@@ -197,7 +201,8 @@ export const ProfilePage: React.FC = () => {
                 body: JSON.stringify({
                     parentName,
                     parentPhone,
-                    parentEmail: sameAsEmail ? profile?.email : parentEmail
+                    parentEmail: sameAsEmail ? profile?.email : parentEmail,
+                    children: childrenList.filter(c => c.name.trim() && c.birthday)
                 })
             });
             if (!res.ok) {
@@ -307,6 +312,12 @@ export const ProfilePage: React.FC = () => {
                             <p className="font-medium text-brand-dark">{profile.birthday}</p>
                         </div>
                     )}
+                    {profile.createdAt && (
+                        <div>
+                            <p className="text-xs font-bold text-brand-dark/40 uppercase">{t('profile.dateJoined')}</p>
+                            <p className="font-medium text-brand-dark">{profile.createdAt}</p>
+                        </div>
+                    )}
                 </div>
             </Card>
 
@@ -411,6 +422,49 @@ export const ProfilePage: React.FC = () => {
                             />
                             {t('profile.sameAsEmail')}
                         </label>
+                    </div>
+
+                    {/* Children — name + date of birth, at least one */}
+                    <div className="space-y-3">
+                        <label className="text-xs font-bold text-brand-dark/40 uppercase">{t('profile.children')}</label>
+                        {childrenList.map((child, idx) => (
+                            <div key={idx} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-2 items-end">
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-bold text-brand-dark/40 uppercase">{t('profile.childName')}</label>
+                                    <input
+                                        type="text"
+                                        value={child.name}
+                                        onChange={(e) => setChildrenList(prev => prev.map((c, i) => i === idx ? { ...c, name: e.target.value } : c))}
+                                        className="w-full p-3 rounded-xl border-2 border-brand-dark/10 focus:border-brand-blue focus:outline-none font-medium"
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-bold text-brand-dark/40 uppercase">{t('profile.childBirthday')}</label>
+                                    <input
+                                        type="date"
+                                        value={child.birthday}
+                                        onChange={(e) => setChildrenList(prev => prev.map((c, i) => i === idx ? { ...c, birthday: e.target.value } : c))}
+                                        className="w-full p-3 rounded-xl border-2 border-brand-dark/10 focus:border-brand-blue focus:outline-none font-medium appearance-none min-h-[48px]"
+                                    />
+                                </div>
+                                {childrenList.length > 1 ? (
+                                    <button
+                                        type="button"
+                                        onClick={() => setChildrenList(prev => prev.filter((_, i) => i !== idx))}
+                                        className="p-3 text-red-400 hover:text-red-600 transition-colors"
+                                    >
+                                        <Trash2 size={18} />
+                                    </button>
+                                ) : <div />}
+                            </div>
+                        ))}
+                        <button
+                            type="button"
+                            onClick={() => setChildrenList(prev => [...prev, { name: '', birthday: '' }])}
+                            className="flex items-center gap-1 text-sm font-bold text-brand-blue hover:underline"
+                        >
+                            <Plus size={16} /> {t('profile.addChild')}
+                        </button>
                     </div>
 
                     <div className="flex items-center gap-3">

@@ -108,15 +108,24 @@ const SUBJECT_DATA: Record<string, { name: string; subjects: any[]; syllabus?: S
             ]
         },
         {
-            name: 'Indian Music (Grade 1-10)',
-            syllabus: Syllabus.INDIAN_MUSIC,
+            name: 'Carnatic Music (Grade 1-10)',
+            syllabus: Syllabus.CARNATIC_MUSIC,
             subjects: [
                 { id: Subject.SANGEETHAM, label: 'Sangeetham (Vocal)', icon: '🎙️', color: 'bg-rose-100 text-rose-700' },
                 { id: Subject.MRIDANGAM, label: 'Mridangam', icon: '🥁', color: 'bg-amber-100 text-amber-700' },
                 { id: Subject.VEENA, label: 'Veena', icon: '🪕', color: 'bg-orange-100 text-orange-700' },
                 { id: Subject.KEYBOARD_CARNATIC, label: 'Keyboard', icon: '🎹', color: 'bg-fuchsia-100 text-fuchsia-700' },
                 { id: Subject.HARMONIUM, label: 'Harmonium', icon: '🪗', color: 'bg-lime-100 text-lime-700' },
+            ]
+        },
+        {
+            name: 'Hindustani Music (Grade 1-10)',
+            syllabus: Syllabus.HINDUSTANI_MUSIC,
+            subjects: [
+                { id: Subject.HINDUSTANI_VOCAL, label: 'Vocal', icon: '🎙️', color: 'bg-yellow-100 text-yellow-700' },
                 { id: Subject.TABLA, label: 'Tabla', icon: '🥁', color: 'bg-stone-200 text-stone-700' },
+                { id: Subject.HARMONIUM, label: 'Harmonium', icon: '🪗', color: 'bg-lime-100 text-lime-700' },
+                { id: Subject.SITAR, label: 'Sitar', icon: '🪕', color: 'bg-teal-100 text-teal-700' },
             ]
         }
     ]

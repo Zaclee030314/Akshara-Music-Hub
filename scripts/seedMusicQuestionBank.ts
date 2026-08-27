@@ -89,14 +89,26 @@ async function main() {
         let created = 0, updated = 0;
         const answerSpread = [0, 0, 0, 0];
 
+        // The Harmonium bank is tradition-neutral (bellows/fingering/keys), so it
+        // serves BOTH Indian classical syllabi: seed each row twice, the copy under
+        // Hindustani Music with a distinct deterministic id.
+        const isHarmonium = data.defaults.subject === 'Harmonium';
+        const rows: Array<SeedQuestion & { seedSyllabus?: string }> = [];
         for (const q of data.questions) {
+            rows.push(q);
+            if (isHarmonium) {
+                rows.push({ ...q, id: q.id.replace(/^seed-hrm-g1-/, 'seed-hrm-g1-h-'), seedSyllabus: 'Hindustani Music' });
+            }
+        }
+
+        for (const q of rows) {
             const { options, correctIndex } = data.shuffle ? seededShuffle(q) : { options: q.options, correctIndex: q.correctIndex };
             answerSpread[correctIndex]++;
 
             const row = {
                 subject: q.subject ?? data.defaults.subject,
                 grade: q.grade ?? data.defaults.grade,
-                syllabus: q.syllabus ?? data.defaults.syllabus,
+                syllabus: (q as any).seedSyllabus ?? q.syllabus ?? data.defaults.syllabus,
                 topic: q.topic,
                 subtopic: q.subtopic ?? null,
                 year: 0, // sentinel: music content has no exam year

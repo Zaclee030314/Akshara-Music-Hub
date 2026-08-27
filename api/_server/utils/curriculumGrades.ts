@@ -18,7 +18,7 @@ const MUSIC_GRADES_INDIAN = [
     'Grade 6', 'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10'
 ];
 
-// The 7 Syllabus enum string values.
+// The Syllabus enum string values ('Indian Music' kept for legacy stored rows).
 export const SYLLABUSES: string[] = [
     'Malaysia National Curriculum',
     'Singapore National Curriculum',
@@ -26,6 +26,8 @@ export const SYLLABUSES: string[] = [
     'Unified Examination Certificate (UEC)',
     'International Baccalaureate (IB)',
     'Western Music',
+    'Carnatic Music',
+    'Hindustani Music',
     'Indian Music'
 ];
 
@@ -44,7 +46,9 @@ export const gradesForSyllabus = (syllabus: string): string[] => {
             return [...FORMS];
         case 'Western Music':
             return [...MUSIC_GRADES_WESTERN];
-        case 'Indian Music':
+        case 'Carnatic Music':
+        case 'Hindustani Music':
+        case 'Indian Music': // legacy stored value, pre-split
             return [...MUSIC_GRADES_INDIAN];
         case 'Malaysia National Curriculum':
         default:

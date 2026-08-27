@@ -944,7 +944,25 @@ const INSTRUMENT_FACTS: Record<string, string[]> = {
         'The tabla is a PAIR of drums: the smaller wooden dayan (right drum) and the larger metal-bodied bayan (left/bass drum).',
         'Both drum heads carry a black tuning paste (syahi).',
         'It is played with the fingers and palms, never with sticks.',
-        'The player sits cross-legged with both drums in front.'
+        'The player sits cross-legged with both drums in front.',
+        'Common bols: Na, Tin, Ta on the dayan; Ge, Ke on the bayan; Dha = Na + Ge together; Dhin = Tin + Ge together.',
+        'Teentaal has 16 matras in four vibhags; sam is matra 1 and khali is matra 9.'
+    ],
+    'Sitar': [
+        'The player sits cross-legged with the gourd resting on the LEFT foot/thigh and the neck sloping up at an angle.',
+        'The strings are plucked with a wire plectrum called a mizrab worn on the RIGHT index finger.',
+        'The left hand presses and pulls the strings on curved movable frets.',
+        'Meend is the glide produced by pulling the string sideways across the fret.',
+        'The sitar has main playing strings, chikari (rhythm/drone) strings, and sympathetic (tarab) strings that resonate underneath.',
+        'Basic mizrab strokes: da (inward), ra (outward), diri (da-ra fast pair).'
+    ],
+    'Vocal (Hindustani)': [
+        'The sargam swaras are Sa Re Ga Ma Pa Dha Ni.',
+        'Komal (flattened) swaras are Re, Ga, Dha, Ni; Ma is the only swara with a tivra (raised) form; Sa and Pa are immovable.',
+        'The three saptaks are mandra (low), madhya (middle) and taar (high).',
+        'Teentaal has 16 matras, Keherwa 8, Dadra 6, Jhaptaal 10, Rupak 7, Ektaal 12.',
+        'Sam is the first matra of the taal cycle; khali is the waved (empty) beat.',
+        'A khayal bandish has two sections: sthayi (lower/main) and antara (upper/second).'
     ],
     'Harmonium': [
         'The LEFT hand pumps the bellows; the RIGHT hand plays the keyboard.',
@@ -974,14 +992,209 @@ const INSTRUMENT_FACTS: Record<string, string[]> = {
 export const getInstrumentFacts = (subject: string): string[] =>
     INSTRUMENT_FACTS[subject] ?? [];
 
+// ─── Hindustani Music (generated Grade 1-10 scaffolds) ──────────────────────────
+// Melodic instruments share a Hindustani progression scaffold (sargam → alankar →
+// taal → raag → bandish → improvisation); Tabla gets its own rhythm-focused tree.
+
+const makeHindustaniMelodicTopics = (name: string, t: InstrumentTechnique): GradeTopics => ({
+    'Grade 1': [
+        `Topic 1: ${name} Basics (Care, posture and hold, ${t.found})`,
+        'Topic 2: Sargam Introduction (Sa Re Ga Ma Pa Dha Ni, ascending and descending)',
+        'Topic 3: Shuddha Swaras (The seven natural notes, matching the tanpura Sa)',
+        'Topic 4: Basic Pulse (Steady matra counting, clapping the beat)',
+        'Topic 5: Simple Alankar (Straight sargam patterns in madhya saptak)',
+        'Topic 6: Listening Discipline (Matching Sa, listening before playing/singing)'
+    ],
+    'Grade 2': [
+        `Topic 1: Technique Development (${t.found})`,
+        'Topic 2: Alankar Patterns (Paltas: SaReGa ReGaMa sequences, ascending-descending)',
+        'Topic 3: Saptak Awareness (Mandra, madhya and taar saptak)',
+        'Topic 4: Taal Introduction (Keherwa 8 matras, Dadra 6 matras, theka bols)',
+        'Topic 5: Komal Swaras Introduction (Komal Re, Ga, Dha, Ni)',
+        'Topic 6: Simple Exercises (Sargam in one speed with steady laya)'
+    ],
+    'Grade 3': [
+        `Topic 1: Intermediate Technique (${t.inter})`,
+        'Topic 2: All Twelve Swaras (Shuddha, komal and tivra Ma positions)',
+        'Topic 3: Teentaal (16 matras, four vibhags, sam and khali)',
+        'Topic 4: Alankar in Two Speeds (Barabar and dugun laya)',
+        'Topic 5: Raag Bilawal Introduction (Aaroh, avroh, the natural-note raag)',
+        'Topic 6: Ear Training (Recognising higher and lower swaras)'
+    ],
+    'Grade 4': [
+        `Topic 1: Technique Expansion (${t.inter})`,
+        'Topic 2: First Raags (Bilawal, Yaman introduction — aaroh, avroh, pakad)',
+        'Topic 3: Vadi and Samvadi (Important swaras of a raag)',
+        'Topic 4: Taal Variety (Jhaptaal 10 matras, revision of Teentaal/Keherwa/Dadra)',
+        'Topic 5: Simple Bandish (Sthayi of an easy composition)',
+        'Topic 6: Laya Discipline (Keeping the theka steady while performing)'
+    ],
+    'Grade 5': [
+        `Topic 1: Advanced-Intermediate Technique (${t.inter})`,
+        'Topic 2: Raag Development (Yaman, Bhupali, Kafi — characteristics and pakad)',
+        'Topic 3: Bandish Repertoire (Sthayi and antara of learnt compositions)',
+        'Topic 4: Aaroh-Avroh Mastery (Jati classification: audav, shadav, sampurna)',
+        'Topic 5: Three Speeds (Barabar, dugun, chaugun laya)',
+        'Topic 6: Taal Depth (Rupak 7 matras, khali and bhari awareness)'
+    ],
+    'Grade 6': [
+        `Topic 1: Advanced Technique (${t.adv})`,
+        'Topic 2: Raag Expansion (Khamaj, Bhairav, Bihag — thaat awareness)',
+        'Topic 3: Alap Introduction (Slow raag exploration without taal)',
+        'Topic 4: Bandish Performance (Complete compositions with expression)',
+        'Topic 5: The Ten Thaats (Classification system of raags)',
+        'Topic 6: Taan Preparation (Fast sargam runs within the raag)'
+    ],
+    'Grade 7': [
+        `Topic 1: Virtuosic Foundations (${t.adv})`,
+        'Topic 2: Alap Development (Structured raag unfolding, nyas swaras)',
+        'Topic 3: Taan and Layakari (Fast passages, rhythmic play against the theka)',
+        'Topic 4: Raag Comparison (Distinguishing similar raags, time theory of raags)',
+        'Topic 5: Advanced Taals (Ektaal 12 matras, Choutaal awareness)',
+        'Topic 6: Gharana Awareness (Major traditions and their styles)'
+    ],
+    'Grade 8': [
+        `Topic 1: Advanced Repertoire (${t.adv})`,
+        'Topic 2: Advanced Raags (Marwa, Purvi, Todi families)',
+        'Topic 3: Improvisation (Alap, taan and layakari within a performance)',
+        'Topic 4: Bada and Chota Khayal Structure',
+        'Topic 5: Ornamentation (Meend, kan, murki, gamak)',
+        'Topic 6: Stage Presentation (Complete raag performance with taal)'
+    ],
+    'Grade 9': [
+        'Topic 1: Concert Repertoire (Extended raag presentations)',
+        'Topic 2: Advanced Improvisation (Independent alap-jod-bandish development)',
+        'Topic 3: Rare Raags and Jod Raags (Compound and seasonal raags)',
+        'Topic 4: Accompaniment Skills (Working with tabla and tanpura)',
+        'Topic 5: Music History (Great masters and gharana lineages)',
+        'Topic 6: Performance Stamina (Full-length presentations)'
+    ],
+    'Grade 10': [
+        'Topic 1: Complete Command (Full technical and raag mastery)',
+        'Topic 2: Concert Performance (Complete recital planning and delivery)',
+        'Topic 3: Advanced Raag Science (Shruti awareness, raag time cycle, rasa)',
+        'Topic 4: Personal Style (Individual expression within tradition)',
+        'Topic 5: Teaching Awareness (Explaining and demonstrating fundamentals)',
+        'Topic 6: Professional Etiquette (Stage discipline, respecting the tradition)'
+    ]
+});
+
+const TABLA_HINDUSTANI: GradeTopics = {
+    'Grade 1': [
+        'Topic 1: Introduction to Tabla (The dayan and bayan pair, parts, syahi, care)',
+        'Topic 2: Sitting Posture and Placement (Cross-legged posture, drum angles)',
+        'Topic 3: Basic Bols (Na, Tin, Ta on dayan; Ge, Ke on bayan)',
+        'Topic 4: Hand Position (Finger and palm placement on each drum)',
+        'Topic 5: Combined Bols (Dha = Na + Ge, Dhin = Tin + Ge)',
+        'Topic 6: Matra Counting (Steady beat, clapping and reciting)'
+    ],
+    'Grade 2': [
+        'Topic 1: Bol Clarity (Clean separation of each stroke)',
+        'Topic 2: Keherwa Taal (8 matras, theka Dha Ge Na Tin Na Ke Dhin Na)',
+        'Topic 3: Dadra Taal (6 matras, theka Dha Dhin Na Dha Tin Na)',
+        'Topic 4: Bol Recitation (Padhant — saying before playing)',
+        'Topic 5: Simple Combinations (DhaGe, NaKe, TiRaKiTa introduction)',
+        'Topic 6: Practice Discipline (Slow steady repetition)'
+    ],
+    'Grade 3': [
+        'Topic 1: Teentaal (16 matras, four vibhags, sam, khali on 9th matra)',
+        'Topic 2: Theka Mastery (Playing Teentaal steadily at slow tempo)',
+        'Topic 3: TiRaKiTa Development (Clean four-stroke rolls)',
+        'Topic 4: Simple Kaida Introduction (Theme with basic development)',
+        'Topic 5: Sam and Khali (Feeling the cycle, showing the sam)',
+        'Topic 6: Laya Control (Playing without rushing or dragging)'
+    ],
+    'Grade 4': [
+        'Topic 1: Kaida Development (Palta variations of a kaida theme)',
+        'Topic 2: Tihai Introduction (Three-time repetition landing on sam)',
+        'Topic 3: Jhaptaal (10 matras, theka Dhin Na Dhin Dhin Na, Tin Na Dhin Dhin Na)',
+        'Topic 4: Dugun Laya (Double-speed playing within the cycle)',
+        'Topic 5: Bayan Control (Ghumki and bass modulation basics)',
+        'Topic 6: Padhant Skills (Reciting compositions with hand-taal)'
+    ],
+    'Grade 5': [
+        'Topic 1: Multiple Kaidas (Kaidas in Teentaal and Jhaptaal)',
+        'Topic 2: Rela Introduction (Fast flowing compositions)',
+        'Topic 3: Rupak Taal (7 matras, khali on sam)',
+        'Topic 4: Tukra and Mukhda (Short cadential compositions)',
+        'Topic 5: Accompaniment Basics (Supporting a melody in Keherwa/Dadra)',
+        'Topic 6: Three Speeds (Barabar, dugun, chaugun)'
+    ],
+    'Grade 6': [
+        'Topic 1: Ektaal (12 matras, theka and structure)',
+        'Topic 2: Kaida-Rela Development (Extended variation sets)',
+        'Topic 3: Chakradar Tihai (Tihai of tihais)',
+        'Topic 4: Accompaniment Skills (Khayal accompaniment, following the bandish)',
+        'Topic 5: Gharana Awareness (Delhi, Ajrara, Lucknow, Farukhabad, Benares, Punjab)',
+        'Topic 6: Tonal Quality (Clarity and balance between drums)'
+    ],
+    'Grade 7': [
+        'Topic 1: Advanced Kaidas (Complex themes with chalan)',
+        'Topic 2: Gat and Paran (Traditional solo compositions)',
+        'Topic 3: Layakari (Aad, kuad — playing against the beat)',
+        'Topic 4: Choutaal and Dhamar (Pakhawaj-derived taals awareness)',
+        'Topic 5: Solo Structure (Peshkar, kaida, rela, tukra ordering)',
+        'Topic 6: Advanced Accompaniment (Instrumental and vocal styles)'
+    ],
+    'Grade 8': [
+        'Topic 1: Peshkar Development (Opening a tabla solo)',
+        'Topic 2: Advanced Relas and Rous (Speed with clarity)',
+        'Topic 3: Chakradar and Farmaishi Compositions',
+        'Topic 4: Uncommon Taals (Pancham Sawari, Ada Choutaal awareness)',
+        'Topic 5: Improvisation Within Kaida Rules',
+        'Topic 6: Complete Solo Performance (Structured 15-minute solo)'
+    ],
+    'Grade 9': [
+        'Topic 1: Concert Solo Repertoire (Extended traditional compositions)',
+        'Topic 2: Advanced Layakari (Complex cross-rhythms)',
+        'Topic 3: Gharana Repertoire (Signature compositions of major gharanas)',
+        'Topic 4: Concert Accompaniment (Khayal, instrumental and dance support)',
+        'Topic 5: History of Tabla (Masters and lineages)',
+        'Topic 6: Stage Craft (Tuning on stage, presentation discipline)'
+    ],
+    'Grade 10': [
+        'Topic 1: Complete Command (All taals, kaidas and compositions at speed)',
+        'Topic 2: Full Solo Performance (Peshkar to chakradar, professionally structured)',
+        'Topic 3: Sensitive Accompaniment (When to lead, when to support)',
+        'Topic 4: Personal Style Within Tradition',
+        'Topic 5: Teaching Awareness (Explaining bols and structure)',
+        'Topic 6: Professional Etiquette (Concert discipline and tradition)'
+    ]
+};
+
+const HINDUSTANI_INSTRUMENTS: Record<string, InstrumentTechnique> = {
+    'Vocal (Hindustani)': {
+        found: 'posture, breath support, open-throat aakar practice',
+        inter: 'voice flexibility across saptaks, sustained swaras, breath phrases',
+        adv: 'taan agility, meend and murki, dynamic control'
+    },
+    'Sitar': {
+        found: 'sitting position, mizrab grip, da and ra strokes, open string clarity',
+        inter: 'fretting accuracy, diri strokes, simple meend (one-swara glide)',
+        adv: 'extended meend, krintan and zamzama, jhala technique'
+    },
+    'Harmonium': {
+        found: 'left-hand bellows control, right-hand finger numbering, key groups',
+        inter: 'bellows shading, sargam fluency in all saptaks, komal/tivra keys',
+        adv: 'raag accompaniment, following a vocalist, interlude playing'
+    }
+};
+
 // ─── Lookup ─────────────────────────────────────────────────────────────────────
 
-export const INDIAN_MUSIC_TOPICS: TopicMap = {
+export const CARNATIC_MUSIC_TOPICS: TopicMap = {
     'Sangeetham (Vocal)': SANGEETHAM,
     'Mridangam': MRIDANGAM,
     'Keyboard (Carnatic)': KEYBOARD_CARNATIC,
     'Harmonium': HARMONIUM
-    // Veena and Tabla: no curated data yet — AI fallback with Carnatic prompt rules.
+    // Veena: no curated data yet — AI fallback with Carnatic prompt rules.
+};
+
+export const HINDUSTANI_MUSIC_TOPICS: TopicMap = {
+    'Tabla': TABLA_HINDUSTANI,
+    ...Object.fromEntries(
+        Object.entries(HINDUSTANI_INSTRUMENTS).map(([name, t]) => [name, makeHindustaniMelodicTopics(name, t)])
+    )
 };
 
 export const WESTERN_MUSIC_TOPICS: TopicMap = {
@@ -1003,7 +1216,8 @@ export const getCuratedTopics = (
     grade: string
 ): string[] | null => {
     const map =
-        syllabus === 'Indian Music' ? INDIAN_MUSIC_TOPICS :
+        (syllabus === 'Carnatic Music' || syllabus === 'Indian Music' /* legacy */) ? CARNATIC_MUSIC_TOPICS :
+        syllabus === 'Hindustani Music' ? HINDUSTANI_MUSIC_TOPICS :
         syllabus === 'Western Music' ? WESTERN_MUSIC_TOPICS :
         null;
     return map?.[subject]?.[grade] ?? null;

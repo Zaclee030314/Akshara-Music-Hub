@@ -18,13 +18,16 @@ export enum Subject {
   MUSIC_THEORY = 'Music Theory',
   /** @deprecated No longer offered in pickers; kept because historical Results/Quests store this string. */
   AURAL_PRACTICAL = 'Aural & Practical',
-  // Indian Music (Carnatic) — instrument subjects (Akshara Fine Arts, Grades 1-10)
+  // Carnatic Music — instrument subjects (Akshara Fine Arts, Grades 1-10)
   SANGEETHAM = 'Sangeetham (Vocal)',
   MRIDANGAM = 'Mridangam',
   VEENA = 'Veena',
   KEYBOARD_CARNATIC = 'Keyboard (Carnatic)',
   HARMONIUM = 'Harmonium',
+  // Hindustani Music — instrument subjects (Grades 1-10; Harmonium is shared)
   TABLA = 'Tabla',
+  HINDUSTANI_VOCAL = 'Vocal (Hindustani)',
+  SITAR = 'Sitar',
   // Western Music — instrument subjects (Grades 1-8)
   PIANO = 'Piano',
   VIOLIN = 'Violin',
@@ -55,7 +58,10 @@ export enum Syllabus {
   UEC = 'Unified Examination Certificate (UEC)',
   IB = 'International Baccalaureate (IB)',
   WESTERN_MUSIC = 'Western Music',
-  INDIAN_MUSIC = 'Indian Music'
+  // Indian classical music split by tradition (formerly one 'Indian Music' syllabus;
+  // stored rows are migrated by scripts/migrateIndianMusicSplit.ts)
+  CARNATIC_MUSIC = 'Carnatic Music',
+  HINDUSTANI_MUSIC = 'Hindustani Music'
 }
 
 export enum GradeLevel {

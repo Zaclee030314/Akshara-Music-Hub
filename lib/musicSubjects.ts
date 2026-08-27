@@ -28,13 +28,19 @@ export const WESTERN_MUSIC_SUBJECTS: Subject[] = [
     Subject.ACCORDION
 ];
 
-export const INDIAN_MUSIC_SUBJECTS: Subject[] = [
+export const CARNATIC_MUSIC_SUBJECTS: Subject[] = [
     Subject.SANGEETHAM,
     Subject.MRIDANGAM,
     Subject.VEENA,
     Subject.KEYBOARD_CARNATIC,
+    Subject.HARMONIUM
+];
+
+export const HINDUSTANI_MUSIC_SUBJECTS: Subject[] = [
+    Subject.HINDUSTANI_VOCAL,
+    Subject.TABLA,
     Subject.HARMONIUM,
-    Subject.TABLA
+    Subject.SITAR
 ];
 
 // Per-instrument study focus: every music quest is either Theory (concepts,
@@ -43,9 +49,17 @@ export const INDIAN_MUSIC_SUBJECTS: Subject[] = [
 export type MusicFocus = 'Theory' | 'Aural & Practical';
 export const MUSIC_FOCUSES: MusicFocus[] = ['Theory', 'Aural & Practical'];
 
+/** True for any music syllabus ('Indian Music' kept for legacy stored rows). */
+export const isMusicSyllabus = (syllabus: Syllabus | string | null | undefined): boolean =>
+    syllabus === Syllabus.WESTERN_MUSIC ||
+    syllabus === Syllabus.CARNATIC_MUSIC ||
+    syllabus === Syllabus.HINDUSTANI_MUSIC ||
+    syllabus === 'Indian Music';
+
 /** Subjects offered under a music syllabus; union when the syllabus is unknown. */
 export const musicSubjectsFor = (syllabus: Syllabus | string | null | undefined): Subject[] => {
     if (syllabus === Syllabus.WESTERN_MUSIC) return WESTERN_MUSIC_SUBJECTS;
-    if (syllabus === Syllabus.INDIAN_MUSIC) return INDIAN_MUSIC_SUBJECTS;
-    return [...WESTERN_MUSIC_SUBJECTS, ...INDIAN_MUSIC_SUBJECTS];
+    if (syllabus === Syllabus.CARNATIC_MUSIC || syllabus === 'Indian Music') return CARNATIC_MUSIC_SUBJECTS;
+    if (syllabus === Syllabus.HINDUSTANI_MUSIC) return HINDUSTANI_MUSIC_SUBJECTS;
+    return [...WESTERN_MUSIC_SUBJECTS, ...CARNATIC_MUSIC_SUBJECTS, ...HINDUSTANI_MUSIC_SUBJECTS.filter(s => s !== Subject.HARMONIUM)];
 };

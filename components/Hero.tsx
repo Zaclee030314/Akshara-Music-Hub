@@ -13,7 +13,6 @@ interface HeroProps {
 
 export const Hero: React.FC<HeroProps> = ({ onStart, onViewPricing, isLoggedIn, isSubscribed, currencyConfig }) => {
     const { t } = useT();
-    const priceDisplay = currencyConfig?.code === 'MYR' ? 'RM20' : '$10';
 
     return (
         <section className="relative text-center space-y-8 py-20 sm:py-32 px-4 w-screen -ml-[50vw] left-1/2 min-h-[70vh] flex items-center justify-center flex-col overflow-hidden mt-8">
@@ -62,6 +61,14 @@ export const Hero: React.FC<HeroProps> = ({ onStart, onViewPricing, isLoggedIn, 
                     {isLoggedIn ? t('hero.ctaContinue') : t('hero.ctaStart')}
                     <Rocket className="w-5 h-5 ml-2" />
                 </Button>
+                {!isSubscribed && (
+                    <button
+                        onClick={onViewPricing}
+                        className="text-white/80 hover:text-white font-bold text-sm underline underline-offset-4 decoration-white/40 hover:decoration-white transition-colors"
+                    >
+                        {t('nav.pricing')} →
+                    </button>
+                )}
             </div>
 
             {/* Trust badges */}

@@ -50,10 +50,23 @@ const shapeProfile = (user: any) => {
         parentName: user.parentName,
         parentPhone: user.parentPhone,
         parentEmail: user.parentEmail,
+        children: parseChildren(user.children),
+        createdAt: user.createdAt ? new Date(user.createdAt).toISOString().slice(0, 10) : null,
         profileCompleted: user.profileCompleted,
         referralCreditCents: user.referralCreditCents ?? 0,
         language: user.language ?? null
     };
+};
+
+// User.children is a JSON string column: [{name, birthday}].
+const parseChildren = (raw: unknown): Array<{ name: string; birthday: string }> => {
+    if (typeof raw !== 'string' || !raw) return [];
+    try {
+        const arr = JSON.parse(raw);
+        return Array.isArray(arr)
+            ? arr.filter(c => c && typeof c.name === 'string').map(c => ({ name: c.name, birthday: typeof c.birthday === 'string' ? c.birthday : '' }))
+            : [];
+    } catch { return []; }
 };
 
 // Supported UI languages for the language-preference endpoint.
@@ -252,17 +265,59 @@ router.put('/family', authenticateToken, async (req: AuthRequest, res) => {
         const userId = req.user?.id;
         if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
-        const { parentName, parentPhone, parentEmail } = req.body;
+        const { parentName, parentPhone, parentEmail, children } = req.body;
 
-        const user = await prisma.user.update({
-            where: { id: userId },
-            data: {
-                parentName: typeof parentName === 'string' ? parentName : null,
-                parentPhone: typeof parentPhone === 'string' ? parentPhone : null,
-                parentEmail: typeof parentEmail === 'string' ? parentEmail : null,
-                profileCompleted: true
+        // Only update fields that were actually provided — a partial PUT must
+        // never wipe the others.
+        const data: Record<string, any> = {};
+
+        if (parentName !== undefined) {
+            if (typeof parentName !== 'string' || !parentName.trim()) {
+                return res.status(400).json({ error: 'Parent name cannot be empty.' });
             }
-        });
+            data.parentName = parentName.trim();
+        }
+        if (parentPhone !== undefined) {
+            if (typeof parentPhone !== 'string' || !parentPhone.trim()) {
+                return res.status(400).json({ error: 'Parent phone cannot be empty.' });
+            }
+            data.parentPhone = parentPhone.trim();
+        }
+        if (parentEmail !== undefined) {
+            if (parentEmail !== null && parentEmail !== '' && (typeof parentEmail !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(parentEmail))) {
+                return res.status(400).json({ error: 'Parent email looks invalid.' });
+            }
+            data.parentEmail = parentEmail ? String(parentEmail).trim() : null;
+        }
+        if (children !== undefined) {
+            if (!Array.isArray(children)) {
+                return res.status(400).json({ error: 'children must be an array.' });
+            }
+            const cleaned: Array<{ name: string; birthday: string }> = [];
+            for (const c of children) {
+                const name = typeof c?.name === 'string' ? c.name.trim() : '';
+                const birthday = typeof c?.birthday === 'string' ? c.birthday.trim() : '';
+                if (!name) return res.status(400).json({ error: 'Each child needs a name.' });
+                if (!parseBirthday(birthday)) {
+                    return res.status(400).json({ error: `Invalid date of birth for ${name}.` });
+                }
+                cleaned.push({ name, birthday });
+            }
+            data.children = JSON.stringify(cleaned);
+        }
+
+        // profileCompleted only flips once parent name + phone AND at least one
+        // child are on record (combining this request with what's already stored).
+        const current = await prisma.user.findUnique({ where: { id: userId } });
+        if (!current) return res.status(404).json({ error: 'User not found' });
+        const finalName = data.parentName ?? current.parentName;
+        const finalPhone = data.parentPhone ?? current.parentPhone;
+        const finalChildren = data.children !== undefined ? data.children : current.children;
+        let hasChild = false;
+        try { hasChild = Array.isArray(JSON.parse(finalChildren || '[]')) && JSON.parse(finalChildren || '[]').length > 0; } catch { /* ignore */ }
+        if (finalName && finalPhone && hasChild) data.profileCompleted = true;
+
+        const user = await prisma.user.update({ where: { id: userId }, data });
 
         res.json(shapeProfile(user));
     } catch (error) {

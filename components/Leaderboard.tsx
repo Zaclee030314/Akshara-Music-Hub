@@ -3,7 +3,7 @@ import { Card } from './Card';
 import { Trophy, UserCircle2, Loader2, Award, CalendarClock, Search, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
 import { useT } from '../contexts/LanguageContext';
-import { LeaderboardRow, DisplayRow } from './LeaderboardRow';
+import { LeaderboardRow, DisplayRow, allTimeToRow } from './LeaderboardRow';
 import { SeasonPicker, SeasonListItem } from './SeasonPicker';
 
 interface LeaderboardUser {
@@ -178,10 +178,6 @@ export const Leaderboard: React.FC = () => {
     const medalFor = (rank: number) => (rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉');
     const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
-    const allTimeToRow = (p: LeaderboardUser): DisplayRow => ({
-        id: p.id, name: p.name, avatar: p.avatar, grade: p.grade,
-        rank: p.rank, value: p.xp, level: p.level,
-    });
     const allTimeRows: DisplayRow[] = allTimeData.map(allTimeToRow);
     // Append the caller's own standing when they sit outside the visible list
     // (mirrors seasonMeRow). Suppressed while searching — the query drives the list.

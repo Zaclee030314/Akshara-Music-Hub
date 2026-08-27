@@ -1,9 +1,9 @@
-{
-  "note": "Open/viva questions — NOT seeded into QuestionBank (MCQ-only). Kept for a future flashcard/viva mode.",
+﻿{
+  "note": "Open/viva questions â€” NOT seeded into QuestionBank (MCQ-only). Kept for a future flashcard/viva mode.",
   "defaults": {
     "subject": "Sangeetham (Vocal)",
     "grade": "Grade 8",
-    "syllabus": "Indian Music"
+    "syllabus": "Carnatic Music"
   },
   "questions": [
     {

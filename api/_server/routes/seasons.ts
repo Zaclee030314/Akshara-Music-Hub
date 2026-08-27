@@ -341,12 +341,21 @@ router.get('/:id/standings', async (req, res) => {
                 take: limit,
             });
             if (rows.length > 0) {
+                // Profile photos are IDENTITY, not history: serve the user's CURRENT
+                // avatar so a changed photo follows them onto old boards. The frozen
+                // SeasonStanding.avatar remains the fallback for deleted accounts.
+                // (Name/rank/points stay frozen — those ARE the history.)
+                const liveUsers = await prisma.user.findMany({
+                    where: { id: { in: rows.map(r => r.userId) } },
+                    select: { id: true, avatar: true },
+                });
+                const liveAvatar = new Map(liveUsers.map(u => [u.id, u.avatar]));
                 const toRow = (r: typeof rows[number]) => ({
                     userId: r.userId,
                     points: r.points,
                     rank: r.rank,
                     name: r.name,
-                    avatar: r.avatar,
+                    avatar: liveAvatar.has(r.userId) ? liveAvatar.get(r.userId) : r.avatar,
                     grade: r.grade,
                 });
                 // The caller's own frozen row — null if they placed outside the snapshot.
@@ -355,7 +364,13 @@ router.get('/:id/standings', async (req, res) => {
                     const mine = await prisma.seasonStanding.findFirst({
                         where: { seasonId: id, userId },
                     });
-                    if (mine) me = toRow(mine);
+                    if (mine) {
+                        if (!liveAvatar.has(mine.userId)) {
+                            const self = await prisma.user.findUnique({ where: { id: mine.userId }, select: { avatar: true } });
+                            if (self) liveAvatar.set(mine.userId, self.avatar);
+                        }
+                        me = toRow(mine);
+                    }
                 }
                 return res.json({
                     season: publicSeasonShape(season, now),
@@ -647,7 +662,8 @@ router.post('/admin/:id/finalize', authenticateToken, requireAdmin, async (req, 
             }
 
             // Freeze the top 100 so ranks 4+ survive the season ending, and so a later
-            // rename / avatar change / student→teacher flip cannot rewrite history.
+            // rename / student→teacher flip cannot rewrite history. (The frozen avatar
+            // is only a deleted-account fallback — serving re-hydrates live avatars.)
             if (hydrated.length > 0) {
                 await tx.seasonStanding.createMany({
                     data: hydrated.map((h, i) => ({

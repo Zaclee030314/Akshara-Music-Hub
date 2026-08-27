@@ -1,9 +1,9 @@
-{
+﻿{
   "shuffle": false,
   "defaults": {
     "subject": "Harmonium",
     "grade": "Grade 1",
-    "syllabus": "Indian Music"
+    "syllabus": "Carnatic Music"
   },
   "questions": [
     {
@@ -20,7 +20,7 @@
       "explanation": "The left hand normally operates the bellows while the right hand plays the keyboard.",
       "difficulty": "Easy",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-001"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-001"
     },
     {
       "id": "seed-hrm-g1-002",
@@ -36,7 +36,7 @@
       "explanation": "In the standard beginner method, the right hand plays the keyboard.",
       "difficulty": "Easy",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-002"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-002"
     },
     {
       "id": "seed-hrm-g1-003",
@@ -52,7 +52,7 @@
       "explanation": "Finger 3 is the middle finger.",
       "difficulty": "Easy",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-003"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-003"
     },
     {
       "id": "seed-hrm-g1-004",
@@ -68,7 +68,7 @@
       "explanation": "A relaxed shoulder supports smooth bellows movement and reduces tension.",
       "difficulty": "Easy",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-004"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-004"
     },
     {
       "id": "seed-hrm-g1-005",
@@ -84,7 +84,7 @@
       "explanation": "Smooth, gentle movement creates more stable airflow.",
       "difficulty": "Easy",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-005"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-005"
     },
     {
       "id": "seed-hrm-g1-006",
@@ -100,7 +100,7 @@
       "explanation": "Black keys appear in repeating groups of two and three.",
       "difficulty": "Easy",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-006"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-006"
     },
     {
       "id": "seed-hrm-g1-007",
@@ -116,7 +116,7 @@
       "explanation": "Naturally curved fingers support control and relaxed playing.",
       "difficulty": "Easy",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-007"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-007"
     },
     {
       "id": "seed-hrm-g1-008",
@@ -132,7 +132,7 @@
       "explanation": "The instrument should be comfortably in front so both hands can work without twisting.",
       "difficulty": "Easy",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-008"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-008"
     },
     {
       "id": "seed-hrm-g1-009",
@@ -148,7 +148,7 @@
       "explanation": "Keyboard pitch normally rises as the player moves to the right.",
       "difficulty": "Easy",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-009"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-009"
     },
     {
       "id": "seed-hrm-g1-010",
@@ -164,7 +164,7 @@
       "explanation": "Keyboard pitch normally becomes lower towards the left.",
       "difficulty": "Easy",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-010"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-010"
     },
     {
       "id": "seed-hrm-g1-011",
@@ -180,7 +180,7 @@
       "explanation": "Finger 5 is the little finger.",
       "difficulty": "Easy",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-011"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-011"
     },
     {
       "id": "seed-hrm-g1-012",
@@ -196,7 +196,7 @@
       "explanation": "Excessive air pressure can make the sound unnecessarily loud or harsh.",
       "difficulty": "Easy",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-012"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-012"
     },
     {
       "id": "seed-hrm-g1-013",
@@ -212,7 +212,7 @@
       "explanation": "Insufficient airflow can make the sound weak or unstable.",
       "difficulty": "Easy",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-013"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-013"
     },
     {
       "id": "seed-hrm-g1-014",
@@ -228,7 +228,7 @@
       "explanation": "The key should be pressed clearly without unnecessary force.",
       "difficulty": "Easy",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-014"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-014"
     },
     {
       "id": "seed-hrm-g1-015",
@@ -244,7 +244,7 @@
       "explanation": "Finger 2 is the index finger.",
       "difficulty": "Easy",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-015"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-015"
     },
     {
       "id": "seed-hrm-g1-016",
@@ -260,7 +260,7 @@
       "explanation": "Liquids can damage the wooden body, keys, and internal reeds.",
       "difficulty": "Easy",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-016"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-016"
     },
     {
       "id": "seed-hrm-g1-017",
@@ -276,7 +276,7 @@
       "explanation": "A sustained Harmonium sound requires continuous airflow.",
       "difficulty": "Easy",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-017"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-017"
     },
     {
       "id": "seed-hrm-g1-018",
@@ -292,7 +292,7 @@
       "explanation": "A naturally upright posture supports breathing, balance, and relaxed hand movement.",
       "difficulty": "Easy",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-018"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-018"
     },
     {
       "id": "seed-hrm-g1-019",
@@ -308,7 +308,7 @@
       "explanation": "A Harmonium keyboard normally contains both white and black keys.",
       "difficulty": "Easy",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-019"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-019"
     },
     {
       "id": "seed-hrm-g1-020",
@@ -324,7 +324,7 @@
       "explanation": "Listening first helps the student locate and match the correct Sa.",
       "difficulty": "Easy",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-020"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-020"
     },
     {
       "id": "seed-hrm-g1-021",
@@ -340,7 +340,7 @@
       "explanation": "The bellows supply the air required to create sound.",
       "difficulty": "Easy",
       "classification": "Theory",
-      "source": "Akshara Fine Arts Official Bank — H-G1-021"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-021"
     },
     {
       "id": "seed-hrm-g1-022",
@@ -356,7 +356,7 @@
       "explanation": "Different keys produce different pitches.",
       "difficulty": "Easy",
       "classification": "Theory",
-      "source": "Akshara Fine Arts Official Bank — H-G1-022"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-022"
     },
     {
       "id": "seed-hrm-g1-023",
@@ -372,7 +372,7 @@
       "explanation": "Finger 4 is the ring finger.",
       "difficulty": "Easy",
       "classification": "Theory",
-      "source": "Akshara Fine Arts Official Bank — H-G1-023"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-023"
     },
     {
       "id": "seed-hrm-g1-024",
@@ -388,7 +388,7 @@
       "explanation": "Air activates the reeds while the pressed key selects the pitch.",
       "difficulty": "Easy",
       "classification": "Theory",
-      "source": "Akshara Fine Arts Official Bank — H-G1-024"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-024"
     },
     {
       "id": "seed-hrm-g1-025",
@@ -404,7 +404,7 @@
       "explanation": "Finger 1 is the thumb.",
       "difficulty": "Easy",
       "classification": "Theory",
-      "source": "Akshara Fine Arts Official Bank — H-G1-025"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-025"
     },
     {
       "id": "seed-hrm-g1-026",
@@ -420,7 +420,7 @@
       "explanation": "Gentle airflow should be prepared so the first note begins clearly.",
       "difficulty": "Medium",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-026"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-026"
     },
     {
       "id": "seed-hrm-g1-027",
@@ -436,7 +436,7 @@
       "explanation": "Upright and relaxed posture supports comfortable technique.",
       "difficulty": "Medium",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-027"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-027"
     },
     {
       "id": "seed-hrm-g1-028",
@@ -452,7 +452,7 @@
       "explanation": "When airflow stops, the reed can no longer sustain the sound.",
       "difficulty": "Medium",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-028"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-028"
     },
     {
       "id": "seed-hrm-g1-029",
@@ -468,7 +468,7 @@
       "explanation": "Pa is seven semitones above Sa. When Sa is E, Pa is B.",
       "difficulty": "Medium",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-029"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-029"
     },
     {
       "id": "seed-hrm-g1-030",
@@ -484,7 +484,7 @@
       "explanation": "Pa is seven semitones above Sa. When Sa is G, Pa is D.",
       "difficulty": "Medium",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-030"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-030"
     },
     {
       "id": "seed-hrm-g1-031",
@@ -500,7 +500,7 @@
       "explanation": "Uneven bellows movement can cause repeated volume changes.",
       "difficulty": "Medium",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-031"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-031"
     },
     {
       "id": "seed-hrm-g1-032",
@@ -516,7 +516,7 @@
       "explanation": "A neutral wrist supports freer finger movement and reduces strain.",
       "difficulty": "Medium",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-032"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-032"
     },
     {
       "id": "seed-hrm-g1-033",
@@ -532,7 +532,7 @@
       "explanation": "The keyboard should be within comfortable reach without arm strain.",
       "difficulty": "Medium",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-033"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-033"
     },
     {
       "id": "seed-hrm-g1-034",
@@ -548,7 +548,7 @@
       "explanation": "Planning the reversal early helps preserve continuous sound.",
       "difficulty": "Medium",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-034"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-034"
     },
     {
       "id": "seed-hrm-g1-035",
@@ -564,23 +564,23 @@
       "explanation": "The student should listen and compare before trying again.",
       "difficulty": "Medium",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-035"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-035"
     },
     {
       "id": "seed-hrm-g1-036",
       "topic": "Harmonium Foundation",
       "question": "Which count is the most suitable beginner pulse?",
       "options": [
-        "1–2–4–8",
-        "1–3–2–4",
-        "1–2–3–5",
-        "1–2–3–4 evenly"
+        "1â€“2â€“4â€“8",
+        "1â€“3â€“2â€“4",
+        "1â€“2â€“3â€“5",
+        "1â€“2â€“3â€“4 evenly"
       ],
       "correctIndex": 3,
       "explanation": "Grade 1 students should maintain an even four-count pulse.",
       "difficulty": "Medium",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-036"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-036"
     },
     {
       "id": "seed-hrm-g1-037",
@@ -596,7 +596,7 @@
       "explanation": "Airflow must continue while the right hand changes keys.",
       "difficulty": "Medium",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-037"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-037"
     },
     {
       "id": "seed-hrm-g1-038",
@@ -612,7 +612,7 @@
       "explanation": "Keeping the fingers close to the keys improves efficiency and control.",
       "difficulty": "Medium",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-038"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-038"
     },
     {
       "id": "seed-hrm-g1-039",
@@ -628,7 +628,7 @@
       "explanation": "The shoulder should remain relaxed while the arm controls the bellows.",
       "difficulty": "Medium",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-039"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-039"
     },
     {
       "id": "seed-hrm-g1-040",
@@ -644,12 +644,12 @@
       "explanation": "Careful closing protects the bellows, keys, and body.",
       "difficulty": "Medium",
       "classification": "Practical",
-      "source": "Akshara Fine Arts Official Bank — H-G1-040"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-040"
     },
     {
       "id": "seed-hrm-g1-041",
       "topic": "Harmonium Foundation",
-      "question": "Which swara is commonly used with Sa to establish the basic Sa–Pa relationship?",
+      "question": "Which swara is commonly used with Sa to establish the basic Saâ€“Pa relationship?",
       "options": [
         "Pa",
         "Ri",
@@ -660,7 +660,7 @@
       "explanation": "Sa and Pa form an important stable tonal relationship.",
       "difficulty": "Medium",
       "classification": "Theory",
-      "source": "Akshara Fine Arts Official Bank — H-G1-041"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-041"
     },
     {
       "id": "seed-hrm-g1-042",
@@ -676,7 +676,7 @@
       "explanation": "Different Harmoniums have different stops, so beginners should use them under teacher guidance.",
       "difficulty": "Medium",
       "classification": "Theory",
-      "source": "Akshara Fine Arts Official Bank — H-G1-042"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-042"
     },
     {
       "id": "seed-hrm-g1-043",
@@ -692,7 +692,7 @@
       "explanation": "Swara positions move when the selected tonic changes.",
       "difficulty": "Medium",
       "classification": "Theory",
-      "source": "Akshara Fine Arts Official Bank — H-G1-043"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-043"
     },
     {
       "id": "seed-hrm-g1-044",
@@ -708,7 +708,7 @@
       "explanation": "A Harmonium note requires airflow as well as a pressed key.",
       "difficulty": "Hard",
       "classification": "Theory",
-      "source": "Akshara Fine Arts Official Bank — H-G1-044"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-044"
     },
     {
       "id": "seed-hrm-g1-045",
@@ -724,7 +724,7 @@
       "explanation": "Upper Sa is the same note name one octave higher.",
       "difficulty": "Hard",
       "classification": "Theory",
-      "source": "Akshara Fine Arts Official Bank — H-G1-045"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-045"
     },
     {
       "id": "seed-hrm-g1-046",
@@ -740,7 +740,7 @@
       "explanation": "Excessive pressure explains the loudness, while a late reversal can cause the sudden stop.",
       "difficulty": "Hard",
       "classification": "Theory",
-      "source": "Akshara Fine Arts Official Bank — H-G1-046"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-046"
     },
     {
       "id": "seed-hrm-g1-047",
@@ -756,7 +756,7 @@
       "explanation": "The correction addresses body alignment, shoulder tension, and uneven bellows movement together.",
       "difficulty": "Hard",
       "classification": "Theory",
-      "source": "Akshara Fine Arts Official Bank — H-G1-047"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-047"
     },
     {
       "id": "seed-hrm-g1-048",
@@ -772,7 +772,7 @@
       "explanation": "Independent Kalpana Swara accompaniment belongs to an advanced grade.",
       "difficulty": "Hard",
       "classification": "Theory",
-      "source": "Akshara Fine Arts Official Bank — H-G1-048"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-048"
     },
     {
       "id": "seed-hrm-g1-049",
@@ -788,7 +788,7 @@
       "explanation": "Grade 1 accompaniment begins by matching and sustaining the teacher's tonic softly.",
       "difficulty": "Hard",
       "classification": "Theory",
-      "source": "Akshara Fine Arts Official Bank — H-G1-049"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-049"
     },
     {
       "id": "seed-hrm-g1-050",
@@ -804,7 +804,7 @@
       "explanation": "Correct posture and airflow must be established before slow, accurate playing begins.",
       "difficulty": "Hard",
       "classification": "Theory",
-      "source": "Akshara Fine Arts Official Bank — H-G1-050"
+      "source": "Akshara Fine Arts Official Bank â€” H-G1-050"
     }
   ]
 }

@@ -12,7 +12,10 @@ import { Syllabus, GradeLevel } from '../types';
 // CURRENT CALENDAR YEAR. Malaysia's intake is "turns 7 that year → Standard 1".
 
 export const isMusicSyllabus = (syllabus?: Syllabus | string | null): boolean =>
-    syllabus === Syllabus.WESTERN_MUSIC || syllabus === Syllabus.INDIAN_MUSIC;
+    syllabus === Syllabus.WESTERN_MUSIC ||
+    syllabus === Syllabus.CARNATIC_MUSIC ||
+    syllabus === Syllabus.HINDUSTANI_MUSIC ||
+    syllabus === 'Indian Music'; // legacy stored value, pre-split
 
 // The age the student turns during `now`'s calendar year.
 export const schoolAge = (birthday: Date, now: Date): number =>

@@ -37,6 +37,7 @@ import { BillingPage } from './components/BillingPage';
 import { ProfileCompletionModal } from './components/ProfileCompletionModal';
 import { SeasonBanner } from './components/SeasonBanner';
 import { SeasonShowcase } from './components/SeasonShowcase';
+import { HomeLeaderboard } from './components/HomeLeaderboard';
 import { PrizePollCard } from './components/PrizePollCard';
 import { SeasonResultsPopup } from './components/SeasonResultsPopup';
 
@@ -71,13 +72,16 @@ const SUBJECTS = [
   { id: Subject.BUSINESS, icon: <span className="text-2xl">💼</span>, color: 'bg-amber-100' },
   { id: Subject.COMPUTER_SCIENCE, icon: <span className="text-2xl">💻</span>, color: 'bg-slate-200' },
   { id: Subject.MUSIC_THEORY, icon: <span className="text-2xl">🎼</span>, color: 'bg-rose-100' },
-  // Indian Music (Carnatic) — Akshara Fine Arts instrument subjects
+  // Carnatic Music — Akshara Fine Arts instrument subjects
   { id: Subject.SANGEETHAM, icon: <span className="text-2xl">🎙️</span>, color: 'bg-rose-100' },
   { id: Subject.MRIDANGAM, icon: <span className="text-2xl">🥁</span>, color: 'bg-amber-100' },
   { id: Subject.VEENA, icon: <span className="text-2xl">🪕</span>, color: 'bg-orange-100' },
   { id: Subject.KEYBOARD_CARNATIC, icon: <span className="text-2xl">🎹</span>, color: 'bg-fuchsia-100' },
   { id: Subject.HARMONIUM, icon: <span className="text-2xl">🪗</span>, color: 'bg-lime-100' },
+  // Hindustani Music — instrument subjects (Harmonium shared with Carnatic)
   { id: Subject.TABLA, icon: <span className="text-2xl">🥁</span>, color: 'bg-stone-200' },
+  { id: Subject.HINDUSTANI_VOCAL, icon: <span className="text-2xl">🎙️</span>, color: 'bg-yellow-100' },
+  { id: Subject.SITAR, icon: <span className="text-2xl">🪕</span>, color: 'bg-teal-100' },
   // Western Music — instrument subjects
   { id: Subject.GUITAR, icon: <span className="text-2xl">🎸</span>, color: 'bg-emerald-100' },
   { id: Subject.PIANO, icon: <span className="text-2xl">🎹</span>, color: 'bg-sky-100' },
@@ -104,7 +108,7 @@ const SUBJECTS = [
 import { useNavigate, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { getSyllabusesByCountry, getGradesBySyllabus } from './lib/curriculum';
-import { musicSubjectsFor, MUSIC_FOCUSES, MusicFocus } from './lib/musicSubjects';
+import { musicSubjectsFor, MUSIC_FOCUSES, MusicFocus, isMusicSyllabus } from './lib/musicSubjects';
 
 export default function App() {
   const { user, login, signup, verifyCode, resendCode, logout, subscribe, refreshUser, isLoading: authLoading } = useAuth();
@@ -202,7 +206,6 @@ export default function App() {
   const [detectedCountry, setDetectedCountry] = useState<string | null>(null);
   const [showPromo, setShowPromo] = useState(true);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [dismissedProfileModal, setDismissedProfileModal] = useState(false);
   const [selectedPlanLevel, setSelectedPlanLevel] = useState<'single' | 'all'>('single');
   const [selectedSubscriptionSyllabus, setSelectedSubscriptionSyllabus] = useState<Syllabus | null>(null);
   const [activeSession, setActiveSession] = useState<any | null>(null);
@@ -462,7 +465,7 @@ export default function App() {
     if (!grade) return SUBJECTS;
 
     // ─── Music (Western & Indian) ──────────────────────────────────────────────
-    if (syllabus === Syllabus.WESTERN_MUSIC || syllabus === Syllabus.INDIAN_MUSIC || grade.startsWith('Grade ')) {
+    if (isMusicSyllabus(syllabus) || grade.startsWith('Grade ')) {
       const musicSubjects = musicSubjectsFor(syllabus);
       return SUBJECTS.filter(s => musicSubjects.includes(s.id as Subject));
     }
@@ -898,7 +901,7 @@ export default function App() {
     }
 
     try {
-      const isMusicSetup = selectedSyllabus === Syllabus.WESTERN_MUSIC || selectedSyllabus === Syllabus.INDIAN_MUSIC;
+      const isMusicSetup = isMusicSyllabus(selectedSyllabus);
       const generatedQuestions = await geminiService.generateContent(
         selectedSubject,
         selectedGrade,
@@ -1293,6 +1296,8 @@ export default function App() {
       </div>
 
       <SeasonShowcase onJoin={() => { if (!user) setShowLoginModal(true); else navigate('/practice'); }} />
+
+      <HomeLeaderboard />
 
       <Benefits />
       <HowItWorks />
@@ -1843,7 +1848,7 @@ export default function App() {
                     <>
                       {grades.primary.length > 0 && (
                         <div>
-                          <span className="text-xs font-bold text-brand-dark/40 mb-2 block uppercase">{(selectedSyllabus === Syllabus.WESTERN_MUSIC || selectedSyllabus === Syllabus.INDIAN_MUSIC) ? t('setup.musicFoundation') : t('setup.primary')}</span>
+                          <span className="text-xs font-bold text-brand-dark/40 mb-2 block uppercase">{isMusicSyllabus(selectedSyllabus) ? t('setup.musicFoundation') : t('setup.primary')}</span>
                           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
                             {grades.primary.map((grade) => (
                               <button
@@ -1859,7 +1864,7 @@ export default function App() {
                       )}
                       {grades.secondary.length > 0 && (
                         <div>
-                          <span className="text-xs font-bold text-brand-dark/40 mb-2 block uppercase">{(selectedSyllabus === Syllabus.WESTERN_MUSIC || selectedSyllabus === Syllabus.INDIAN_MUSIC) ? t('setup.musicAdvanced') : t('setup.secondary')}</span>
+                          <span className="text-xs font-bold text-brand-dark/40 mb-2 block uppercase">{isMusicSyllabus(selectedSyllabus) ? t('setup.musicAdvanced') : t('setup.secondary')}</span>
                           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
                             {grades.secondary.map((grade) => (
                               <button
@@ -1920,7 +1925,7 @@ export default function App() {
             </div>
 
             {/* Step 3b (music only): Study Focus — Theory vs Aural & Practical */}
-            {(selectedSyllabus === Syllabus.WESTERN_MUSIC || selectedSyllabus === Syllabus.INDIAN_MUSIC) && (
+            {isMusicSyllabus(selectedSyllabus) && (
               <div className="mb-8">
                 <label className="block text-sm font-bold text-brand-dark/60 uppercase tracking-wider mb-3">{t('setup.stepFocus')}</label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg">
@@ -2134,9 +2139,10 @@ export default function App() {
       {/* Level Up Overlay */}
       {showLevelUp && levelUpData && <LevelUpOverlay />}
 
-      {/* Prompt students (free or subscribed) to complete their profile details */}
-      {user && user.role === 'student' && !user.isAdmin && user.profileCompleted === false && !dismissedProfileModal && (
-        <ProfileCompletionModal onClose={() => setDismissedProfileModal(true)} />
+      {/* Compulsory for students: parent + child details. The modal is blocking —
+          it only disappears once the family form saves (profileCompleted flips). */}
+      {user && user.role === 'student' && !user.isAdmin && user.profileCompleted === false && (
+        <ProfileCompletionModal onClose={() => { /* profileCompleted refresh hides it */ }} />
       )}
       {/* Phase 3: season results announcement popup (shown once per finalized season) */}
       {user && <SeasonResultsPopup />}
@@ -2174,6 +2180,7 @@ export default function App() {
             <button onClick={() => { setShowMobileMenu(false); if (!user) setShowLoginModal(true); else navigate(user?.isAdmin ? '/admin' : user?.role === 'teacher' ? '/teacher' : '/dashboard'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">📊 {t('nav.dashboard')}</button>
             <button onClick={() => { setShowMobileMenu(false); if (!user) setShowLoginModal(true); else navigate('/classrooms'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">🏫 {t('nav.classrooms')}</button>
             <button onClick={() => { setShowMobileMenu(false); navigate('/leaderboard'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">🏆 {t('nav.leaderboard')}</button>
+            <button onClick={() => { setShowMobileMenu(false); navigate('/pricing'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">💎 {t('nav.pricing')}</button>
             {user && (
               <button onClick={() => { setShowMobileMenu(false); navigate('/rewards'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-orange hover:bg-brand-orange/5 transition-all text-sm">🛍️ {t('nav.rewards')}</button>
             )}
@@ -2203,6 +2210,7 @@ export default function App() {
           <button onClick={() => { if (!user) setShowLoginModal(true); else navigate(user?.isAdmin ? '/admin' : user?.role === 'teacher' ? '/teacher' : '/dashboard'); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">{t('nav.dashboard')}</button>
           <button onClick={() => { if (!user) setShowLoginModal(true); else navigate('/classrooms'); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">{t('nav.classrooms')}</button>
           <button onClick={() => { navigate('/leaderboard'); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">{t('nav.leaderboard')}</button>
+          <button onClick={() => { navigate('/pricing'); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">{t('nav.pricing')}</button>
         </div>
 
         <div className="flex items-center gap-2 md:gap-4">

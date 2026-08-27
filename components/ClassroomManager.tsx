@@ -11,7 +11,7 @@ import { CustomQuest, Question, Subject, GradeLevel, Syllabus } from '../types';
 import { Button } from './Button';
 import { Card } from './Card';
 import { useAuth } from '../contexts/useAuth';
-import { musicSubjectsFor } from '../lib/musicSubjects';
+import { musicSubjectsFor, isMusicSyllabus } from '../lib/musicSubjects';
 
 /* ─── tiny helpers ────────────────────────────────────────────── */
 const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
@@ -29,8 +29,8 @@ const getSubjectsByGrade = (grade: GradeLevel | '', syllabus: Syllabus | ''): Su
     const allSubjects = Object.values(Subject);
     if (!grade) return allSubjects;
 
-    // Music (Western & Indian) → music subjects only
-    if (syllabus === Syllabus.WESTERN_MUSIC || syllabus === Syllabus.INDIAN_MUSIC || (grade as string).startsWith('Grade ')) {
+    // Music syllabi → music subjects only
+    if (isMusicSyllabus(syllabus) || (grade as string).startsWith('Grade ')) {
         return musicSubjectsFor(syllabus);
     }
 
@@ -140,7 +140,8 @@ const getGradesBySyllabus = (syll: Syllabus | ''): GradeLevel[] => {
             return [GradeLevel.MUSIC_GRADE_1, GradeLevel.MUSIC_GRADE_2, GradeLevel.MUSIC_GRADE_3,
             GradeLevel.MUSIC_GRADE_4, GradeLevel.MUSIC_GRADE_5, GradeLevel.MUSIC_GRADE_6,
             GradeLevel.MUSIC_GRADE_7, GradeLevel.MUSIC_GRADE_8];
-        case Syllabus.INDIAN_MUSIC:
+        case Syllabus.CARNATIC_MUSIC:
+        case Syllabus.HINDUSTANI_MUSIC:
             return [GradeLevel.MUSIC_GRADE_1, GradeLevel.MUSIC_GRADE_2, GradeLevel.MUSIC_GRADE_3,
             GradeLevel.MUSIC_GRADE_4, GradeLevel.MUSIC_GRADE_5, GradeLevel.MUSIC_GRADE_6,
             GradeLevel.MUSIC_GRADE_7, GradeLevel.MUSIC_GRADE_8, GradeLevel.MUSIC_GRADE_9,

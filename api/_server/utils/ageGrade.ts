@@ -10,16 +10,19 @@
 // student's immutable birthday, NOT from the standard they picked, so a student cannot
 // set themselves to Standard 1 and farm points on easy quizzes.
 //
-// Music syllabi (Western/Indian Music) have no age→grade relationship — a 40-year-old
-// can legitimately be a Grade 1 pianist — so they return null and keep gating on the
-// selected grade.
+// Music syllabi (Western/Carnatic/Hindustani) have no age→grade relationship — a
+// 40-year-old can legitimately be a Grade 1 pianist — so they return null and keep
+// gating on the selected grade.
 
 // Absorbs ±1 year of legitimate drift: repeated years, skipped years, students who
 // started school early/late, southern-hemisphere transfers, and the year-boundary edge.
 export const GATE_LENIENCY = 1;
 
 export const isMusicSyllabus = (syllabus?: string | null): boolean =>
-    syllabus === 'Western Music' || syllabus === 'Indian Music';
+    syllabus === 'Western Music' ||
+    syllabus === 'Carnatic Music' ||
+    syllabus === 'Hindustani Music' ||
+    syllabus === 'Indian Music'; // legacy stored value, pre-split
 
 // The age the student turns during `now`'s calendar year.
 export const schoolAge = (birthday: Date, now: Date): number =>
