@@ -8,6 +8,7 @@ import { authenticateToken, AuthRequest } from '../middleware/authMiddleware.js'
 import { checkExpiredSubscriptions } from '../middleware/checkExpiredSubscriptions.js';
 import { isMusicSyllabus } from '../utils/ageGrade.js';
 import { getCuratedTopics, getInstrumentFacts } from '../data/musicCurriculum.js';
+import { REFERENCE_QUESTIONS } from '../data/referenceBanks.js';
 
 const router = express.Router();
 
@@ -94,6 +95,27 @@ const musicFocusRules = (subject: string, focus?: string): string => {
     return '- STUDY FOCUS: Mix theory and practical questions.';
 };
 
+// Sample official Akshara bank questions for this subject/grade so the AI can
+// imitate their style, difficulty and terminology (the banks ship inside the
+// bundle — no database needed). Prefers questions matching the study focus.
+const referenceExamplesBlock = (subject: string, grade: string, focus?: string, count = 6): string => {
+    let pool = REFERENCE_QUESTIONS.filter(q => q.subject === subject && q.grade === grade);
+    if (pool.length === 0) return '';
+    if (focus) {
+        const wanted = focus === 'Theory' ? 'Theory' : 'Practical';
+        const byFocus = pool.filter(q => !q.classification || q.classification === wanted);
+        if (byFocus.length >= count) pool = byFocus;
+    }
+    const sample = [...pool].sort(() => Math.random() - 0.5).slice(0, count);
+    const rendered = sample.map((q, i) =>
+        `Example ${i + 1}: ${q.question}\n${q.options.map((o, j) => `${'ABCD'[j]}. ${o}`).join(' | ')} (Correct: ${'ABCD'[q.correctIndex]})`
+    ).join('\n');
+    return `
+OFFICIAL REFERENCE QUESTIONS — real questions from the Akshara Fine Arts question bank for ${subject} ${grade}. LEARN from their style, difficulty, terminology and topic focus, and write NEW questions of the same standard. Do NOT copy them verbatim, and do NOT imitate their answer-letter positions (randomize your own).
+${rendered}
+`;
+};
+
 const musicPromptRules = (syllabus: string, subject: string, grade: string, focus?: string): string => {
     if (!isMusicSyllabus(syllabus)) return '';
     const curated = getCuratedTopics(syllabus, subject, grade);
@@ -117,6 +139,7 @@ MUSIC SYLLABUS RULES (Carnatic Music):
 ${musicFocusRules(subject, focus)}
 - Questions must be answerable in text form without audio or images — describe sounds and techniques in words.
 ${factGrounding}${factualSafety}
+${referenceExamplesBlock(subject, grade, focus)}
 ${gradeProtection}
 `;
     }
@@ -131,6 +154,7 @@ ${musicFocusRules(subject, focus)}
 - Do NOT use Carnatic-specific terms (varnam, kriti, sarali varisai, sollukattu) — this is the Hindustani tradition.
 - Questions must be answerable in text form without audio or images — describe sounds and techniques in words.
 ${factGrounding}${factualSafety}
+${referenceExamplesBlock(subject, grade, focus)}
 ${gradeProtection}
 `;
     }
