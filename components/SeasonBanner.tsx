@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Trophy, UserCircle2, Medal, CalendarClock } from 'lucide-react';
+import { Trophy, UserCircle2, Medal, CalendarClock, Coins } from 'lucide-react';
 import { useT } from '../contexts/LanguageContext';
 
 interface TopUser {
@@ -26,12 +26,20 @@ interface SeasonInfo {
     status: string;
 }
 
-// "Gift Voucher +50000🪙", "+24996🪙", or just the title — whatever the admin set.
-const prizeLabel = (title: string | null | undefined, coins: number | null | undefined): string => {
-    const parts: string[] = [];
-    if (title && title.trim()) parts.push(title.trim());
-    if (coins && coins > 0) parts.push(`+${coins.toLocaleString()}🪙`);
-    return parts.length ? parts.join(' ') : '—';
+// Coin amount rendered with the app's own coin icon — the 🪙 emoji is a 2020
+// glyph that older Windows/Android emoji fonts show as a blank box.
+const CoinTag: React.FC<{ coins: number | null | undefined }> = ({ coins }) =>
+    coins && coins > 0 ? (
+        <span className="inline-flex items-center gap-0.5 ml-1">
+            +{coins.toLocaleString()}<Coins size={14} className="text-yellow-300 fill-yellow-300" />
+        </span>
+    ) : null;
+
+// Text part of a prize pill: the admin-set title, or "—" when neither a title
+// nor a coin bonus exists (CoinTag renders the coins alongside).
+const prizeTitleText = (title: string | null | undefined, coins: number | null | undefined): string => {
+    if (title && title.trim()) return title.trim();
+    return coins && coins > 0 ? '' : '—';
 };
 
 const fmtDay = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
@@ -99,9 +107,9 @@ export const SeasonBanner: React.FC = () => {
                 <div className="flex flex-wrap gap-2 mb-4">
                     {/* Prizes come from the admin-set title + coin fields (the legacy
                         *PlacePoints columns are no longer used). */}
-                    <span className="text-sm font-bold bg-white/15 rounded-xl px-3 py-1.5">{t('season.firstPlace', { prize: prizeLabel(season.prizeTitle, season.firstPrizeCoins) })}</span>
-                    <span className="text-sm font-bold bg-white/15 rounded-xl px-3 py-1.5">{t('season.secondPlacePrize', { prize: prizeLabel(season.secondPrizeTitle, season.secondPrizeCoins) })}</span>
-                    <span className="text-sm font-bold bg-white/15 rounded-xl px-3 py-1.5">{t('season.thirdPlacePrize', { prize: prizeLabel(season.thirdPrizeTitle, season.thirdPrizeCoins) })}</span>
+                    <span className="text-sm font-bold bg-white/15 rounded-xl px-3 py-1.5 inline-flex items-center">{t('season.firstPlace', { prize: prizeTitleText(season.prizeTitle, season.firstPrizeCoins) })}<CoinTag coins={season.firstPrizeCoins} /></span>
+                    <span className="text-sm font-bold bg-white/15 rounded-xl px-3 py-1.5 inline-flex items-center">{t('season.secondPlacePrize', { prize: prizeTitleText(season.secondPrizeTitle, season.secondPrizeCoins) })}<CoinTag coins={season.secondPrizeCoins} /></span>
+                    <span className="text-sm font-bold bg-white/15 rounded-xl px-3 py-1.5 inline-flex items-center">{t('season.thirdPlacePrize', { prize: prizeTitleText(season.thirdPrizeTitle, season.thirdPrizeCoins) })}<CoinTag coins={season.thirdPrizeCoins} /></span>
                 </div>
 
                 {!isUpcoming && top3.length > 0 && (

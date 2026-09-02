@@ -271,7 +271,7 @@ export const SeasonManager: React.FC<Props> = ({ token }) => {
                                     <p className="text-xs text-brand-dark/60 flex items-center gap-1.5">
                                         <Award size={13} className="text-brand-orange" />
                                         <span className="font-bold">{s.prizeTitle}</span>
-                                        <span className="text-brand-dark/30">· 1st {s.firstPrizeCoins}🪙 · 2nd {s.secondPrizeCoins}🪙 · 3rd {s.thirdPrizeCoins}🪙</span>
+                                        <span className="text-brand-dark/30">· 1st {s.firstPrizeCoins} coins · 2nd {s.secondPrizeCoins} coins · 3rd {s.thirdPrizeCoins} coins</span>
                                     </p>
                                 </div>
                                 <div className="flex items-center gap-2 shrink-0">
@@ -341,7 +341,7 @@ export const SeasonManager: React.FC<Props> = ({ token }) => {
                                             <input value={form.prizeTitle} onChange={e => setForm(p => ({ ...p, prizeTitle: e.target.value }))} className="w-full bg-white rounded-xl px-4 py-3 font-bold text-sm outline-none focus:ring-2 ring-brand-orange/20 mt-1" placeholder="Bluetooth Speaker" />
                                         </div>
                                         <div>
-                                            <label className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest">Coin Bonus 🪙</label>
+                                            <label className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest">Coin Bonus (coins)</label>
                                             <input type="number" min="0" value={form.firstPrizeCoins} onChange={e => setForm(p => ({ ...p, firstPrizeCoins: e.target.value }))} className="w-full bg-white rounded-xl px-4 py-3 font-bold text-sm outline-none focus:ring-2 ring-brand-orange/20 mt-1" />
                                         </div>
                                     </div>
@@ -357,7 +357,7 @@ export const SeasonManager: React.FC<Props> = ({ token }) => {
                                         <input value={form.secondPrizeTitle} onChange={e => setForm(p => ({ ...p, secondPrizeTitle: e.target.value }))} className="w-full bg-gray-50 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:ring-2 ring-brand-orange/20 mt-1" placeholder="Gift Voucher" />
                                     </div>
                                     <div>
-                                        <label className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest">2nd Coin Bonus 🪙</label>
+                                        <label className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest">2nd Coin Bonus (coins)</label>
                                         <input type="number" min="0" value={form.secondPrizeCoins} onChange={e => setForm(p => ({ ...p, secondPrizeCoins: e.target.value }))} className="w-full bg-gray-50 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:ring-2 ring-brand-orange/20 mt-1" />
                                     </div>
                                 </div>
@@ -368,7 +368,7 @@ export const SeasonManager: React.FC<Props> = ({ token }) => {
                                         <input value={form.thirdPrizeTitle} onChange={e => setForm(p => ({ ...p, thirdPrizeTitle: e.target.value }))} className="w-full bg-gray-50 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:ring-2 ring-brand-orange/20 mt-1" placeholder="Sticker Pack" />
                                     </div>
                                     <div>
-                                        <label className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest">3rd Coin Bonus 🪙</label>
+                                        <label className="text-[10px] font-black text-brand-dark/30 uppercase tracking-widest">3rd Coin Bonus (coins)</label>
                                         <input type="number" min="0" value={form.thirdPrizeCoins} onChange={e => setForm(p => ({ ...p, thirdPrizeCoins: e.target.value }))} className="w-full bg-gray-50 rounded-xl px-4 py-3 font-bold text-sm outline-none focus:ring-2 ring-brand-orange/20 mt-1" />
                                     </div>
                                 </div>

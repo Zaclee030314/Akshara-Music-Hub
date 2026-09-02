@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from './Button';
-import { Trophy, Crown, Medal, Calendar, Gift, UserCircle2, ArrowRight } from 'lucide-react';
+import { Trophy, Crown, Medal, Calendar, Gift, UserCircle2, ArrowRight, Coins } from 'lucide-react';
 import { useT } from '../contexts/LanguageContext';
 
 interface Season {
@@ -107,7 +107,7 @@ export const SeasonShowcase: React.FC<Props> = ({ onJoin }) => {
                                     </div>
                                 </div>
                                 <p className="text-sm text-brand-dark/60 font-medium pl-7">
-                                    {t('season.plusPrizeCoins')} · 🥈 2nd {season.secondPrizeTitle ? `${season.secondPrizeTitle} ` : ''}+{season.secondPrizeCoins}🪙 · 🥉 3rd {season.thirdPrizeTitle ? `${season.thirdPrizeTitle} ` : ''}+{season.thirdPrizeCoins}🪙
+                                    {t('season.plusPrizeCoins')} · 🥈 2nd {season.secondPrizeTitle ? `${season.secondPrizeTitle} ` : ''}+{season.secondPrizeCoins.toLocaleString()}<Coins size={13} className="inline -mt-0.5 text-yellow-500 fill-yellow-400" /> · 🥉 3rd {season.thirdPrizeTitle ? `${season.thirdPrizeTitle} ` : ''}+{season.thirdPrizeCoins.toLocaleString()}<Coins size={13} className="inline -mt-0.5 text-yellow-500 fill-yellow-400" />
                                 </p>
                             </div>
 

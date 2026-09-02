@@ -986,7 +986,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                         {[
                             { label: 'Banked XP', value: selectedUser.xp, icon: '⭐' },
-                            { label: 'Coins', value: selectedUser.coins ?? 0, icon: '🪙' },
+                            { label: 'Coins', value: selectedUser.coins ?? 0, icon: '💰' },
                             { label: 'Q. Answered', value: selectedUser.totalQuestions, icon: '📚' },
                             { label: 'Correct', value: selectedUser.totalCorrect, icon: '✅' },
                             { label: 'Avg Accuracy', value: `${selectedUser.accuracy}%`, icon: '🎯' }

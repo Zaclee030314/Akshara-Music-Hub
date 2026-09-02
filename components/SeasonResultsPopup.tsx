@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Trophy, UserCircle2, X } from 'lucide-react';
+import { Trophy, UserCircle2, X, Coins } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
 import { useT } from '../contexts/LanguageContext';
 
@@ -139,9 +139,9 @@ export const SeasonResultsPopup: React.FC = () => {
 
                 <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 text-center mb-6">
                     <p className="text-xs font-bold text-brand-dark/60">
-                        🏆 1st: {season.prizeTitle}{season.firstPrizeCoins > 0 ? ` (+${season.firstPrizeCoins}🪙)` : ''}
-                        {' · '}🥈 2nd: {season.secondPrizeTitle || `+${season.secondPrizeCoins}🪙`}
-                        {' · '}🥉 3rd: {season.thirdPrizeTitle || `+${season.thirdPrizeCoins}🪙`}
+                        🏆 1st: {season.prizeTitle}{season.firstPrizeCoins > 0 && <> (+{season.firstPrizeCoins.toLocaleString()}<Coins size={12} className="inline -mt-0.5 text-yellow-500 fill-yellow-400" />)</>}
+                        {' · '}🥈 2nd: {season.secondPrizeTitle || <>+{season.secondPrizeCoins.toLocaleString()}<Coins size={12} className="inline -mt-0.5 text-yellow-500 fill-yellow-400" /></>}
+                        {' · '}🥉 3rd: {season.thirdPrizeTitle || <>+{season.thirdPrizeCoins.toLocaleString()}<Coins size={12} className="inline -mt-0.5 text-yellow-500 fill-yellow-400" /></>}
                     </p>
                 </div>
 
