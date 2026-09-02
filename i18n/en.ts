@@ -226,7 +226,7 @@ const en: Record<string, string> = {
   'pricing.bestValue': 'BEST VALUE · ALL ACCESS',
   'pricing.max': 'Max Package',
   'pricing.max.feat1': 'Unlimited Generate Question & Quiz',
-  'pricing.max.feat2': 'All syllabi & subjects included',
+  'pricing.max.feat2': 'All syllabuses & subjects included',
   'pricing.upgradeAllAccess': 'Upgrade to All Access',
 
   // ── Student dashboard ──────────────────────────────────────────────

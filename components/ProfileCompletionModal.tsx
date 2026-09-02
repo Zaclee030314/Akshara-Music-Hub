@@ -75,8 +75,10 @@ export const ProfileCompletionModal: React.FC<ProfileCompletionModalProps> = ({ 
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-start sm:items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">
-            <Card className="max-w-lg w-full p-6 md:p-8 shadow-2xl border-2 border-brand-orange/20 animate-pop-in relative my-8">
+        // Safe centering: m-auto on the card centres it when it fits and top-aligns it
+        // when it is taller than the viewport, so the top is always reachable by scrolling.
+        <div className="fixed inset-0 z-[100] flex justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">
+            <Card className="max-w-lg w-full p-6 md:p-8 shadow-2xl border-2 border-brand-orange/20 animate-pop-in relative m-auto">
                 <div className="text-center mb-6 space-y-2">
                     <div className="inline-flex items-center justify-center p-3 bg-brand-orange/10 rounded-full">
                         <Sparkles size={28} className="text-brand-orange" />

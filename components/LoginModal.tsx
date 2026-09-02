@@ -227,8 +227,8 @@ export const LoginModal = ({ onClose, postLoginPath }: LoginModalProps) => {
 
     // ── EMAIL VERIFICATION ──────────────────────────────────────────────────
     if (view === 'verify') return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-start sm:items-center justify-center p-4 overflow-y-auto">
-            <Card className="max-w-md w-full p-8 relative my-8">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex justify-center p-4 overflow-y-auto">
+            <Card className="max-w-md w-full p-8 relative m-auto">
                 <button onClick={() => setView('login')} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
                     <ArrowLeft size={20} />
                 </button>
@@ -260,8 +260,8 @@ export const LoginModal = ({ onClose, postLoginPath }: LoginModalProps) => {
 
     // ── FORGOT PASSWORD: STEP 1 – Email ─────────────────────────────────────
     if (view === 'forgot_email') return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-start sm:items-center justify-center p-4 overflow-y-auto">
-            <Card className="max-w-md w-full p-8 relative my-8">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex justify-center p-4 overflow-y-auto">
+            <Card className="max-w-md w-full p-8 relative m-auto">
                 <button onClick={() => { setView('login'); setFpError(''); }} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
                     <ArrowLeft size={20} />
                 </button>
@@ -292,8 +292,8 @@ export const LoginModal = ({ onClose, postLoginPath }: LoginModalProps) => {
 
     // ── FORGOT PASSWORD: STEP 2 – OTP ───────────────────────────────────────
     if (view === 'forgot_otp') return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-start sm:items-center justify-center p-4 overflow-y-auto">
-            <Card className="max-w-md w-full p-8 relative my-8">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex justify-center p-4 overflow-y-auto">
+            <Card className="max-w-md w-full p-8 relative m-auto">
                 <button onClick={() => { setView('forgot_email'); setFpError(''); setFpOtp(''); }} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
                     <ArrowLeft size={20} />
                 </button>
@@ -324,8 +324,8 @@ export const LoginModal = ({ onClose, postLoginPath }: LoginModalProps) => {
 
     // ── FORGOT PASSWORD: STEP 3 – New Password ──────────────────────────────
     if (view === 'forgot_newpass') return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-start sm:items-center justify-center p-4 overflow-y-auto">
-            <Card className="max-w-md w-full p-8 relative my-8">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex justify-center p-4 overflow-y-auto">
+            <Card className="max-w-md w-full p-8 relative m-auto">
                 <div className="text-center mb-6">
                     <div className="w-16 h-16 bg-brand-green/10 rounded-full flex items-center justify-center mx-auto mb-4 text-brand-green">
                         <Lock size={32} />
@@ -360,8 +360,8 @@ export const LoginModal = ({ onClose, postLoginPath }: LoginModalProps) => {
 
     // ── MAIN LOGIN / SIGNUP ─────────────────────────────────────────────────
     return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-start sm:items-center justify-center p-4 overflow-y-auto">
-            <Card className="max-w-md w-full p-8 relative my-8">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex justify-center p-4 overflow-y-auto">
+            <Card className="max-w-md w-full p-8 relative m-auto">
                 <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
                     <ArrowLeft size={20} />
                 </button>
