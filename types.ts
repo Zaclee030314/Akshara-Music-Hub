@@ -24,6 +24,10 @@ export enum Subject {
   VEENA = 'Veena',
   KEYBOARD_CARNATIC = 'Keyboard (Carnatic)',
   HARMONIUM = 'Harmonium',
+  VIOLIN_CARNATIC = 'Violin (Carnatic)',
+  FLUTE_CARNATIC = 'Flute (Carnatic)',
+  TAVIL = 'Tavil',
+  BHARATANATYAM = 'Bharatanatyam (Dance)',
   // Hindustani Music — instrument subjects (Grades 1-10; Harmonium is shared)
   TABLA = 'Tabla',
   HINDUSTANI_VOCAL = 'Vocal (Hindustani)',

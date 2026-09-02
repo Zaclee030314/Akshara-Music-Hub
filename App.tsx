@@ -78,6 +78,10 @@ const SUBJECTS = [
   { id: Subject.VEENA, icon: <span className="text-2xl">🪕</span>, color: 'bg-orange-100' },
   { id: Subject.KEYBOARD_CARNATIC, icon: <span className="text-2xl">🎹</span>, color: 'bg-fuchsia-100' },
   { id: Subject.HARMONIUM, icon: <span className="text-2xl">🪗</span>, color: 'bg-lime-100' },
+  { id: Subject.VIOLIN_CARNATIC, icon: <span className="text-2xl">🎻</span>, color: 'bg-purple-100' },
+  { id: Subject.FLUTE_CARNATIC, icon: <span className="text-2xl">🪈</span>, color: 'bg-cyan-100' },
+  { id: Subject.TAVIL, icon: <span className="text-2xl">🥁</span>, color: 'bg-red-100' },
+  { id: Subject.BHARATANATYAM, icon: <span className="text-2xl">💃</span>, color: 'bg-pink-100' },
   // Hindustani Music — instrument subjects (Harmonium shared with Carnatic)
   { id: Subject.TABLA, icon: <span className="text-2xl">🥁</span>, color: 'bg-stone-200' },
   { id: Subject.HINDUSTANI_VOCAL, icon: <span className="text-2xl">🎙️</span>, color: 'bg-yellow-100' },

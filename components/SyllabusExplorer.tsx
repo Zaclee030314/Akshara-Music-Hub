@@ -116,6 +116,10 @@ const SUBJECT_DATA: Record<string, { name: string; subjects: any[]; syllabus?: S
                 { id: Subject.VEENA, label: 'Veena', icon: '🪕', color: 'bg-orange-100 text-orange-700' },
                 { id: Subject.KEYBOARD_CARNATIC, label: 'Keyboard', icon: '🎹', color: 'bg-fuchsia-100 text-fuchsia-700' },
                 { id: Subject.HARMONIUM, label: 'Harmonium', icon: '🪗', color: 'bg-lime-100 text-lime-700' },
+                { id: Subject.VIOLIN_CARNATIC, label: 'Violin', icon: '🎻', color: 'bg-purple-100 text-purple-700' },
+                { id: Subject.FLUTE_CARNATIC, label: 'Flute', icon: '🪈', color: 'bg-cyan-100 text-cyan-700' },
+                { id: Subject.TAVIL, label: 'Tavil', icon: '🥁', color: 'bg-red-100 text-red-700' },
+                { id: Subject.BHARATANATYAM, label: 'Bharatanatyam', icon: '💃', color: 'bg-pink-100 text-pink-700' },
             ]
         },
         {

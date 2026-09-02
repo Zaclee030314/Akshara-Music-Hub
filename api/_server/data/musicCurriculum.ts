@@ -978,6 +978,33 @@ const INSTRUMENT_FACTS: Record<string, string[]> = {
         'Finger numbering: thumb = 1, index = 2, middle = 3, ring = 4, little = 5.',
         'Always state the selected Sa in any pitch-dependent question.'
     ],
+    'Violin (Carnatic)': [
+        'The Carnatic violin is played SEATED cross-legged, with the scroll resting on the player\'s right ankle/foot and the body against the chest — not under the chin as in Western playing.',
+        'The bow is held in the right hand; the left hand fingers the strings and produces gamakas by sliding.',
+        'The four strings are tuned to Sa Pa Sa Pa (lower to higher) relative to the chosen sruti.',
+        'Baluswami Dikshitar (brother of Muthuswami Dikshitar) adapted the violin into Carnatic music.',
+        'Parts: body, fingerboard, tailpiece, scroll, bridge, pegs, sound post.'
+    ],
+    'Flute (Carnatic)': [
+        'The Carnatic flute (venu/pullanguzhal) is a transverse bamboo flute with 8 holes; it is held horizontally.',
+        'Sound is produced by blowing across the embouchure hole; tonguing articulates the notes.',
+        'Fingering and half-holing produce gamakas; beginners often start varisais in Harikambodhi on the flute.',
+        'Different flute lengths give different sruti (pitch); the player chooses the flute to match the singer or ensemble.'
+    ],
+    'Tavil': [
+        'The Tavil (Thavil) is a barrel-shaped South Indian drum played with a stick in the LEFT hand and the fingers (with hard thimbles/caps) of the RIGHT hand.',
+        'It is the traditional partner of the Nadaswaram; together they are called Mangala Vadyam and Raja Vadyam and are played at temples and auspicious occasions.',
+        'It is played standing or seated with the drum hung from the shoulder or resting in front.',
+        'Basic vocabulary includes Pillaiyar paadam, Oru/Iru/Nangu Vazhi Paadam, mohra, korvai and arudhi.'
+    ],
+    'Bharatanatyam (Dance)': [
+        'Bharatanatyam is a classical dance of Tamil Nadu based on the Natyasastra and Abhinayadarpanam.',
+        'Adavus are the basic dance units; a korvai is a sequence of adavus; a tirmanam is a concluding rhythmic phrase.',
+        'Hastas: asamyuta (single-hand) and samyuta (double-hand) gestures, each with viniyogas (uses); Pataka is the first asamyuta hasta.',
+        'Abhinaya has four types: Angika, Vachika, Aharya, Sattvika.',
+        'The Margam order: Alarippu, Jatiswaram, Shabdam, Varnam, Padam/Javali, Thillana.',
+        'Bhedas: Siro (head), Drishti (eye), Griva (neck) movements.'
+    ],
     'Sangeetham (Vocal)': [
         'The sapta swaras are Sa Ri Ga Ma Pa Da Ni.',
         'Adi Tala = Chatusra Jathi Triputa Tala = 4+2+2 = 8 counts.',

@@ -9,6 +9,7 @@ import { checkExpiredSubscriptions } from '../middleware/checkExpiredSubscriptio
 import { isMusicSyllabus } from '../utils/ageGrade.js';
 import { getCuratedTopics, getInstrumentFacts } from '../data/musicCurriculum.js';
 import { REFERENCE_QUESTIONS } from '../data/referenceBanks.js';
+import { getGradeSyllabus, syllabusToTopics } from '../data/gradeSyllabus.js';
 
 const router = express.Router();
 
@@ -73,7 +74,11 @@ const CARNATIC_TECHNIQUE_FOCUS: Record<string, string> = {
     'Mridangam': 'fingering, strokes (Tha, Dhi, Nam, Thom, Chapu), sollukattu recitation, and tala accompaniment',
     'Veena': 'meettu (plucking), fretting, gamaka, and raga playing',
     'Keyboard (Carnatic)': 'swara-to-key mapping (always state the selected Sa, e.g. Sa = E), fingering (thumb 1 to little finger 5), and raga playing',
-    'Harmonium': 'left-hand bellows control, right-hand fingering, and swara-to-key mapping (always state the selected Sa)'
+    'Harmonium': 'left-hand bellows control, right-hand fingering, and swara-to-key mapping (always state the selected Sa)',
+    'Violin (Carnatic)': 'seated playing posture, bowing (full/half/quarter bow), left-hand fingering and gamaka slides, varisais and compositions',
+    'Flute (Carnatic)': 'blowing and tonguing techniques, fingering and half-holing for gamakas, breath control, varisais and compositions',
+    'Tavil': 'stick (left hand) and finger-cap (right hand) technique, vazhi paadams, mohra, korvai, arudhi and nadaswaram accompaniment',
+    'Bharatanatyam (Dance)': 'adavus, hastas and their viniyogas, bhedas, abhinaya, tala reckoning, and the margam repertoire'
 };
 
 const HINDUSTANI_TECHNIQUE_FOCUS: Record<string, string> = {
@@ -116,12 +121,27 @@ ${rendered}
 `;
 };
 
+// The official grade-exam syllabus (theory + practical units) for this
+// subject/grade, when one exists — the authoritative exam scope.
+const gradeSyllabusBlock = (subject: string, grade: string): string => {
+    const s = getGradeSyllabus(subject, grade);
+    if (!s) return '';
+    return `
+OFFICIAL GRADE EXAM SYLLABUS — ${subject} ${grade} (the exam board's own scope; every question must fall inside it):
+Theory units:
+${s.theory.map(t => `- ${t}`).join('\n')}
+Practical units:
+${s.practical.map(p => `- ${p}`).join('\n')}
+${s.notes ? `Note: ${s.notes}\n` : ''}`;
+};
+
 const musicPromptRules = (syllabus: string, subject: string, grade: string, focus?: string): string => {
     if (!isMusicSyllabus(syllabus)) return '';
     const curated = getCuratedTopics(syllabus, subject, grade);
     const gradeProtection = curated
         ? `GRADE PROTECTION — the official ${grade} scope for ${subject} is EXACTLY these topics:\n${curated.map(t => `- ${t}`).join('\n')}\nTest ONLY these topics. NEVER include concepts from higher grades.`
         : `GRADE PROTECTION: Test only concepts appropriate for ${grade}. NEVER include concepts from higher grades.`;
+    const examSyllabus = gradeSyllabusBlock(subject, grade);
 
     const facts = getInstrumentFacts(subject);
     const factGrounding = facts.length
@@ -132,14 +152,14 @@ const musicPromptRules = (syllabus: string, subject: string, grade: string, focu
     if (syllabus === 'Carnatic Music' || syllabus === 'Indian Music' /* legacy */) {
         return `
 MUSIC SYLLABUS RULES (Carnatic Music):
-- This is a CARNATIC MUSIC examination for ${subject} students of Akshara Fine Arts (Grades 1-10).
+- This is a ${subject === 'Bharatanatyam (Dance)' ? 'BHARATANATYAM (South Indian classical DANCE)' : 'CARNATIC MUSIC'} examination for ${subject} students of Akshara Fine Arts (Grades 1-10).
 - Use authentic Carnatic terminology: swara (Sa Ri Ga Ma Pa Da Ni), shruti, sthayi, tala (Adi, Rupaka, Eka, Misra Chapu, Khanda Chapu), raga, sarali/janta/dhatu varisai, alankaram, geetham, varnam, kriti, sollukattu.
 - Anchor beginner content (Grades 1-3) on raga Mayamalavagowla.
 - Emphasise ${subject}-specific technique: ${CARNATIC_TECHNIQUE_FOCUS[subject] || 'instrument technique and theory'}.
 ${musicFocusRules(subject, focus)}
 - Questions must be answerable in text form without audio or images — describe sounds and techniques in words.
 ${factGrounding}${factualSafety}
-${referenceExamplesBlock(subject, grade, focus)}
+${examSyllabus}${referenceExamplesBlock(subject, grade, focus)}
 ${gradeProtection}
 `;
     }
@@ -154,7 +174,7 @@ ${musicFocusRules(subject, focus)}
 - Do NOT use Carnatic-specific terms (varnam, kriti, sarali varisai, sollukattu) — this is the Hindustani tradition.
 - Questions must be answerable in text form without audio or images — describe sounds and techniques in words.
 ${factGrounding}${factualSafety}
-${referenceExamplesBlock(subject, grade, focus)}
+${examSyllabus}${referenceExamplesBlock(subject, grade, focus)}
 ${gradeProtection}
 `;
     }
@@ -637,6 +657,12 @@ router.post('/syllabus', async (req, res) => {
         if (curated) {
             console.log(`✅ [SYLLABUS] Serving curated music topics for ${subject} / ${grade}`);
             return res.json(curated);
+        }
+        // No hand-authored tree — derive topics from the official grade-exam syllabus.
+        const exam = getGradeSyllabus(subject, grade);
+        if (exam) {
+            console.log(`✅ [SYLLABUS] Serving grade-exam syllabus topics for ${subject} / ${grade}`);
+            return res.json(syllabusToTopics(exam));
         }
     }
 

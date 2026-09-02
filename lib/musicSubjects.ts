@@ -32,8 +32,12 @@ export const CARNATIC_MUSIC_SUBJECTS: Subject[] = [
     Subject.SANGEETHAM,
     Subject.MRIDANGAM,
     Subject.VEENA,
+    Subject.VIOLIN_CARNATIC,
+    Subject.FLUTE_CARNATIC,
     Subject.KEYBOARD_CARNATIC,
-    Subject.HARMONIUM
+    Subject.HARMONIUM,
+    Subject.TAVIL,
+    Subject.BHARATANATYAM
 ];
 
 export const HINDUSTANI_MUSIC_SUBJECTS: Subject[] = [
