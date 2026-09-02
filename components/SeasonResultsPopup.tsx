@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Trophy, UserCircle2, X, Coins } from 'lucide-react';
+import { Trophy, X, Coins } from 'lucide-react';
+import { SeasonPodium } from './SeasonPodium';
 import { useAuth } from '../contexts/useAuth';
 import { useT } from '../contexts/LanguageContext';
 
@@ -73,12 +74,6 @@ export const SeasonResultsPopup: React.FC = () => {
         }
     };
 
-    // Podium order: 2nd, 1st, 3rd for a classic podium look
-    const byRank = (r: number) => season.winners.find(w => w.rank === r) || null;
-    const podium = [byRank(2), byRank(1), byRank(3)];
-    const medalFor = (r: number) => (r === 1 ? '🥇' : r === 2 ? '🥈' : '🥉');
-    const heightFor = (r: number) => (r === 1 ? 'h-28' : r === 2 ? 'h-20' : 'h-16');
-
     return (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-brand-dark/70 backdrop-blur-sm" onClick={close} />
@@ -103,37 +98,8 @@ export const SeasonResultsPopup: React.FC = () => {
                 {season.winners.length === 0 ? (
                     <p className="text-center text-brand-dark/40 font-bold italic py-8">{t('season.noParticipants')}</p>
                 ) : (
-                    <div className="flex items-end justify-center gap-3 md:gap-4 mb-6">
-                        {podium.map((w, idx) => {
-                            if (!w) return <div key={idx} className="flex-1" />;
-                            return (
-                                <div key={w.userId} className="flex-1 flex flex-col items-center">
-                                    <div className="text-2xl mb-1">{medalFor(w.rank)}</div>
-                                    {w.avatar ? (
-                                        <img src={w.avatar} alt={w.name} className="w-14 h-14 rounded-full object-cover border-4 border-brand-orange/30 mb-2" />
-                                    ) : (
-                                        <div className="w-14 h-14 rounded-full bg-brand-dark/5 flex items-center justify-center mb-2 text-brand-dark/40">
-                                            <UserCircle2 size={32} />
-                                        </div>
-                                    )}
-                                    <p className="font-bold text-sm text-brand-dark text-center leading-tight mb-1 truncate max-w-full">{w.name}</p>
-                                    <div className={`w-full ${heightFor(w.rank)} rounded-t-2xl bg-gradient-to-t from-indigo-500 to-purple-500 flex items-start justify-center pt-2`}>
-                                        <span className="text-white font-black text-lg">{w.points}</span>
-                                    </div>
-                                    {w.rank === 1 ? (
-                                        <div className="text-center mt-2">
-                                            <p className="text-[11px] font-black text-brand-orange uppercase tracking-wide">{t('season.won', { prize: w.prizeTitle })}</p>
-                                            {season.prizeDetails && <p className="text-[10px] text-brand-dark/50 mt-0.5">{season.prizeDetails}</p>}
-                                        </div>
-                                    ) : (
-                                        <div className="text-center mt-2">
-                                            {w.prizeTitle && <p className="text-[11px] font-black text-brand-orange uppercase tracking-wide">{t('season.won', { prize: w.prizeTitle })}</p>}
-                                            {w.awardedPoints > 0 && <p className="text-[11px] font-bold text-brand-dark/60">{t('season.coinsPlus', { count: w.awardedPoints })}</p>}
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })}
+                    <div className="mb-6">
+                        <SeasonPodium winners={season.winners} championNote={season.prizeDetails} />
                     </div>
                 )}
 

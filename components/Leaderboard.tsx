@@ -4,6 +4,7 @@ import { Trophy, UserCircle2, Loader2, Award, CalendarClock, Search, X, ChevronD
 import { useAuth } from '../contexts/useAuth';
 import { useT } from '../contexts/LanguageContext';
 import { LeaderboardRow, DisplayRow, allTimeToRow } from './LeaderboardRow';
+import { SeasonPodium } from './SeasonPodium';
 import { SeasonPicker, SeasonListItem } from './SeasonPicker';
 
 interface LeaderboardUser {
@@ -39,6 +40,7 @@ interface PastWinner {
     avatar: string | null;
     points: number;
     prizeTitle: string;
+    awardedPoints?: number;
 }
 
 interface PastSeason {
@@ -385,25 +387,8 @@ export const Leaderboard: React.FC = () => {
                             {season.winners.length === 0 ? (
                                 <p className="text-brand-dark/40 text-sm font-bold italic">{t('leaderboard.noWinners')}</p>
                             ) : (
-                                <div className="flex flex-col sm:flex-row gap-3">
-                                    {season.winners.map(w => (
-                                        <div key={w.userId} className="flex items-center gap-3 bg-gray-50 rounded-2xl px-4 py-3 flex-1 min-w-0">
-                                            <span className="text-xl shrink-0">{medalFor(w.rank)}</span>
-                                            {w.avatar ? (
-                                                <img src={w.avatar} alt={w.name} className="w-9 h-9 rounded-full object-cover border-2 border-gray-200 shrink-0" />
-                                            ) : (
-                                                <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 shrink-0">
-                                                    <UserCircle2 size={22} />
-                                                </div>
-                                            )}
-                                            <div className="min-w-0">
-                                                <p className="font-bold text-sm text-brand-dark truncate">{w.name}</p>
-                                                <p className="text-[11px] text-brand-dark/50 font-bold">
-                                                    {t('leaderboard.pts', { count: w.points })}{w.rank === 1 && w.prizeTitle ? ` · ${w.prizeTitle}` : ''}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    ))}
+                                <div className="max-w-xl mx-auto pt-2">
+                                    <SeasonPodium winners={season.winners} />
                                 </div>
                             )}
                         </Card>
