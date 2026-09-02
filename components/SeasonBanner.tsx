@@ -16,12 +16,23 @@ interface SeasonInfo {
     description: string | null;
     prizeTitle: string;
     prizeDetails: string | null;
-    secondPlacePoints: number;
-    thirdPlacePoints: number;
+    secondPrizeTitle: string | null;
+    thirdPrizeTitle: string | null;
+    firstPrizeCoins: number;
+    secondPrizeCoins: number;
+    thirdPrizeCoins: number;
     startDate: string;
     endDate: string;
     status: string;
 }
+
+// "Gift Voucher +50000🪙", "+24996🪙", or just the title — whatever the admin set.
+const prizeLabel = (title: string | null | undefined, coins: number | null | undefined): string => {
+    const parts: string[] = [];
+    if (title && title.trim()) parts.push(title.trim());
+    if (coins && coins > 0) parts.push(`+${coins.toLocaleString()}🪙`);
+    return parts.length ? parts.join(' ') : '—';
+};
 
 const fmtDay = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 const fmtFull = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -86,9 +97,11 @@ export const SeasonBanner: React.FC = () => {
                 )}
 
                 <div className="flex flex-wrap gap-2 mb-4">
-                    <span className="text-sm font-bold bg-white/15 rounded-xl px-3 py-1.5">{t('season.firstPlace', { prize: season.prizeTitle })}</span>
-                    <span className="text-sm font-bold bg-white/15 rounded-xl px-3 py-1.5">{t('season.secondPlacePts', { pts: season.secondPlacePoints })}</span>
-                    <span className="text-sm font-bold bg-white/15 rounded-xl px-3 py-1.5">{t('season.thirdPlacePts', { pts: season.thirdPlacePoints })}</span>
+                    {/* Prizes come from the admin-set title + coin fields (the legacy
+                        *PlacePoints columns are no longer used). */}
+                    <span className="text-sm font-bold bg-white/15 rounded-xl px-3 py-1.5">{t('season.firstPlace', { prize: prizeLabel(season.prizeTitle, season.firstPrizeCoins) })}</span>
+                    <span className="text-sm font-bold bg-white/15 rounded-xl px-3 py-1.5">{t('season.secondPlacePrize', { prize: prizeLabel(season.secondPrizeTitle, season.secondPrizeCoins) })}</span>
+                    <span className="text-sm font-bold bg-white/15 rounded-xl px-3 py-1.5">{t('season.thirdPlacePrize', { prize: prizeLabel(season.thirdPrizeTitle, season.thirdPrizeCoins) })}</span>
                 </div>
 
                 {!isUpcoming && top3.length > 0 && (

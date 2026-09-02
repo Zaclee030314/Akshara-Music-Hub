@@ -490,6 +490,8 @@ const ms: Record<string, string> = {
   'season.firstPlace': '🏆 Ke-1: {prize}',
   'season.secondPlacePts': '🥈 Ke-2: +{pts} mata',
   'season.thirdPlacePts': '🥉 Ke-3: +{pts} mata',
+  'season.secondPlacePrize': '🥈 Ke-2: {prize}',
+  'season.thirdPlacePrize': '🥉 Ke-3: {prize}',
   'season.currentLeaders': 'Pendahulu Semasa',
   'season.competition': '🏆 Pertandingan Musim',
   'season.firstPrize': 'Hadiah Ke-1: {prize}',

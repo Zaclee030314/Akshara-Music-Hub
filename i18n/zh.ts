@@ -490,6 +490,8 @@ const zh: Record<string, string> = {
   'season.firstPlace': '🏆 第 1 名：{prize}',
   'season.secondPlacePts': '🥈 第 2 名：+{pts} 分',
   'season.thirdPlacePts': '🥉 第 3 名：+{pts} 分',
+  'season.secondPlacePrize': '🥈 第 2 名：{prize}',
+  'season.thirdPlacePrize': '🥉 第 3 名：{prize}',
   'season.currentLeaders': '当前领先者',
   'season.competition': '🏆 赛季比赛',
   'season.firstPrize': '第 1 名奖品：{prize}',

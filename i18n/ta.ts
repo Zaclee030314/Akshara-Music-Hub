@@ -490,6 +490,8 @@ const ta: Record<string, string> = {
   'season.firstPlace': '🏆 1வது: {prize}',
   'season.secondPlacePts': '🥈 2வது: +{pts} புள்ளிகள்',
   'season.thirdPlacePts': '🥉 3வது: +{pts} புள்ளிகள்',
+  'season.secondPlacePrize': '🥈 2வது: {prize}',
+  'season.thirdPlacePrize': '🥉 3வது: {prize}',
   'season.currentLeaders': 'தற்போதைய முன்னணியாளர்கள்',
   'season.competition': '🏆 சீசன் போட்டி',
   'season.firstPrize': '1வது பரிசு: {prize}',

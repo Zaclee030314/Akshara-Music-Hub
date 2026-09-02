@@ -490,6 +490,8 @@ const en: Record<string, string> = {
   'season.firstPlace': '🏆 1st: {prize}',
   'season.secondPlacePts': '🥈 2nd: +{pts} pts',
   'season.thirdPlacePts': '🥉 3rd: +{pts} pts',
+  'season.secondPlacePrize': '🥈 2nd: {prize}',
+  'season.thirdPlacePrize': '🥉 3rd: {prize}',
   'season.currentLeaders': 'Current Leaders',
   'season.competition': '🏆 Season Competition',
   'season.firstPrize': '1st Prize: {prize}',
