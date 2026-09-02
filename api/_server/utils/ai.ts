@@ -53,7 +53,12 @@ export async function generateAIContent(
                     temperature: 0.4,
                     topP: 0.95,
                     topK: 40,
-                    max_output_tokens: 8192,
+                    // Gemini 2.5 "thinking" tokens count against the output budget; with
+                    // 8192 the JSON for 15-20 questions was routinely truncated (the repair
+                    // step then salvaged only 2-3 questions). Cap thinking and raise the
+                    // budget so full question sets fit.
+                    max_output_tokens: 16384,
+                    thinkingConfig: { thinkingBudget: 1024 },
                     response_mime_type: responseMimeType
                 }
             })

@@ -567,42 +567,78 @@ ${syllabus.toLowerCase().includes('igcse') || syllabus.toLowerCase().includes('c
         `;
 
         try {
-            console.log(`🤖 [GEN] Requesting Gemini (JSON Mode: Super-Robust 2.5)...`);
-            const responseText = await generateAIContent(prompt, "gemini-2.5-flash", "application/json");
+            // A quest must have at least MIN_QUESTIONS. A truncated or thin AI
+            // response is retried (and topped up) rather than served as-is —
+            // students were sometimes getting 2-3 question quests.
+            const MIN_QUESTIONS = 10;
+            const MAX_ATTEMPTS = 3;
+            // Vercel functions are capped at 60s — don't start another attempt if
+            // there is unlikely to be time for it to finish.
+            const TIME_BUDGET_MS = 40_000;
+            const startedAt = Date.now();
+            const collected: any[] = [];
+            const seenText = new Set<string>();
 
-            if (!responseText) {
-                console.error("❌ [GEN] Empty AI response");
-                return res.json(generateMockQuestions(subject, grade, topic, syllabus));
+            for (let attempt = 1; attempt <= MAX_ATTEMPTS && collected.length < MIN_QUESTIONS; attempt++) {
+                if (attempt > 1 && Date.now() - startedAt > TIME_BUDGET_MS) {
+                    console.warn(`⚠️ [GEN] Time budget exhausted before attempt ${attempt}; serving ${collected.length} questions`);
+                    break;
+                }
+                console.log(`🤖 [GEN] Requesting Gemini (attempt ${attempt}/${MAX_ATTEMPTS}, have ${collected.length})...`);
+                const attemptPrompt = attempt === 1
+                    ? prompt
+                    : `${prompt}\n\nIMPORTANT: Generate a FRESH set of 15-20 DIFFERENT questions. Do NOT reuse any of these already-asked questions:\n${collected.map(q => `- ${q.text}`).join('\n')}`;
+
+                let responseText: string | null = null;
+                try {
+                    responseText = await generateAIContent(attemptPrompt, "gemini-2.5-flash", "application/json");
+                } catch (apiErr: any) {
+                    if (attempt === MAX_ATTEMPTS && collected.length === 0) throw apiErr;
+                    console.warn(`⚠️ [GEN] Attempt ${attempt} API error: ${apiErr.message}`);
+                    continue;
+                }
+                if (!responseText) { console.warn(`⚠️ [GEN] Attempt ${attempt}: empty response`); continue; }
+                console.log(`✅ [GEN] Received response (${responseText.length} chars). Parsing...`);
+
+                let aiQuestions: any = null;
+                try {
+                    const parsed = superRepairJSON(responseText);
+                    aiQuestions = parsed.questions || (Array.isArray(parsed) ? parsed : null);
+                } catch (parseError: any) {
+                    console.warn(`⚠️ [GEN] Attempt ${attempt} JSON failure: ${parseError.message}`);
+                    continue;
+                }
+                if (!Array.isArray(aiQuestions)) continue;
+
+                // Keep only well-formed, not-yet-seen questions.
+                for (const q of aiQuestions) {
+                    const text = String(q?.question || q?.text || '').trim();
+                    const options = Array.isArray(q?.options) ? q.options.map((o: any) => String(o)) : [];
+                    const idx = Number(q?.correctAnswerIndex ?? q?.correctAnswer);
+                    if (!text || options.length < 2 || !Number.isInteger(idx) || idx < 0 || idx >= options.length) continue;
+                    const key = text.toLowerCase();
+                    if (seenText.has(key)) continue;
+                    seenText.add(key);
+                    collected.push({
+                        id: `ai-${Date.now()}-${collected.length}`,
+                        text,
+                        options,
+                        correctAnswerIndex: idx,
+                        explanation: q?.explanation || "No explanation provided"
+                    });
+                }
+                console.log(`[GEN] Attempt ${attempt}: ${aiQuestions.length} returned, ${collected.length} valid so far`);
             }
 
-            console.log(`✅ [GEN] Received response (${responseText.length} chars). Parsing...`);
-
-            // Try to parse the JSON with Super Repair
-            let aiQuestions;
-            try {
-                const parsed = superRepairJSON(responseText);
-                aiQuestions = parsed.questions || (Array.isArray(parsed) ? parsed : null);
-            } catch (parseError: any) {
-                console.error(`❌ [GEN] JSON Critical Failure: ${parseError.message}`);
-                console.log(`[GEN] Full Response for Debug: ${responseText}`);
+            if (collected.length === 0) {
+                console.error("❌ [GEN] No valid questions after all attempts, using mock");
                 return res.json(generateMockQuestions(subject, grade, topic, syllabus));
             }
-
-            // Validate the questions have the right structure
-            if (!Array.isArray(aiQuestions) || aiQuestions.length === 0) {
-                console.error("❌ [GEN] Invalid questions format, using mock");
-                return res.json(generateMockQuestions(subject, grade, topic, syllabus));
+            if (collected.length < MIN_QUESTIONS) {
+                console.warn(`⚠️ [GEN] Only ${collected.length} valid questions after ${MAX_ATTEMPTS} attempts — serving what we have`);
             }
 
-            // Map to ensure consistent field names (question vs text)
-            const formattedQuestions = aiQuestions.map((q: any, i: number) => ({
-                id: `ai-${Date.now()}-${i}`,
-                text: q.question || q.text || `Question ${i + 1}`,
-                options: q.options || ["A", "B", "C", "D"],
-                correctAnswerIndex: q.correctAnswerIndex ?? q.correctAnswer ?? 0,
-                explanation: q.explanation || "No explanation provided"
-            }));
-
+            const formattedQuestions = collected.slice(0, 20);
             console.log(`✅ [GEN] Generated ${formattedQuestions.length} questions with Gemini`);
             
             // ─── ROBUST OPTION SHUFFLING ───────────────────────────────────
