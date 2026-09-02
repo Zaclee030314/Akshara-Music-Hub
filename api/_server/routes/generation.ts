@@ -1,6 +1,6 @@
 import express from 'express';
 import prisma from '../db.js';
-import { generateAIContent } from '../utils/ai.js';
+import { generateAIContent, PRIMARY_MODEL } from '../utils/ai.js';
 // import { GoogleGenerativeAI } from '@google/generative-ai';
 // import fetch from 'node-fetch'; // DISABLED: Using native fetch (Node 18+)
 
@@ -66,6 +66,45 @@ const formatBankQuestions = (rows: any[], sourceLabel: string) =>
             isRealQuestion: true,
         };
     });
+
+// ─── NO-REPEAT QUESTION HISTORY ────────────────────────────────────────
+// Every question served to a student is recorded (ServedQuestion) so later
+// quests on the same subject/grade never repeat it — both the AI prompt and
+// the bank-first path consult this history.
+const questionHash = (text: string): string => {
+    const norm = text.toLowerCase().replace(/[^a-z0-9஀-௿一-鿿]+/g, ' ').trim();
+    let h = 2166136261;
+    for (let i = 0; i < norm.length; i++) { h ^= norm.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return (h >>> 0).toString(16).padStart(8, '0') + norm.length.toString(16);
+};
+
+const loadSeenQuestions = async (userId: string, subject: string, grade: string) => {
+    try {
+        const rows = await prisma.servedQuestion.findMany({
+            where: { userId, subject, grade },
+            orderBy: { createdAt: 'desc' },
+            take: 400,
+            select: { questionHash: true, questionText: true }
+        });
+        // texts oldest→newest so a tail slice keeps the most recent ones
+        return { hashes: new Set(rows.map(r => r.questionHash)), texts: rows.map(r => r.questionText).reverse() };
+    } catch (e: any) {
+        console.warn(`[GEN] Could not load served-question history: ${e.message}`);
+        return { hashes: new Set<string>(), texts: [] as string[] };
+    }
+};
+
+const recordServedQuestions = async (userId: string, subject: string, grade: string, syllabus: string | null, texts: string[]) => {
+    if (!texts.length) return;
+    try {
+        await prisma.servedQuestion.createMany({
+            data: texts.map(t => ({ userId, subject, grade, syllabus: syllabus || null, questionHash: questionHash(t), questionText: t.slice(0, 300) })),
+            skipDuplicates: true
+        });
+    } catch (e: any) {
+        console.warn(`[GEN] Could not record served questions: ${e.message}`);
+    }
+};
 
 // ─── MUSIC PROMPT RULES ────────────────────────────────────────────────
 // Keep the subject lists in sync with lib/musicSubjects.ts.
@@ -378,6 +417,7 @@ router.post('/quest', authenticateToken, checkExpiredSubscriptions, async (req: 
     // mock-mode checks so seeded content works with no AI configured.
     if (!isPastYear && typeof syllabus === 'string' && isMusicSyllabus(syllabus)) {
         try {
+            const QUEST_SIZE = 20;
             let rows = await prisma.questionBank.findMany({
                 where: { subject, grade, syllabus }
             });
@@ -386,19 +426,26 @@ router.post('/quest', authenticateToken, checkExpiredSubscriptions, async (req: 
             if (focus && rows.length > 0) {
                 const wanted = focus === 'Theory' ? 'Theory' : 'Practical';
                 const byFocus = rows.filter((r: any) => !r.classification || r.classification === wanted);
-                if (byFocus.length >= 12) rows = byFocus;
+                if (byFocus.length >= QUEST_SIZE) rows = byFocus;
             }
             // Soft topic filter: prefer questions tagged with the chosen topic,
             // but never shrink below a serveable pool.
             if (topic && topic !== 'Full Paper' && rows.length > 0) {
                 const t = String(topic).toLowerCase();
                 const filtered = rows.filter((r: any) => r.topic && t.includes(r.topic.toLowerCase()));
-                if (filtered.length >= 12) rows = filtered;
+                if (filtered.length >= QUEST_SIZE) rows = filtered;
             }
-            if (rows.length >= 12) {
-                const shuffled = [...rows].sort(() => Math.random() - 0.5).slice(0, 20);
-                console.log(`✅ [GEN] Serving ${shuffled.length} official bank questions for ${subject}/${grade} (${syllabus})`);
-                return res.json(formatBankQuestions(shuffled, `${subject} ${grade} — Akshara Official Bank`));
+            if (rows.length >= QUEST_SIZE) {
+                // Never repeat: questions this student has not seen come first; seen
+                // ones only fill the quest when the unseen pool runs low.
+                const seenBank = userId ? await loadSeenQuestions(userId, subject, grade) : { hashes: new Set<string>(), texts: [] as string[] };
+                const shuffle = (a: any[]) => [...a].sort(() => Math.random() - 0.5);
+                const unseen = rows.filter((r: any) => !seenBank.hashes.has(questionHash(r.question)));
+                const seenRows = rows.filter((r: any) => seenBank.hashes.has(questionHash(r.question)));
+                const picked = [...shuffle(unseen), ...shuffle(seenRows)].slice(0, QUEST_SIZE);
+                if (userId) await recordServedQuestions(userId, subject, grade, syllabus, picked.map((r: any) => r.question));
+                console.log(`✅ [GEN] Serving ${picked.length} official bank questions for ${subject}/${grade} (${syllabus}) — ${Math.min(unseen.length, QUEST_SIZE)} unseen`);
+                return res.json(formatBankQuestions(picked, `${subject} ${grade} — Akshara Official Bank`));
             }
             console.log(`[GEN] Music bank has only ${rows.length} rows for ${subject}/${grade} — falling through to AI.`);
         } catch (dbErr: any) {
@@ -551,7 +598,7 @@ ${syllabus.toLowerCase().includes('igcse') || syllabus.toLowerCase().includes('c
 
         prompt += `
         GENERAL QUALITY RULES:
-        1. QUANTITY: Generate 15-20 questions. No fewer than 15.
+        1. QUANTITY: Generate 22-25 questions. No fewer than 22.
         2. RANDOMIZED ANSWERS: Ensure the correct answer (correctAnswerIndex) is evenly distributed among 0, 1, 2, and 3 across the entire set of questions. For example, in a set of 20 questions, roughly 5 should have index 0 (A), 5 should have index 1 (B), 5 should have index 2 (C), and 5 should have index 3 (D). Do NOT put the correct answer in the same position for every question.
         3. Simplicity: Use ONLY basic alphanumeric characters and standard punctuation. AVOID complex nesting or unusual symbols.
         4. Explanation Quality: Each explanation MUST be specific to the question. It must:
@@ -570,8 +617,15 @@ ${syllabus.toLowerCase().includes('igcse') || syllabus.toLowerCase().includes('c
             // A quest must have at least MIN_QUESTIONS. A truncated or thin AI
             // response is retried (and topped up) rather than served as-is —
             // students were sometimes getting 2-3 question quests.
-            const MIN_QUESTIONS = 10;
+            const MIN_QUESTIONS = 20;
             const MAX_ATTEMPTS = 3;
+            // Questions this student has already been served on this subject/grade —
+            // excluded from the result and listed in the prompt as off-limits.
+            const seen = userId ? await loadSeenQuestions(userId, subject, grade) : { hashes: new Set<string>(), texts: [] as string[] };
+            const avoidList = (extra: string[]) => {
+                const all = [...seen.texts, ...extra].slice(-80);
+                return all.length ? `\n\nALREADY ASKED TO THIS STUDENT — do NOT repeat or lightly reword any of these:\n${all.map(t => `- ${t}`).join('\n')}` : '';
+            };
             // Vercel functions are capped at 60s — don't start another attempt if
             // there is unlikely to be time for it to finish.
             const TIME_BUDGET_MS = 40_000;
@@ -586,12 +640,12 @@ ${syllabus.toLowerCase().includes('igcse') || syllabus.toLowerCase().includes('c
                 }
                 console.log(`🤖 [GEN] Requesting Gemini (attempt ${attempt}/${MAX_ATTEMPTS}, have ${collected.length})...`);
                 const attemptPrompt = attempt === 1
-                    ? prompt
-                    : `${prompt}\n\nIMPORTANT: Generate a FRESH set of 15-20 DIFFERENT questions. Do NOT reuse any of these already-asked questions:\n${collected.map(q => `- ${q.text}`).join('\n')}`;
+                    ? `${prompt}${avoidList([])}`
+                    : `${prompt}\n\nIMPORTANT: Generate a FRESH set of 22-25 DIFFERENT questions.${avoidList(collected.map(q => q.text))}`;
 
                 let responseText: string | null = null;
                 try {
-                    responseText = await generateAIContent(attemptPrompt, "gemini-2.5-flash", "application/json");
+                    responseText = await generateAIContent(attemptPrompt, PRIMARY_MODEL, "application/json");
                 } catch (apiErr: any) {
                     if (attempt === MAX_ATTEMPTS && collected.length === 0) throw apiErr;
                     console.warn(`⚠️ [GEN] Attempt ${attempt} API error: ${apiErr.message}`);
@@ -618,6 +672,7 @@ ${syllabus.toLowerCase().includes('igcse') || syllabus.toLowerCase().includes('c
                     if (!text || options.length < 2 || !Number.isInteger(idx) || idx < 0 || idx >= options.length) continue;
                     const key = text.toLowerCase();
                     if (seenText.has(key)) continue;
+                    if (seen.hashes.has(questionHash(text))) continue; // served to this student before
                     seenText.add(key);
                     collected.push({
                         id: `ai-${Date.now()}-${collected.length}`,
@@ -639,6 +694,7 @@ ${syllabus.toLowerCase().includes('igcse') || syllabus.toLowerCase().includes('c
             }
 
             const formattedQuestions = collected.slice(0, 20);
+            if (userId) await recordServedQuestions(userId, subject, grade, syllabus, formattedQuestions.map(q => q.text));
             console.log(`✅ [GEN] Generated ${formattedQuestions.length} questions with Gemini`);
             
             // ─── ROBUST OPTION SHUFFLING ───────────────────────────────────
@@ -758,7 +814,7 @@ router.post('/syllabus', async (req, res) => {
 
         let responseText;
         try {
-            responseText = await generateAIContent(prompt, "gemini-2.5-flash", "application/json");
+            responseText = await generateAIContent(prompt, PRIMARY_MODEL, "application/json");
         } catch (apiError: any) {
             console.error(`❌ [SYLLABUS] Gemini API Error: ${apiError.message}`);
             return res.status(500).json({
@@ -941,7 +997,7 @@ router.post('/study-plan', authenticateToken, checkExpiredSubscriptions, async (
 
         let responseText;
         try {
-            responseText = await generateAIContent(prompt, "gemini-2.5-flash", "application/json");
+            responseText = await generateAIContent(prompt, PRIMARY_MODEL, "application/json");
         } catch (apiError: any) {
             console.error(`❌ [STUDY-PLAN] Gemini API Error: ${apiError.message}`);
             return res.status(500).json({ error: `AI generation failed: ${apiError.message}` });

@@ -6,9 +6,32 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
  * the Google Node SDK does not support sending Referer,
  * which causes 403 errors if the API Key has "Application Restrictions".
  */
+// Newest flash model first; older flash models as automatic fallbacks so a
+// preview-model outage or API change never takes quest generation down.
+export const PRIMARY_MODEL = 'gemini-3-flash-preview';
+export const FALLBACK_MODELS = ['gemini-2.5-flash', 'gemini-flash-latest'];
+
 export async function generateAIContent(
     prompt: string,
-    modelName: string = "gemini-2.5-flash",
+    modelName: string = PRIMARY_MODEL,
+    responseMimeType?: string
+): Promise<string> {
+    const chain = [modelName, ...FALLBACK_MODELS.filter(m => m !== modelName)];
+    let lastError: any = null;
+    for (const model of chain) {
+        try {
+            return await callGemini(prompt, model, responseMimeType);
+        } catch (err: any) {
+            lastError = err;
+            console.warn(`[AI] Model ${model} failed (${err.message}); trying next fallback...`);
+        }
+    }
+    throw lastError ?? new Error('All Gemini models failed');
+}
+
+async function callGemini(
+    prompt: string,
+    modelName: string,
     responseMimeType?: string
 ): Promise<string> {
     const apiKey = process.env.GEMINI_API_KEY;
@@ -53,12 +76,13 @@ export async function generateAIContent(
                     temperature: 0.4,
                     topP: 0.95,
                     topK: 40,
-                    // Gemini 2.5 "thinking" tokens count against the output budget; with
-                    // 8192 the JSON for 15-20 questions was routinely truncated (the repair
-                    // step then salvaged only 2-3 questions). Cap thinking and raise the
-                    // budget so full question sets fit.
+                    // Thinking tokens count against the output budget; with 8192 the JSON
+                    // for a full question set was routinely truncated (the repair step then
+                    // salvaged only 2-3 questions). Keep thinking small and the budget large.
                     max_output_tokens: 16384,
-                    thinkingConfig: { thinkingBudget: 1024 },
+                    // thinkingBudget is the Gemini 2.5 control; Gemini 3 uses thinkingLevel.
+                    ...(cleanModelName?.startsWith('gemini-2.5') ? { thinkingConfig: { thinkingBudget: 1024 } } : {}),
+                    ...(cleanModelName?.startsWith('gemini-3') ? { thinkingConfig: { thinkingLevel: 'low' } } : {}),
                     response_mime_type: responseMimeType
                 }
             })

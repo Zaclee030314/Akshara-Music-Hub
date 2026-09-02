@@ -261,6 +261,23 @@ model QuestionBank {
   @@index([subject, grade, syllabus, topic])
 }
 
+// Questions already served to a student, so new quests never repeat them.
+// questionHash = hash of the normalised question text. Rows are per user; the
+// (subject, grade) index lets a quest look up only the relevant history.
+model ServedQuestion {
+  id           String   @id @default(uuid())
+  userId       String
+  subject      String
+  grade        String
+  syllabus     String?
+  questionHash String
+  questionText String   // trimmed to 300 chars — fed back to the AI as "do not repeat"
+  createdAt    DateTime @default(now())
+
+  @@unique([userId, questionHash])
+  @@index([userId, subject, grade])
+}
+
 model CourseSyllabus {
   id        String   @id @default(uuid())
   subject   String
