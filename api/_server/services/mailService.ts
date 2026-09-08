@@ -64,6 +64,40 @@ export const sendOTPEmail = async (email: string, code: string) => {
     }
 };
 
+// Sent to students created by an admin CSV import — carries their temporary password.
+export const sendWelcomeEmail = async (email: string, name: string, tempPassword: string) => {
+    const appUrl = process.env.FRONTEND_URL || 'https://akshara-music-hub.vercel.app';
+    const mailOptions = {
+        from: `"Akshara Music Hub" <${process.env.GMAIL_USER}>`,
+        to: email,
+        subject: 'Your Akshara Music Hub account is ready',
+        html: `
+            <div style="font-family: sans-serif; padding: 20px; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 10px;">
+                <h2 style="color: #ff8c00; text-align: center;">Welcome to Akshara Music Hub, ${name}!</h2>
+                <p>An account has been created for you by Akshara Fine Arts. Log in with the details below and change your password from your profile afterwards.</p>
+                <div style="background: #f8f9fa; padding: 24px; border-radius: 10px; margin: 20px 0; border: 2px dashed #ff8c00;">
+                    <p style="margin: 0 0 8px 0;"><b>Email:</b> ${email}</p>
+                    <p style="margin: 0;"><b>Temporary password:</b> <span style="font-family: monospace; font-size: 18px; color: #007bff;">${tempPassword}</span></p>
+                </div>
+                <p style="text-align: center;"><a href="${appUrl}" style="display: inline-block; background: #ff8c00; color: #fff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold;">Log in now</a></p>
+                <hr style="border: none; border-top: 1px solid #eee; margin: 25px 0;" />
+                <p style="font-size: 11px; color: #999; text-align: center;">
+                    Akshara Music Hub - Gamified Learning for Malaysia<br/>
+                    Powered by @Akshara Music Hub Team
+                </p>
+            </div>
+        `
+    };
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        console.log(`[MAIL] ✅ Welcome email sent to ${email}: ${info.messageId}`);
+        return true;
+    } catch (error: any) {
+        console.error(`[MAIL] ❌ Welcome email to ${email} failed:`, error.message);
+        return false;
+    }
+};
+
 export const sendPasswordResetEmail = async (email: string, otp: string) => {
     const mailOptions = {
         from: `"Akshara Music Hub" <${process.env.GMAIL_USER}>`,

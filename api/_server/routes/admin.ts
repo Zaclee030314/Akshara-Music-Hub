@@ -5,6 +5,10 @@ import { generateAIContent } from '../utils/ai.js';
 import { authenticateToken, AuthRequest } from '../middleware/authMiddleware.js';
 import { getActiveSeason, seasonScores } from '../utils/seasonScore.js';
 import { getTiers, isTieredEnabled, tierFor, DEFAULT_TIERS } from '../utils/referral.js';
+import crypto from 'crypto';
+import { isValidSyllabus, isValidGradeForSyllabus } from '../utils/curriculumGrades.js';
+import { schoolAge } from '../utils/ageGrade.js';
+import { sendWelcomeEmail } from '../services/mailService.js';
 
 const router = express.Router();
 
@@ -114,6 +118,148 @@ router.get('/users', async (_req, res) => {
         console.error('[ADMIN] Users error:', error);
         res.status(500).json({ error: 'Failed to fetch users' });
     }
+});
+
+// ─── STUDENT CSV EXPORT / IMPORT ─────────────────────────────────────────────
+
+const csvEscape = (v: unknown): string => {
+    const s = v === null || v === undefined ? '' : String(v);
+    return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+};
+const isoDay = (d: Date | null | undefined) => (d ? new Date(d).toISOString().slice(0, 10) : '');
+
+// Same rules as auth.ts: 'YYYY-MM-DD' → UTC midnight, rejecting rolled-over dates.
+const parseBirthdayStr = (value: string): Date | null => {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value).trim());
+    if (!m) return null;
+    const y = Number(m[1]), mo = Number(m[2]), d = Number(m[3]);
+    const date = new Date(Date.UTC(y, mo - 1, d));
+    if (isNaN(date.getTime()) || date.getUTCFullYear() !== y || date.getUTCMonth() !== mo - 1 || date.getUTCDate() !== d) return null;
+    return date;
+};
+
+const TEMP_PW_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+const tempPassword = (): string => {
+    const bytes = crypto.randomBytes(10);
+    return Array.from(bytes, b => TEMP_PW_ALPHABET[b % TEMP_PW_ALPHABET.length]).join('');
+};
+
+export const IMPORT_COLUMNS = ['name', 'email', 'grade', 'syllabus', 'birthday', 'parentName', 'parentPhone', 'parentEmail'] as const;
+
+// GET /api/admin/users/export — every account as CSV
+router.get('/users/export', async (_req, res) => {
+    try {
+        const users = await prisma.user.findMany({
+            orderBy: { createdAt: 'asc' },
+            select: {
+                name: true, email: true, role: true, grade: true, gradeSyllabus: true, birthday: true, createdAt: true,
+                parentName: true, parentPhone: true, parentEmail: true, children: true,
+                xp: true, coins: true, isSubscribed: true, subscriptionLevel: true, subscribedSyllabus: true, subscriptionEndDate: true,
+                isVerified: true, isAdmin: true, referralCode: true, referralCreditCents: true,
+            },
+        });
+        const header = ['name', 'email', 'role', 'grade', 'syllabus', 'birthday', 'dateJoined', 'parentName', 'parentPhone', 'parentEmail', 'children',
+            'xp', 'coins', 'isSubscribed', 'subscriptionLevel', 'subscribedSyllabus', 'subscriptionEndDate', 'isVerified', 'isAdmin', 'referralCode', 'referralCreditRM'];
+        const lines = [header.join(',')];
+        for (const u of users) {
+            lines.push([
+                u.name, u.email, u.role, u.grade, u.gradeSyllabus, isoDay(u.birthday), isoDay(u.createdAt),
+                u.parentName, u.parentPhone, u.parentEmail, u.children,
+                u.xp, u.coins, u.isSubscribed ? 'yes' : 'no', u.subscriptionLevel, u.subscribedSyllabus, isoDay(u.subscriptionEndDate),
+                u.isVerified ? 'yes' : 'no', u.isAdmin ? 'yes' : 'no', u.referralCode, ((u.referralCreditCents ?? 0) / 100).toFixed(2),
+            ].map(csvEscape).join(','));
+        }
+        const csv = '﻿' + lines.join('\r\n'); // BOM so Excel opens UTF-8 (Tamil/Chinese names) correctly
+        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+        res.setHeader('Content-Disposition', `attachment; filename="akshara-students-${new Date().toISOString().slice(0, 10)}.csv"`);
+        res.send(csv);
+    } catch (error) {
+        console.error('[ADMIN] Users export error:', error);
+        res.status(500).json({ error: 'Failed to export users' });
+    }
+});
+
+// POST /api/admin/users/import — create-or-update students from parsed CSV rows
+// body: { rows: [{ name, email, grade, syllabus, birthday, parentName, parentPhone, parentEmail }] }
+// Existing email → update the provided fields (birthday only if not already set);
+// new email → create a verified student with a temporary password sent by email.
+router.post('/users/import', async (req, res) => {
+    const rows = Array.isArray(req.body?.rows) ? req.body.rows : null;
+    if (!rows) return res.status(400).json({ error: 'rows must be an array' });
+    if (rows.length > 2000) return res.status(400).json({ error: 'Import at most 2000 rows at a time' });
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const summary = { created: 0, updated: 0, failed: [] as Array<{ row: number; email: string; reason: string }>, details: [] as Array<{ row: number; email: string; action: 'created' | 'updated'; emailSent?: boolean }> };
+    const seen = new Set<string>();
+
+    for (let i = 0; i < rows.length; i++) {
+        const r = rows[i] ?? {};
+        const rowNo = i + 1;
+        const str = (v: unknown) => (v === null || v === undefined ? '' : String(v).trim());
+        const email = str(r.email).toLowerCase();
+        const fail = (reason: string) => summary.failed.push({ row: rowNo, email, reason });
+
+        if (!emailRegex.test(email)) { fail('Invalid or missing email'); continue; }
+        if (seen.has(email)) { fail('Duplicate email within this file'); continue; }
+        seen.add(email);
+
+        const name = str(r.name);
+        const syllabus = str(r.syllabus);
+        const grade = str(r.grade);
+        const birthday = str(r.birthday);
+        const parentName = str(r.parentName), parentPhone = str(r.parentPhone), parentEmail = str(r.parentEmail);
+
+        if (syllabus && !isValidSyllabus(syllabus)) { fail(`Unknown syllabus "${syllabus}"`); continue; }
+        if (parentEmail && !emailRegex.test(parentEmail)) { fail('Invalid parent email'); continue; }
+        let birthdayDate: Date | null = null;
+        if (birthday) {
+            birthdayDate = parseBirthdayStr(birthday);
+            if (!birthdayDate) { fail('Birthday must be YYYY-MM-DD'); continue; }
+            const age = schoolAge(birthdayDate, new Date());
+            if (age < 4 || age > 100) { fail('Birthday gives an unrealistic age'); continue; }
+        }
+
+        try {
+            const existing = await prisma.user.findUnique({ where: { email } });
+            if (existing) {
+                const effSyllabus = syllabus || existing.gradeSyllabus || '';
+                if (grade && (!effSyllabus || !isValidGradeForSyllabus(effSyllabus, grade))) { fail(`Grade "${grade}" is not valid for syllabus "${effSyllabus || '(none)'}"`); continue; }
+                const data: Record<string, any> = {};
+                if (name) data.name = name;
+                if (syllabus) data.gradeSyllabus = syllabus;
+                if (grade) data.grade = grade;
+                if (parentName) data.parentName = parentName;
+                if (parentPhone) data.parentPhone = parentPhone;
+                if (parentEmail) data.parentEmail = parentEmail;
+                if (birthdayDate && !existing.birthday) data.birthday = birthdayDate; // immutable once set
+                await prisma.user.update({ where: { id: existing.id }, data });
+                summary.updated++;
+                summary.details.push({ row: rowNo, email, action: 'updated' });
+            } else {
+                if (!name) { fail('Name is required for a new student'); continue; }
+                if (grade && (!syllabus || !isValidGradeForSyllabus(syllabus, grade))) { fail(`Grade "${grade}" needs a valid syllabus`); continue; }
+                await prisma.pendingUser.deleteMany({ where: { email } });
+                const pw = tempPassword();
+                const hashed = await bcrypt.hash(pw, 10);
+                await prisma.user.create({
+                    data: {
+                        name, email, password: hashed, role: 'student', isVerified: true,
+                        gradeSyllabus: syllabus || null, grade: grade || null, birthday: birthdayDate,
+                        parentName: parentName || null, parentPhone: parentPhone || null, parentEmail: parentEmail || null,
+                    },
+                });
+                const emailSent = await sendWelcomeEmail(email, name, pw);
+                summary.created++;
+                summary.details.push({ row: rowNo, email, action: 'created', emailSent });
+            }
+        } catch (err: any) {
+            console.error(`[ADMIN] Import row ${rowNo} (${email}) failed:`, err);
+            fail(err?.message || 'Database error');
+        }
+    }
+
+    console.log(`[ADMIN] CSV import: ${summary.created} created, ${summary.updated} updated, ${summary.failed.length} failed`);
+    res.json(summary);
 });
 
 // POST /api/admin/create-teacher — provision a verified teacher account

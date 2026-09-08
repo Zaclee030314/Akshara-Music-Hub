@@ -39,6 +39,7 @@ import { useAuth } from '../contexts/useAuth';
 import SeasonManager from './admin/SeasonManager';
 import PollManager from './admin/PollManager';
 import ReferralReport from './admin/ReferralReport';
+import StudentImportModal from './admin/StudentImportModal';
 
 interface AdminStats {
     users: number;
@@ -171,6 +172,27 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
         if (isBackground) setRefreshing(false);
         else setLoading(false);
     }, [token, showToast]);
+
+    // ── Student CSV export / import ──
+    const [showImportModal, setShowImportModal] = useState(false);
+    const [exporting, setExporting] = useState(false);
+    const exportUsersCsv = async () => {
+        setExporting(true);
+        try {
+            const res = await fetch(`${API_BASE}/users/export`, { headers: { Authorization: `Bearer ${token}` } });
+            if (!res.ok) throw new Error('export failed');
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `akshara-students-${new Date().toISOString().slice(0, 10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        } catch {
+            showToast('Failed to export students', 'error');
+        }
+        setExporting(false);
+    };
 
     const fetchUserPerformance = async (userId: string) => {
         setLoadingPerformance(true);
@@ -523,11 +545,29 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
                         </select>
                     </div>
                     <button
+                        onClick={exportUsersCsv}
+                        disabled={exporting}
+                        className="flex items-center justify-center gap-2 bg-white border border-brand-dark/10 text-brand-dark rounded-2xl px-4 py-3.5 text-sm font-bold shadow-sm hover:bg-gray-50 active:scale-95 transition-all whitespace-nowrap disabled:opacity-50"
+                        title="Download all accounts as CSV"
+                    >
+                        {exporting ? <Loader2 size={18} className="animate-spin" /> : <FileText size={18} />} Export CSV
+                    </button>
+                    <button
+                        onClick={() => setShowImportModal(true)}
+                        className="flex items-center justify-center gap-2 bg-white border border-brand-dark/10 text-brand-dark rounded-2xl px-4 py-3.5 text-sm font-bold shadow-sm hover:bg-gray-50 active:scale-95 transition-all whitespace-nowrap"
+                        title="Create or update students from a CSV"
+                    >
+                        <Upload size={18} /> Import CSV
+                    </button>
+                    <button
                         onClick={() => setShowTeacherModal(true)}
                         className="flex items-center justify-center gap-2 bg-brand-dark text-white rounded-2xl px-5 py-3.5 text-sm font-bold shadow-sm hover:bg-brand-dark/90 active:scale-95 transition-all whitespace-nowrap"
                     >
                         <UserPlus size={18} /> Add Teacher
                     </button>
+                    {showImportModal && (
+                        <StudentImportModal token={token} onClose={() => setShowImportModal(false)} onImported={() => fetchData(true)} />
+                    )}
                 </div>
 
                 <div className="grid grid-cols-1 gap-3">
