@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from './Card';
 import { Button } from './Button';
 import { ArrowLeft, LogIn, Mail, Loader2, KeyRound, ShieldCheck, Lock, Eye, EyeOff, CheckCircle2, X } from 'lucide-react';
@@ -92,6 +92,38 @@ export const LoginModal = ({ onClose, postLoginPath }: LoginModalProps) => {
     const navigate = useNavigate();
     const [view, setView] = useState<ModalView>('login');
     const [isSignUp, setIsSignUp] = useState(false);
+
+    // Close on Escape; clicking the dark backdrop (not the card) also closes.
+    useEffect(() => {
+        const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+        document.addEventListener('keydown', onKey);
+        return () => document.removeEventListener('keydown', onKey);
+    }, [onClose]);
+    const onBackdrop = (e: React.MouseEvent<HTMLDivElement>) => { if (e.target === e.currentTarget) onClose(); };
+
+    // A real, thumb-sized close control (44px+) on EVERY view. The old control
+    // was a 20px back-arrow with no padding — missed on phones, and it read as
+    // "back" rather than "close" (on some views it only switched view).
+    const closeX = (
+        <button
+            type="button"
+            onClick={onClose}
+            aria-label={t('common.close')}
+            className="absolute top-3 right-3 z-10 p-2.5 rounded-full text-brand-dark/50 hover:text-brand-dark hover:bg-brand-dark/5 transition-colors"
+        >
+            <X size={22} />
+        </button>
+    );
+    const backArrow = (onBack: () => void) => (
+        <button
+            type="button"
+            onClick={onBack}
+            aria-label="Back"
+            className="absolute top-3 left-3 z-10 p-2.5 rounded-full text-brand-dark/40 hover:text-brand-dark hover:bg-brand-dark/5 transition-colors"
+        >
+            <ArrowLeft size={20} />
+        </button>
+    );
 
     // Login / signup state
     const [email, setEmail] = useState('');
@@ -227,11 +259,10 @@ export const LoginModal = ({ onClose, postLoginPath }: LoginModalProps) => {
 
     // ── EMAIL VERIFICATION ──────────────────────────────────────────────────
     if (view === 'verify') return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex justify-center p-4 overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex justify-center p-4 overflow-y-auto" onClick={onBackdrop}>
             <Card className="max-w-md w-full p-8 relative m-auto">
-                <button onClick={() => setView('login')} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-                    <ArrowLeft size={20} />
-                </button>
+                {backArrow(() => setView('login'))}
+                {closeX}
                 <div className="text-center mb-6">
                     <div className="w-16 h-16 bg-brand-blue/10 rounded-full flex items-center justify-center mx-auto mb-4 text-brand-blue">
                         <Mail size={32} />
@@ -260,11 +291,10 @@ export const LoginModal = ({ onClose, postLoginPath }: LoginModalProps) => {
 
     // ── FORGOT PASSWORD: STEP 1 – Email ─────────────────────────────────────
     if (view === 'forgot_email') return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex justify-center p-4 overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex justify-center p-4 overflow-y-auto" onClick={onBackdrop}>
             <Card className="max-w-md w-full p-8 relative m-auto">
-                <button onClick={() => { setView('login'); setFpError(''); }} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-                    <ArrowLeft size={20} />
-                </button>
+                {backArrow(() => { setView('login'); setFpError(''); })}
+                {closeX}
                 <div className="text-center mb-6">
                     <div className="w-16 h-16 bg-brand-orange/10 rounded-full flex items-center justify-center mx-auto mb-4 text-brand-orange">
                         <KeyRound size={32} />
@@ -292,11 +322,10 @@ export const LoginModal = ({ onClose, postLoginPath }: LoginModalProps) => {
 
     // ── FORGOT PASSWORD: STEP 2 – OTP ───────────────────────────────────────
     if (view === 'forgot_otp') return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex justify-center p-4 overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex justify-center p-4 overflow-y-auto" onClick={onBackdrop}>
             <Card className="max-w-md w-full p-8 relative m-auto">
-                <button onClick={() => { setView('forgot_email'); setFpError(''); setFpOtp(''); }} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-                    <ArrowLeft size={20} />
-                </button>
+                {backArrow(() => { setView('forgot_email'); setFpError(''); setFpOtp(''); })}
+                {closeX}
                 <div className="text-center mb-6">
                     <div className="w-16 h-16 bg-brand-blue/10 rounded-full flex items-center justify-center mx-auto mb-4 text-brand-blue">
                         <ShieldCheck size={32} />
@@ -324,8 +353,9 @@ export const LoginModal = ({ onClose, postLoginPath }: LoginModalProps) => {
 
     // ── FORGOT PASSWORD: STEP 3 – New Password ──────────────────────────────
     if (view === 'forgot_newpass') return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex justify-center p-4 overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex justify-center p-4 overflow-y-auto" onClick={onBackdrop}>
             <Card className="max-w-md w-full p-8 relative m-auto">
+                {closeX}
                 <div className="text-center mb-6">
                     <div className="w-16 h-16 bg-brand-green/10 rounded-full flex items-center justify-center mx-auto mb-4 text-brand-green">
                         <Lock size={32} />
@@ -360,11 +390,9 @@ export const LoginModal = ({ onClose, postLoginPath }: LoginModalProps) => {
 
     // ── MAIN LOGIN / SIGNUP ─────────────────────────────────────────────────
     return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex justify-center p-4 overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex justify-center p-4 overflow-y-auto" onClick={onBackdrop}>
             <Card className="max-w-md w-full p-8 relative m-auto">
-                <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-                    <ArrowLeft size={20} />
-                </button>
+                {closeX}
                 <div className="text-center mb-6">
                     <div className="w-16 h-16 bg-brand-orange/10 rounded-full flex items-center justify-center mx-auto mb-4 text-brand-orange">
                         <LogIn size={32} />
