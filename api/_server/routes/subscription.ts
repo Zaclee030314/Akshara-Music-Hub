@@ -1,8 +1,9 @@
 import express from 'express';
 import Stripe from 'stripe';
-import { authenticateToken, AuthRequest } from '../middleware/authMiddleware.js';
+import { authenticateToken, requireParentSession, AuthRequest } from '../middleware/authMiddleware.js';
 import prisma from '../db.js';
 import { releaseDueInstalments, settleReferralGrant } from '../utils/referral.js';
+import { seatCountFor, effectiveSubscription, billingAccountId } from '../utils/family.js';
 
 const router = express.Router();
 
@@ -11,7 +12,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
 // Create Payment Intent for Embedded Form
-router.post('/create-payment-intent', authenticateToken, async (req: any, res: any) => {
+router.post('/create-payment-intent', authenticateToken, requireParentSession, async (req: any, res: any) => {
     const user = req.user;
     const { amount, currency, interval, planLevel, syllabus } = req.body;
 
@@ -22,7 +23,11 @@ router.post('/create-payment-intent', authenticateToken, async (req: any, res: a
 
     // Promo prices actually charged (MYR cents). Full prices are marketing strikethroughs on the frontend.
     const PRICE_TABLE: Record<string, number> = { single: 5990, all: 9990 };
-    let finalAmount = PRICE_TABLE[planLevel] ?? PRICE_TABLE.single;
+    const unitAmount = PRICE_TABLE[planLevel] ?? PRICE_TABLE.single;
+    // Parent accounts pay per learner: one seat for every active child profile
+    // (computed server-side, never taken from the client).
+    const seats = await seatCountFor(user.id);
+    let finalAmount = unitAmount * seats;
     // Charged currency is always MYR regardless of client-detected display currency.
     const finalCurrency = 'myr';
 
@@ -53,6 +58,8 @@ router.post('/create-payment-intent', authenticateToken, async (req: any, res: a
             clientSecret: `mock_secret_${Date.now()}`,
             amount: finalAmount,
             appliedCredit,
+            seats,
+            unitAmount,
             interval: interval || 'month',
             planLevel: planLevel || 'single',
             syllabus: syllabus || null,
@@ -69,7 +76,8 @@ router.post('/create-payment-intent', authenticateToken, async (req: any, res: a
                 userId: user.id,
                 planLevel: planLevel || 'single',
                 syllabus: syllabus || '',
-                appliedCredit: String(appliedCredit)
+                appliedCredit: String(appliedCredit),
+                seats: String(seats)
             }
         });
 
@@ -77,6 +85,8 @@ router.post('/create-payment-intent', authenticateToken, async (req: any, res: a
             clientSecret: paymentIntent.client_secret,
             amount: finalAmount,
             appliedCredit,
+            seats,
+            unitAmount,
             isMock: false
         });
     } catch (error: any) {
@@ -86,7 +96,7 @@ router.post('/create-payment-intent', authenticateToken, async (req: any, res: a
 });
 
 // Update Subscription after successful payment intent
-router.post('/confirm-payment', authenticateToken, async (req: any, res: any) => {
+router.post('/confirm-payment', authenticateToken, requireParentSession, async (req: any, res: any) => {
     const { paymentIntentId, interval, planLevel, syllabus } = req.body;
     const userId = req.user?.id;
 
@@ -133,6 +143,7 @@ router.post('/confirm-payment', authenticateToken, async (req: any, res: any) =>
     if (paymentIntentId.startsWith('mock_')) {
         const startDate = new Date();
         const endDate = new Date();
+        const seats = await seatCountFor(userId);
 
         // All subscriptions are monthly (fixed 30 days)
         endDate.setDate(endDate.getDate() + 30);
@@ -146,6 +157,7 @@ router.post('/confirm-payment', authenticateToken, async (req: any, res: any) =>
                 subscribedSyllabus: syllabus || null,
                 subscriptionStartDate: startDate,
                 subscriptionEndDate: endDate,
+                subscriptionSeats: seats,
                 cancelAtPeriodEnd: false,
                 questsPlayed: 0,  // Reset counters on subscription
                 questsCreated: 0
@@ -155,7 +167,7 @@ router.post('/confirm-payment', authenticateToken, async (req: any, res: any) =>
         // Re-derive the applied credit server-side (never trust the client) using the exact
         // formula from create-payment-intent. The payer's balance is unchanged since then, so
         // this equals what was discounted.
-        const price = PRICE_TABLE[planLevel || 'single'] ?? PRICE_TABLE.single;
+        const price = (PRICE_TABLE[planLevel || 'single'] ?? PRICE_TABLE.single) * seats;
         const applied = Math.max(0, Math.min(payer.referralCreditCents, price - STRIPE_MIN));
         await settleReferral(applied);
 
@@ -178,6 +190,7 @@ router.post('/confirm-payment', authenticateToken, async (req: any, res: any) =>
                     subscriptionInterval: interval || 'month',
                     subscriptionLevel: (paymentIntent.metadata?.planLevel as string) || planLevel || 'single',
                     subscribedSyllabus: (paymentIntent.metadata?.syllabus as string) || syllabus || null,
+                    subscriptionSeats: Math.max(1, parseInt((paymentIntent.metadata?.seats as string) || '1', 10) || 1),
                     subscriptionStartDate: startDate,
                     subscriptionEndDate: endDate,
                     cancelAtPeriodEnd: false,
@@ -201,7 +214,7 @@ router.post('/confirm-payment', authenticateToken, async (req: any, res: any) =>
 });
 
 // Create Checkout Session (Original method)
-router.post('/checkout', authenticateToken, async (req: any, res: any) => {
+router.post('/checkout', authenticateToken, requireParentSession, async (req: any, res: any) => {
     const user = req.user;
     const { amount, currency, interval } = req.body;
     if (!user) return res.status(401).json({ error: 'Unauthorized' });
@@ -249,7 +262,7 @@ router.post('/checkout', authenticateToken, async (req: any, res: any) => {
 });
 
 // Verify Payment (Simple alternative to Webhook for local dev)
-router.get('/verify-session', authenticateToken, async (req: any, res: any) => {
+router.get('/verify-session', authenticateToken, requireParentSession, async (req: any, res: any) => {
     const { session_id, interval } = req.query;
     if (!session_id) return res.status(400).json({ error: 'Missing session_id' });
 
@@ -283,6 +296,7 @@ router.get('/verify-session', authenticateToken, async (req: any, res: any) => {
                         subscriptionInterval,
                         subscriptionStartDate: startDate,
                         subscriptionEndDate: endDate,
+                        subscriptionSeats: await seatCountFor(userId),
                         cancelAtPeriodEnd: false,
                         questsPlayed: 0,  // Reset counters on subscription
                         questsCreated: 0
@@ -300,7 +314,7 @@ router.get('/verify-session', authenticateToken, async (req: any, res: any) => {
 });
 
 // Cancel Subscription (Deferred - keeps access until period end)
-router.post('/cancel-subscription', authenticateToken, async (req: any, res: any) => {
+router.post('/cancel-subscription', authenticateToken, requireParentSession, async (req: any, res: any) => {
     const userId = req.user?.id;
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
@@ -387,8 +401,9 @@ router.post('/cancel-subscription', authenticateToken, async (req: any, res: any
 
 // Check Subscription Status (checks if subscription has expired)
 router.get('/check-subscription-status', authenticateToken, async (req: any, res: any) => {
-    const userId = req.user?.id;
-    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+    if (!req.user?.id) return res.status(401).json({ error: 'Unauthorized' });
+    // A child profile's subscription lives on the parent row.
+    const userId = await billingAccountId(req.user.id);
 
     try {
         const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -418,14 +433,17 @@ router.get('/check-subscription-status', authenticateToken, async (req: any, res
             });
         }
 
-        // Return current subscription status
+        // Return current subscription status (seat-aware for child profiles)
+        const eff = await effectiveSubscription(req.user.id);
         res.json({
-            isSubscribed: user.isSubscribed,
+            isSubscribed: eff ? eff.isSubscribed : user.isSubscribed,
             cancelAtPeriodEnd: user.cancelAtPeriodEnd,
             subscriptionEndDate: user.subscriptionEndDate,
             subscriptionInterval: user.subscriptionInterval,
             subscriptionLevel: user.subscriptionLevel,
             subscribedSyllabus: user.subscribedSyllabus,
+            subscriptionSeats: user.subscriptionSeats,
+            seatCovered: eff ? eff.seatCovered : true,
             questsPlayed: user.questsPlayed,
             questsCreated: user.questsCreated
         });
@@ -436,7 +454,7 @@ router.get('/check-subscription-status', authenticateToken, async (req: any, res
 });
 
 // Reactivate Subscription (undo cancellation before period ends)
-router.post('/reactivate-subscription', authenticateToken, async (req: any, res: any) => {
+router.post('/reactivate-subscription', authenticateToken, requireParentSession, async (req: any, res: any) => {
     const userId = req.user?.id;
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 

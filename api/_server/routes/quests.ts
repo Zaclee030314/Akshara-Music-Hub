@@ -1,6 +1,7 @@
 import express from 'express';
 import { authenticateToken, AuthRequest } from '../middleware/authMiddleware.js';
 import { checkExpiredSubscriptions } from '../middleware/checkExpiredSubscriptions.js';
+import { effectiveSubscription } from '../utils/family.js';
 import prisma from '../db.js';
 
 const router = express.Router();
@@ -54,11 +55,14 @@ router.post('/', authenticateToken, checkExpiredSubscriptions, async (req: AuthR
 
     try {
         // Enforce 1-quest creation limit for free teachers
-        const user = await prisma.user.findUnique({ where: { id: userId! } });
+        const own = await prisma.user.findUnique({ where: { id: userId! } });
+        // Child profiles inherit the parent's subscription/plan.
+        const sub = await effectiveSubscription(userId!);
 
-        if (!user) {
+        if (!own || !sub) {
             return res.status(404).json({ error: 'User not found' });
         }
+        const user = { ...own, isSubscribed: sub.isSubscribed, subscriptionLevel: sub.subscriptionLevel, subscribedSyllabus: sub.subscribedSyllabus };
 
         console.log(`[API] User Subscribed: ${user.isSubscribed}, Quests Created: ${user.questsCreated}`);
 

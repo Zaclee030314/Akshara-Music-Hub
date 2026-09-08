@@ -2,6 +2,7 @@ import express from 'express';
 import Stripe from 'stripe';
 import prisma from '../db.js';
 import { settleReferralGrant } from '../utils/referral.js';
+import { seatCountFor } from '../utils/family.js';
 
 const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
@@ -212,6 +213,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
                 subscriptionInterval: interval,
                 subscriptionStartDate: startDate,
                 subscriptionEndDate: endDate,
+                subscriptionSeats: await seatCountFor(userId),
                 cancelAtPeriodEnd: false
             }
         });

@@ -68,6 +68,12 @@ interface UserStats {
     totalCorrect: number;
     accuracy: number;
     subjectsDone: string[];
+    // Family profiles
+    parentId?: string | null;
+    parentEmail?: string | null;
+    parentAccountName?: string | null;
+    isArchived?: boolean;
+    subscriptionSeats?: number;
 }
 
 interface Reward {
@@ -675,9 +681,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ token }) => {
                                                 <p className="font-bold text-brand-dark truncate">{u.name}</p>
                                                 {isSelf && <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-brand-dark/5 text-brand-dark/40 font-bold uppercase">You</span>}
                                                 {u.isAdmin && <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-brand-orange/10 text-brand-orange font-bold uppercase flex items-center gap-0.5"><ShieldCheck size={9} /> Admin</span>}
-                                                <span className={`text-[8px] px-1.5 py-0.5 rounded-full font-bold uppercase ${u.role === 'teacher' ? 'bg-purple-100 text-purple-600' : 'bg-blue-50 text-blue-600'}`}>{u.role}</span>
+                                                <span className={`text-[8px] px-1.5 py-0.5 rounded-full font-bold uppercase ${u.role === 'teacher' ? 'bg-purple-100 text-purple-600' : u.role === 'parent' ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600'}`}>{u.role}</span>
+                                                {u.role === 'parent' && (u.subscriptionSeats ?? 1) > 0 && <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 font-bold uppercase">{u.subscriptionSeats ?? 1} seat{(u.subscriptionSeats ?? 1) === 1 ? '' : 's'}</span>}
+                                                {u.parentId && <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-600 font-bold uppercase">Child profile</span>}
+                                                {u.isArchived && <span className="text-[8px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500 font-bold uppercase">Archived</span>}
                                             </div>
-                                            <p className="text-[10px] text-brand-dark/40 font-medium truncate uppercase tracking-tighter">{u.email}</p>
+                                            <p className="text-[10px] text-brand-dark/40 font-medium truncate uppercase tracking-tighter">{u.parentId ? `Parent: ${u.parentEmail || u.parentAccountName || '—'}` : u.email}</p>
                                         </div>
                                     </div>
 

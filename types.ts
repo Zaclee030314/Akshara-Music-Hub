@@ -126,11 +126,18 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'student' | 'teacher';
+  role: 'student' | 'teacher' | 'parent';
   grade?: string;
   gradeSyllabus?: string;
   birthday?: string | null; // 'YYYY-MM-DD'; immutable once set — anchors the age-based XP gate
   isSubscribed: boolean;
+  // ── Family profiles ──
+  parentId?: string | null;      // set on child profiles (no own login)
+  isChildProfile?: boolean;
+  actingAsChild?: boolean;       // true while a parent session is switched into a child
+  subscriptionSeats?: number;    // learner seats paid for (parent accounts)
+  seatCovered?: boolean;         // false when this child is beyond the paid seats
+  familyProfiles?: number;       // active child profiles (parent accounts)
   subscriptionEndDate?: string | Date;
   subscriptionInterval?: 'month';
   subscriptionLevel?: 'single' | 'all';

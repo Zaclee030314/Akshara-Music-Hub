@@ -1,4 +1,5 @@
 import prisma from '../db.js';
+import { billingAccountId } from '../utils/family.js';
 
 /**
  * Middleware to check if user's subscription has expired
@@ -12,8 +13,10 @@ export async function checkExpiredSubscriptions(req: any, res: any, next: any) {
     }
 
     try {
+        // A child profile's subscription lives on the parent row.
+        const billingId = await billingAccountId(req.user.id);
         const user = await prisma.user.findUnique({
-            where: { id: req.user.id },
+            where: { id: billingId },
             select: {
                 isSubscribed: true,
                 cancelAtPeriodEnd: true,
@@ -40,7 +43,7 @@ export async function checkExpiredSubscriptions(req: any, res: any, next: any) {
             console.log(`[SUBSCRIPTION] End date was: ${endDate.toISOString()}, Current time: ${now.toISOString()}`);
 
             await prisma.user.update({
-                where: { id: req.user.id },
+                where: { id: billingId },
                 data: {
                     isSubscribed: false,
                     cancelAtPeriodEnd: false

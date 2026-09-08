@@ -40,6 +40,7 @@ const rankOf = (u: { xp: number; name: string; id: string }): Promise<number> =>
         .count({
             where: {
                 role: 'student',
+                archivedAt: null,
                 OR: [
                     { xp: { gt: u.xp } },
                     { xp: u.xp, name: { lt: u.name } },
@@ -79,7 +80,7 @@ router.get('/', async (req, res) => {
 
         if (q) {
             const matches = await prisma.user.findMany({
-                where: { role: 'student', name: { contains: q, mode: 'insensitive' } },
+                where: { role: 'student', archivedAt: null, name: { contains: q, mode: 'insensitive' } },
                 select: ROW_SELECT,
                 orderBy: ORDER,
                 take: 20,
@@ -88,7 +89,7 @@ router.get('/', async (req, res) => {
             leaderboard = matches.map((m, i) => shape(m, ranks[i]));
         } else {
             const top = await prisma.user.findMany({
-                where: { role: 'student' },
+                where: { role: 'student', archivedAt: null },
                 select: ROW_SELECT,
                 orderBy: ORDER,
                 take: limit,
@@ -109,9 +110,9 @@ router.get('/', async (req, res) => {
                 if (userId) {
                     const self = await prisma.user.findUnique({
                         where: { id: userId },
-                        select: { ...ROW_SELECT, role: true },
+                        select: { ...ROW_SELECT, role: true, archivedAt: true },
                     });
-                    if (self && self.role === 'student') {
+                    if (self && self.role === 'student' && !self.archivedAt) {
                         me = shape(self, await rankOf(self));
                     }
                 }
@@ -120,7 +121,7 @@ router.get('/', async (req, res) => {
             }
         }
 
-        const total = await prisma.user.count({ where: { role: 'student' } });
+        const total = await prisma.user.count({ where: { role: 'student', archivedAt: null } });
 
         res.json({ leaderboard, me, total });
     } catch (error) {

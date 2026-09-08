@@ -87,6 +87,10 @@ router.get('/users', async (_req, res) => {
                 isAdmin: true,
                 isSubscribed: true,
                 questsPlayed: true,
+                parentId: true,
+                archivedAt: true,
+                subscriptionSeats: true,
+                parent: { select: { email: true, name: true } },
                 results: {
                     select: {
                         totalQuestions: true,
@@ -109,6 +113,12 @@ router.get('/users', async (_req, res) => {
                 totalCorrect: totalC,
                 accuracy: totalQ ? Math.round((totalC / totalQ) * 100) : 0,
                 subjectsDone: subjects,
+                // Family profiles: child rows point at the parent account that logs in.
+                parentEmail: u.parent?.email ?? null,
+                parentAccountName: u.parent?.name ?? null,
+                isArchived: !!u.archivedAt,
+                parent: undefined,
+                archivedAt: undefined,
                 results: undefined
             };
         });
@@ -156,17 +166,20 @@ router.get('/users/export', async (_req, res) => {
                 parentName: true, parentPhone: true, parentEmail: true, children: true,
                 xp: true, coins: true, isSubscribed: true, subscriptionLevel: true, subscribedSyllabus: true, subscriptionEndDate: true,
                 isVerified: true, isAdmin: true, referralCode: true, referralCreditCents: true,
+                subscriptionSeats: true, archivedAt: true, parent: { select: { email: true } },
             },
         });
         const header = ['name', 'email', 'role', 'grade', 'syllabus', 'birthday', 'dateJoined', 'parentName', 'parentPhone', 'parentEmail', 'children',
-            'xp', 'coins', 'isSubscribed', 'subscriptionLevel', 'subscribedSyllabus', 'subscriptionEndDate', 'isVerified', 'isAdmin', 'referralCode', 'referralCreditRM'];
+            'xp', 'coins', 'isSubscribed', 'subscriptionLevel', 'subscribedSyllabus', 'subscriptionEndDate', 'subscriptionSeats', 'isVerified', 'isAdmin', 'referralCode', 'referralCreditRM',
+            'parentAccountEmail', 'archived'];
         const lines = [header.join(',')];
         for (const u of users) {
             lines.push([
-                u.name, u.email, u.role, u.grade, u.gradeSyllabus, isoDay(u.birthday), isoDay(u.createdAt),
+                u.name, u.parent ? '' : u.email, u.role, u.grade, u.gradeSyllabus, isoDay(u.birthday), isoDay(u.createdAt),
                 u.parentName, u.parentPhone, u.parentEmail, u.children,
-                u.xp, u.coins, u.isSubscribed ? 'yes' : 'no', u.subscriptionLevel, u.subscribedSyllabus, isoDay(u.subscriptionEndDate),
+                u.xp, u.coins, u.isSubscribed ? 'yes' : 'no', u.subscriptionLevel, u.subscribedSyllabus, isoDay(u.subscriptionEndDate), u.subscriptionSeats,
                 u.isVerified ? 'yes' : 'no', u.isAdmin ? 'yes' : 'no', u.referralCode, ((u.referralCreditCents ?? 0) / 100).toFixed(2),
+                u.parent?.email ?? '', u.archivedAt ? 'yes' : 'no',
             ].map(csvEscape).join(','));
         }
         const csv = '﻿' + lines.join('\r\n'); // BOM so Excel opens UTF-8 (Tamil/Chinese names) correctly

@@ -154,7 +154,7 @@ const MockPaymentForm = ({ amount, interval, planLevel, syllabus, onSuccess, onC
     );
 };
 
-export const PaymentForm = ({ amount, appliedCredit = 0, interval, planLevel, syllabus, clientSecret, onSuccess, onCancel }: { amount: number, appliedCredit?: number, interval: string, planLevel: string, syllabus: string | null, clientSecret: string, onSuccess: () => void, onCancel: () => void }) => {
+export const PaymentForm = ({ amount, appliedCredit = 0, seats = 1, interval, planLevel, syllabus, clientSecret, onSuccess, onCancel }: { amount: number, appliedCredit?: number, seats?: number, interval: string, planLevel: string, syllabus: string | null, clientSecret: string, onSuccess: () => void, onCancel: () => void }) => {
     const isMock = clientSecret.startsWith('mock_');
 
     const options = {
@@ -175,6 +175,11 @@ export const PaymentForm = ({ amount, appliedCredit = 0, interval, planLevel, sy
             <div className="text-center mb-8">
                 <h3 className="text-2xl font-bold font-display mb-2">Secure Payment</h3>
                 <p className="text-gray-500 text-sm">{isMock ? 'Simulating Akshara Music Hub Pro Upgrade' : 'Complete your upgrade to Akshara Music Hub Pro'}</p>
+                {seats > 1 && (
+                    <p className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-brand-dark/70 bg-brand-dark/5 px-3 py-1.5 rounded-full">
+                        {seats} learners × RM{(amount + appliedCredit) / seats / 100 % 1 === 0 ? ((amount + appliedCredit) / seats / 100).toFixed(0) : ((amount + appliedCredit) / seats / 100).toFixed(2)}
+                    </p>
+                )}
                 {appliedCredit > 0 && (
                     <p className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-brand-green bg-brand-green/10 px-3 py-1.5 rounded-full">
                         RM{(appliedCredit / 100).toFixed(2)} referral credit applied

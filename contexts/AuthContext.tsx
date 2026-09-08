@@ -152,8 +152,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const logout = () => {
         setUser(null);
         localStorage.removeItem('quest_token');
+        localStorage.removeItem('quest_parent_token');
         localStorage.removeItem('quest_user');
         localStorage.removeItem('quest_user_role');
+    };
+
+    // ── Family profiles ──
+    // While a parent is switched into a child, `quest_token` holds the child-scoped
+    // token and `quest_parent_token` keeps the parent's own token for switching back.
+    const familyToken = () => localStorage.getItem('quest_parent_token') || localStorage.getItem('quest_token');
+
+    const switchProfile = async (childId: string): Promise<boolean> => {
+        const parentToken = familyToken();
+        if (!parentToken) return false;
+        try {
+            const res = await fetch(`/api/family/switch/${childId}`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${parentToken}` }
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                alert(data.error || 'Could not switch profile');
+                return false;
+            }
+            localStorage.setItem('quest_parent_token', parentToken);
+            localStorage.setItem('quest_token', data.token);
+            localStorage.setItem('quest_user_role', JSON.stringify({ role: 'student', isAdmin: false }));
+            await refreshUser();
+            return true;
+        } catch (error) {
+            console.error('Switch profile failed', error);
+            alert('Could not switch profile');
+            return false;
+        }
+    };
+
+    const exitProfile = async () => {
+        const parentToken = localStorage.getItem('quest_parent_token');
+        if (!parentToken) return;
+        localStorage.setItem('quest_token', parentToken);
+        localStorage.removeItem('quest_parent_token');
+        localStorage.setItem('quest_user_role', JSON.stringify({ role: 'parent', isAdmin: false }));
+        await refreshUser();
     };
 
     const subscribe = async () => {
@@ -261,7 +301,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, signup, verifyCode, resendCode, logout, subscribe, cancelSubscription, reactivateSubscription, refreshUser, isLoading }}>
+        <AuthContext.Provider value={{ user, login, signup, verifyCode, resendCode, logout, subscribe, cancelSubscription, reactivateSubscription, refreshUser, switchProfile, exitProfile, familyToken, isLoading }}>
             {children}
         </AuthContext.Provider>
     );

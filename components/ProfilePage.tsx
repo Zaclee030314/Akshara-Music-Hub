@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from './Card';
 import { Button } from './Button';
 import { useAuth } from '../contexts/useAuth';
 import { useT } from '../contexts/LanguageContext';
-import { Loader2, Camera, User as UserIcon, Save, CheckCircle2, Gift, Copy, Check, Sparkles, Plus, Trash2 } from 'lucide-react';
+import { Loader2, Camera, User as UserIcon, Save, CheckCircle2, Gift, Copy, Check, Sparkles, Plus, Trash2, Users } from 'lucide-react';
 import { StandardEditor } from './StandardEditor';
+import { FamilySetupModal } from './FamilySetupModal';
 
 interface Profile {
     id: string;
@@ -23,6 +25,8 @@ interface Profile {
     createdAt?: string | null;
     profileCompleted: boolean;
     referralCreditCents?: number;
+    parentId?: string | null;
+    isChildProfile?: boolean;
 }
 
 const authHeaders = () => ({
@@ -33,6 +37,8 @@ const authHeaders = () => ({
 export const ProfilePage: React.FC = () => {
     const { refreshUser } = useAuth();
     const { t } = useT();
+    const navigate = useNavigate();
+    const [showFamilySetup, setShowFamilySetup] = useState(false);
     const [profile, setProfile] = useState<Profile | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -331,13 +337,46 @@ export const ProfilePage: React.FC = () => {
             </Card>
 
             {/* Syllabus + standard (student-editable — XP is gated on age, not on this) */}
-            <StandardEditor
-                syllabus={profile.gradeSyllabus}
-                grade={profile.grade}
-                birthday={profile.birthday}
-                expectedGrade={profile.expectedGrade}
-                onSaved={async () => { await loadProfile(); await refreshUser(); }}
-            />
+            {profile.role !== 'parent' && (
+                <StandardEditor
+                    syllabus={profile.gradeSyllabus}
+                    grade={profile.grade}
+                    birthday={profile.birthday}
+                    expectedGrade={profile.expectedGrade}
+                    onSaved={async () => { await loadProfile(); await refreshUser(); }}
+                />
+            )}
+
+            {/* Family profiles: parents manage them, plain students can set them up */}
+            {profile.role === 'parent' && (
+                <Card className="p-6 md:p-8 shadow-sm space-y-3 bg-gradient-to-br from-emerald-50 to-white border border-emerald-100">
+                    <h3 className="font-bold text-brand-dark flex items-center gap-2"><Users size={18} className="text-emerald-600" /> {t('family.manageLink')}</h3>
+                    <p className="text-sm text-brand-dark/60">{t('family.manageCardDesc')}</p>
+                    <Button onClick={() => navigate('/profiles')} className="bg-emerald-600 hover:bg-emerald-500">
+                        <Users size={16} /> {t('family.title')}
+                    </Button>
+                </Card>
+            )}
+            {profile.role === 'student' && !profile.isChildProfile && (
+                <Card className="p-6 md:p-8 shadow-sm space-y-3 bg-gradient-to-br from-emerald-50 to-white border border-emerald-100">
+                    <h3 className="font-bold text-brand-dark flex items-center gap-2"><Users size={18} className="text-emerald-600" /> {t('family.setupTitle')}</h3>
+                    <p className="text-sm text-brand-dark/60">{t('family.setupCardDesc')}</p>
+                    <Button onClick={() => setShowFamilySetup(true)} className="bg-emerald-600 hover:bg-emerald-500">
+                        <Plus size={16} /> {t('family.setupButton')}
+                    </Button>
+                </Card>
+            )}
+            {showFamilySetup && (
+                <FamilySetupModal
+                    currentName={profile.name}
+                    parentName={parentName || profile.parentName || ''}
+                    knownChildren={childrenList.filter(c => c.name.trim())}
+                    onClose={() => setShowFamilySetup(false)}
+                />
+            )}
+            {profile.isChildProfile && (
+                <p className="text-center text-xs text-brand-dark/40">{t('family.managedBy')}</p>
+            )}
 
             {/* How to earn XP & Coins */}
             <Card className="p-6 md:p-8 shadow-sm space-y-4 bg-gradient-to-br from-brand-blue/5 to-white">
@@ -359,6 +398,8 @@ export const ProfilePage: React.FC = () => {
                 </ul>
             </Card>
 
+            {/* Referral + family details are account-level: hidden inside a child profile */}
+            {!profile.isChildProfile && (<>
             {/* Refer & Earn */}
             <Card className="p-6 md:p-8 shadow-sm space-y-4 bg-gradient-to-br from-brand-orange/5 to-yellow-50/50">
                 <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -511,6 +552,7 @@ export const ProfilePage: React.FC = () => {
                     </div>
                 </form>
             </Card>
+            </>)}
         </div>
     );
 };

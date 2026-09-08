@@ -83,6 +83,13 @@ model User {
   referralRewardGranted Boolean   @default(false) // set on a REFERRED user once their first payment has granted the referrer's reward (fires exactly once)
   language              String?   // preferred UI language: 'en' | 'ms' | 'zh' | 'ta'
   lastSeenSeasonId      String?
+  // ── Family profiles ── a parent account (role 'parent') owns child profiles:
+  // ordinary student rows with parentId set, a synthetic e-mail and no login.
+  parentId              String?
+  archivedAt            DateTime? // soft-deleted child profile (hidden from picker + leaderboards)
+  subscriptionSeats     Int       @default(1) // learner seats paid for on the last checkout
+  parent                User?     @relation("FamilyProfiles", fields: [parentId], references: [id])
+  childProfiles         User[]    @relation("FamilyProfiles")
   quests                Quest[]
   results               Result[]
   redemptions           Redemption[]
@@ -95,6 +102,7 @@ model User {
   pollVotes          PollVote[] @relation("PollVotes")
 
   @@index([referredById])
+  @@index([parentId])
   // Backs the all-time leaderboard: role-filtered ordering by xp and the
   // rank-by-count queries that mirror that ordering.
   @@index([role, xp])

@@ -1,6 +1,6 @@
 import express from 'express';
 import crypto from 'crypto';
-import { authenticateToken, AuthRequest } from '../middleware/authMiddleware.js';
+import { authenticateToken, requireParentSession, AuthRequest } from '../middleware/authMiddleware.js';
 import prisma from '../db.js';
 import { releaseDueInstalments, referralStatsFor } from '../utils/referral.js';
 import { expectedGradeFor, schoolAge } from '../utils/ageGrade.js';
@@ -40,6 +40,8 @@ const shapeProfile = (user: any) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        parentId: user.parentId ?? null,
+        isChildProfile: !!user.parentId,
         grade: user.grade,
         gradeSyllabus: user.gradeSyllabus,
         birthday: user.birthday ? new Date(user.birthday).toISOString().slice(0, 10) : null,
@@ -204,7 +206,7 @@ router.put('/language', authenticateToken, async (req: AuthRequest, res) => {
 });
 
 // GET /api/profile/referral-code — return (generating if needed) this user's referral code
-router.get('/referral-code', authenticateToken, async (req: AuthRequest, res) => {
+router.get('/referral-code', authenticateToken, requireParentSession, async (req: AuthRequest, res) => {
     try {
         const userId = req.user?.id;
         if (!userId) return res.status(401).json({ error: 'Unauthorized' });
@@ -261,7 +263,7 @@ router.post('/season-seen', authenticateToken, async (req: AuthRequest, res) => 
 });
 
 // PUT /api/profile/family — update parent details, mark profile complete
-router.put('/family', authenticateToken, async (req: AuthRequest, res) => {
+router.put('/family', authenticateToken, requireParentSession, async (req: AuthRequest, res) => {
     try {
         const userId = req.user?.id;
         if (!userId) return res.status(401).json({ error: 'Unauthorized' });
@@ -328,7 +330,7 @@ router.put('/family', authenticateToken, async (req: AuthRequest, res) => {
 });
 
 // GET /api/profile/referral-stats — the caller's referral programme summary
-router.get('/referral-stats', authenticateToken, async (req: AuthRequest, res) => {
+router.get('/referral-stats', authenticateToken, requireParentSession, async (req: AuthRequest, res) => {
     try {
         const userId = req.user?.id;
         if (!userId) return res.status(401).json({ error: 'Unauthorized' });

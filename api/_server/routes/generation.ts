@@ -6,6 +6,7 @@ import { generateAIContent, PRIMARY_MODEL } from '../utils/ai.js';
 
 import { authenticateToken, AuthRequest } from '../middleware/authMiddleware.js';
 import { checkExpiredSubscriptions } from '../middleware/checkExpiredSubscriptions.js';
+import { effectiveSubscription, countFreeQuest } from '../utils/family.js';
 import { isMusicSyllabus } from '../utils/ageGrade.js';
 import { getCuratedTopics, getInstrumentFacts } from '../data/musicCurriculum.js';
 import { REFERENCE_QUESTIONS } from '../data/referenceBanks.js';
@@ -384,7 +385,8 @@ router.post('/quest', authenticateToken, checkExpiredSubscriptions, async (req: 
 
     if (userId) {
         try {
-            const user = await prisma.user.findUnique({ where: { id: userId } });
+            // Child profiles inherit the parent's subscription; a free family shares one allowance.
+            const user = await effectiveSubscription(userId);
 
             // Check Limit
             if (user && !user.isSubscribed && user.questsPlayed >= 3) {
@@ -397,10 +399,7 @@ router.post('/quest', authenticateToken, checkExpiredSubscriptions, async (req: 
 
             // Increment Usage (Count attempt)
             if (user && !user.isSubscribed) {
-                await prisma.user.update({
-                    where: { id: userId },
-                    data: { questsPlayed: { increment: 1 } }
-                });
+                await countFreeQuest(userId);
                 console.log(`[GEN] Incremented usage for user ${userId}`);
             }
         } catch (error) {
@@ -882,9 +881,9 @@ router.post('/study-plan', authenticateToken, checkExpiredSubscriptions, async (
 
     if (userId) {
         try {
-            const user = await prisma.user.findUnique({ where: { id: userId } });
+            const user = await effectiveSubscription(userId);
 
-            // Check Limit reusing questsPlayed as a general AI generation count for now, 
+            // Check Limit reusing questsPlayed as a general AI generation count for now,
             // or we could let subscribers have unlimited. Let's apply the same check.
             if (user && !user.isSubscribed && user.questsPlayed >= 5) { // Give a bit more leeway for study plans or use same limit
                 console.log(`[STUDY-PLAN] ❌ Limit reached for user ${userId}`);
@@ -896,10 +895,7 @@ router.post('/study-plan', authenticateToken, checkExpiredSubscriptions, async (
 
             // Increment Usage
             if (user && !user.isSubscribed) {
-                await prisma.user.update({
-                    where: { id: userId },
-                    data: { questsPlayed: { increment: 1 } }
-                });
+                await countFreeQuest(userId);
             }
         } catch (error) {
             console.error("[STUDY-PLAN] Error checking/updating user limit:", error);

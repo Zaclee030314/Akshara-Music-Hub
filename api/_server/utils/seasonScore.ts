@@ -20,7 +20,7 @@ export const seasonScores = async (
     end: Date
 ): Promise<Array<{ userId: string; points: number }>> => {
     const results = await prisma.result.findMany({
-        where: { date: { gte: start, lte: end }, user: { role: 'student' } },
+        where: { date: { gte: start, lte: end }, user: { role: 'student', archivedAt: null } },
         select: { userId: true, score: true, xpAwarded: true, grade: true },
     });
     const totals = new Map<string, number>();

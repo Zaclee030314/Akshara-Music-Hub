@@ -5,6 +5,7 @@ import { authenticateToken, AuthRequest } from '../middleware/authMiddleware.js'
 import { checkExpiredSubscriptions } from '../middleware/checkExpiredSubscriptions.js';
 import prisma from '../db.js';
 import { releaseDueInstalments } from '../utils/referral.js';
+import { effectiveSubscription } from '../utils/family.js';
 import { sendOTPEmail, sendPasswordResetEmail } from '../services/mailService.js';
 import { getUserSeasonXp } from '../utils/seasonScore.js';
 import { schoolAge } from '../utils/ageGrade.js';
@@ -235,6 +236,8 @@ router.post('/login', async (req, res) => {
     try {
         const user = await prisma.user.findFirst({
             where: {
+                // Child profiles (parentId set) have no login of their own.
+                parentId: null,
                 OR: [
                     { email: loginId },
                     { name: loginId }
@@ -275,10 +278,15 @@ router.post('/login', async (req, res) => {
         // Displayed XP/level reflect the CURRENT season only (resets between seasons);
         // user.xp is preserved as lifetime "banked" XP.
         const seasonXp = await getUserSeasonXp(user.id, new Date());
+        const familyProfiles = user.role === 'parent'
+            ? await prisma.user.count({ where: { parentId: user.id, archivedAt: null } })
+            : 0;
 
         res.json({
             token,
             user: {
+                subscriptionSeats: user.subscriptionSeats,
+                familyProfiles,
                 id: user.id,
                 name: user.name,
                 email: user.email,
@@ -344,6 +352,13 @@ router.get('/me', authenticateToken, checkExpiredSubscriptions, async (req: Auth
         // user.xp is preserved as lifetime "banked" XP.
         const seasonXp = await getUserSeasonXp(user.id, new Date());
 
+        // Child profiles inherit the parent's subscription (and the family's shared
+        // free-tier allowance); parents also learn how many learner seats are active.
+        const sub = await effectiveSubscription(user.id);
+        const familyProfiles = user.role === 'parent'
+            ? await prisma.user.count({ where: { parentId: user.id, archivedAt: null } })
+            : 0;
+
         res.json({
             user: {
                 id: user.id,
@@ -360,19 +375,25 @@ router.get('/me', authenticateToken, checkExpiredSubscriptions, async (req: Auth
                 lifetimeXp: user.xp,
                 coins: user.coins,
                 level: Math.floor(seasonXp / 1000) + 1,
-                isSubscribed: user.isSubscribed,
-                subscriptionInterval: user.subscriptionInterval,
-                subscriptionStartDate: user.subscriptionStartDate,
-                subscriptionEndDate: user.subscriptionEndDate,
-                subscriptionLevel: user.subscriptionLevel,
-                subscribedSyllabus: user.subscribedSyllabus,
-                cancelAtPeriodEnd: user.cancelAtPeriodEnd,
+                isSubscribed: sub ? sub.isSubscribed : user.isSubscribed,
+                subscriptionInterval: sub ? sub.subscriptionInterval : user.subscriptionInterval,
+                subscriptionStartDate: sub ? sub.subscriptionStartDate : user.subscriptionStartDate,
+                subscriptionEndDate: sub ? sub.subscriptionEndDate : user.subscriptionEndDate,
+                subscriptionLevel: sub ? sub.subscriptionLevel : user.subscriptionLevel,
+                subscribedSyllabus: sub ? sub.subscribedSyllabus : user.subscribedSyllabus,
+                cancelAtPeriodEnd: sub ? sub.cancelAtPeriodEnd : user.cancelAtPeriodEnd,
+                subscriptionSeats: sub ? sub.seats : user.subscriptionSeats,
+                seatCovered: sub ? sub.seatCovered : true,
                 isAdmin,
-                questsPlayed: user.questsPlayed,
+                questsPlayed: sub ? sub.questsPlayed : user.questsPlayed,
                 questsCreated: user.questsCreated,
                 completedQuizzes: user._count.results,
                 language: user.language,
-                lastSeenSeasonId: user.lastSeenSeasonId
+                lastSeenSeasonId: user.lastSeenSeasonId,
+                parentId: user.parentId ?? null,
+                isChildProfile: !!user.parentId,
+                actingAsChild: req.user?.act === 'child',
+                familyProfiles
             }
         });
     } catch (error) {
@@ -388,7 +409,7 @@ router.post('/forgot-password', async (req, res) => {
 
     try {
         const user = await prisma.user.findUnique({ where: { email } });
-        if (!user) {
+        if (!user || user.parentId) {
             return res.status(404).json({ error: 'No account found with that email address.' });
         }
 

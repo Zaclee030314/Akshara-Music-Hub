@@ -14,6 +14,7 @@ const getDashboardForUser = (user: { isAdmin?: boolean; role?: string } | null):
     if (!user) return '/';
     if (user.isAdmin) return '/admin';
     if (user.role === 'teacher') return '/teacher';
+    if (user.role === 'parent') return '/profiles';
     return '/dashboard';
 };
 

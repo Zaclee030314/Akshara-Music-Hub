@@ -24,6 +24,12 @@ export interface AuthContextType {
     cancelSubscription: () => Promise<boolean>;
     reactivateSubscription: () => Promise<boolean>;
     refreshUser: () => Promise<void>;
+    /** Parent accounts: switch the session into one child profile (child-scoped token). */
+    switchProfile: (childId: string) => Promise<boolean>;
+    /** Return from a child profile to the parent session. */
+    exitProfile: () => Promise<void>;
+    /** The parent's own token while acting as a child, otherwise the current token. */
+    familyToken: () => string | null;
     isLoading: boolean;
 }
 

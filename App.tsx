@@ -33,6 +33,7 @@ import { StudentClassrooms } from './components/StudentClassrooms';
 import { ClassroomManager } from './components/ClassroomManager';
 import { Leaderboard } from './components/Leaderboard';
 import { ProfilePage } from './components/ProfilePage';
+import { ProfilePicker } from './components/ProfilePicker';
 import { BillingPage } from './components/BillingPage';
 import { ProfileCompletionModal } from './components/ProfileCompletionModal';
 import { SeasonBanner } from './components/SeasonBanner';
@@ -238,6 +239,7 @@ export default function App() {
   const [paymentClientSecret, setPaymentClientSecret] = useState<string | null>(null);
   const [paymentAmount, setPaymentAmount] = useState<number>(0);
   const [paymentAppliedCredit, setPaymentAppliedCredit] = useState<number>(0);
+  const [paymentSeats, setPaymentSeats] = useState<number>(1);
   const [paymentInterval, setPaymentInterval] = useState<'month' | 'year'>('month');
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [showQuotaModal, setShowQuotaModal] = useState(false);
@@ -864,6 +866,7 @@ export default function App() {
         setPaymentClientSecret(data.clientSecret);
         setPaymentAmount(data.amount);
         setPaymentAppliedCredit(data.appliedCredit || 0);
+        setPaymentSeats(data.seats || 1);
         setPaymentInterval(interval);
         setSelectedPlanLevel(planLevel);
         setSelectedSubscriptionSyllabus(syllabus);
@@ -1276,7 +1279,7 @@ export default function App() {
                 if (!user) setShowLoginModal(true);
                 // /teacher is role-gated — send non-teachers to their own dashboard
                 // instead of letting ProtectedRoute bounce them there silently.
-                else navigate(user.role === 'teacher' || user.isAdmin ? '/teacher' : '/dashboard');
+                else navigate(user.role === 'teacher' || user.isAdmin ? '/teacher' : user.role === 'parent' ? '/profiles' : '/dashboard');
               }}
             >
               <Brain size={14} className="mr-1.5" /> {user ? t('nav.dashboard') : t('nav.login')}
@@ -1395,6 +1398,7 @@ export default function App() {
               <PaymentForm
                 amount={paymentAmount}
                 appliedCredit={paymentAppliedCredit}
+                seats={paymentSeats}
                 interval={paymentInterval}
                 planLevel={selectedPlanLevel}
                 syllabus={selectedSubscriptionSyllabus}
@@ -1444,6 +1448,11 @@ export default function App() {
                       {currencyConfig.symbol} {currencyConfig.amount.toFixed(2)}
                       <span className="text-lg font-normal opacity-40">{t('pricing.perMonth')}</span>
                     </div>
+                    {user?.role === 'parent' && (user.familyProfiles ?? 1) > 1 && (
+                      <span className="mt-2 text-sm font-bold text-brand-dark/60 bg-brand-dark/5 px-3 py-1 rounded-full">
+                        {t('pricing.perLearner', { n: user.familyProfiles ?? 1, symbol: currencyConfig.symbol, unit: currencyConfig.amount.toFixed(2), total: (currencyConfig.amount * (user.familyProfiles ?? 1)).toFixed(2) })}
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -1504,6 +1513,11 @@ export default function App() {
                       {currencyConfig.symbol} {currencyConfig.amountAll.toFixed(2)}
                       <span className="text-lg font-normal opacity-40">{t('pricing.perMonth')}</span>
                     </div>
+                    {user?.role === 'parent' && (user.familyProfiles ?? 1) > 1 && (
+                      <span className="mt-2 text-sm font-bold text-brand-dark/60 bg-brand-dark/5 px-3 py-1 rounded-full">
+                        {t('pricing.perLearner', { n: user.familyProfiles ?? 1, symbol: currencyConfig.symbol, unit: currencyConfig.amountAll.toFixed(2), total: (currencyConfig.amountAll * (user.familyProfiles ?? 1)).toFixed(2) })}
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -2220,7 +2234,7 @@ export default function App() {
               </div>
             )}
             <button onClick={() => { setShowMobileMenu(false); if (user && (user.role === 'student' || user.role === 'teacher') && !user.isAdmin) { handleNewQuest(); } else { navigate('/'); setTimeout(() => document.getElementById('courses')?.scrollIntoView({ behavior: 'smooth' }), 200); } }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">{user && (user.role === 'student' || user.role === 'teacher') && !user.isAdmin ? `🚀 ${t('nav.newQuest')}` : `📚 ${t('nav.courses')}`}</button>
-            <button onClick={() => { setShowMobileMenu(false); if (!user) setShowLoginModal(true); else navigate(user?.isAdmin ? '/admin' : user?.role === 'teacher' ? '/teacher' : '/dashboard'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">📊 {t('nav.dashboard')}</button>
+            <button onClick={() => { setShowMobileMenu(false); if (!user) setShowLoginModal(true); else navigate(user?.isAdmin ? '/admin' : user?.role === 'teacher' ? '/teacher' : user?.role === 'parent' ? '/profiles' : '/dashboard'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">📊 {t('nav.dashboard')}</button>
             <button onClick={() => { setShowMobileMenu(false); if (!user) promptLogin('/classrooms'); else navigate('/classrooms'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">🏫 {t('nav.classrooms')}</button>
             <button onClick={() => { setShowMobileMenu(false); navigate('/leaderboard'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">🏆 {t('nav.leaderboard')}</button>
             <button onClick={() => { setShowMobileMenu(false); navigate('/pricing'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">💎 {t('nav.pricing')}</button>
@@ -2250,7 +2264,7 @@ export default function App() {
 
         <div className="hidden md:flex items-center gap-4 lg:gap-8 flex-1 justify-center px-4">
           <button onClick={() => { if (user && (user.role === 'student' || user.role === 'teacher') && !user.isAdmin) { handleNewQuest(); } else { navigate('/'); setTimeout(() => document.getElementById('courses')?.scrollIntoView({ behavior: 'smooth' }), 100); } }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">{user && (user.role === 'student' || user.role === 'teacher') && !user.isAdmin ? t('nav.newQuest') : t('nav.courses')}</button>
-          <button onClick={() => { if (!user) setShowLoginModal(true); else navigate(user?.isAdmin ? '/admin' : user?.role === 'teacher' ? '/teacher' : '/dashboard'); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">{t('nav.dashboard')}</button>
+          <button onClick={() => { if (!user) setShowLoginModal(true); else navigate(user?.isAdmin ? '/admin' : user?.role === 'teacher' ? '/teacher' : user?.role === 'parent' ? '/profiles' : '/dashboard'); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">{t('nav.dashboard')}</button>
           <button onClick={() => { if (!user) promptLogin('/classrooms'); else navigate('/classrooms'); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">{t('nav.classrooms')}</button>
           <button onClick={() => { navigate('/leaderboard'); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">{t('nav.leaderboard')}</button>
           <button onClick={() => { navigate('/pricing'); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">{t('nav.pricing')}</button>
@@ -2311,8 +2325,17 @@ export default function App() {
                   <div className="absolute right-0 top-12 w-48 bg-white rounded-xl shadow-xl border border-brand-dark/10 overflow-hidden animate-pop-in z-50">
                     <div className="p-4 border-b border-brand-dark/5 bg-brand-dark/5">
                       <p className="font-bold text-brand-dark truncate">{user.name}</p>
-                      <p className="text-xs text-brand-dark/50 truncate">{user.email}</p>
+                      <p className="text-xs text-brand-dark/50 truncate">{user.isChildProfile ? t('family.managedBy') : user.email}</p>
                     </div>
+                    {(user.role === 'parent' || user.actingAsChild) && (
+                      <button
+                        onClick={() => { navigate('/profiles'); setShowProfileMenu(false); }}
+                        className="w-full text-left px-4 py-3 hover:bg-brand-blue/5 text-sm font-bold text-brand-blue flex items-center gap-2 transition-colors"
+                      >
+                        <UserIcon size={16} /> {t('nav.switchProfile')}
+                      </button>
+                    )}
+                    {user.role !== 'parent' && (
                     <button
                       onClick={() => {
                         if (user?.isAdmin) navigate('/admin');
@@ -2325,6 +2348,7 @@ export default function App() {
                       <UserIcon size={16} />
                       {user?.isAdmin ? t('nav.adminDashboard') : user?.role === 'teacher' ? t('nav.teacherDashboard') : t('nav.myDashboard')}
                     </button>
+                    )}
                     <button
                       onClick={() => { navigate('/profile'); setShowProfileMenu(false); }}
                       className="w-full text-left px-4 py-3 hover:bg-brand-blue/5 text-sm font-bold text-brand-dark/70 hover:text-brand-blue flex items-center gap-2 transition-colors"
@@ -2364,17 +2388,21 @@ export default function App() {
           <Route path="/" element={renderHome()} />
           <Route path="/pricing" element={renderPricing()} />
 
-          {/* Student dashboard — redirect teachers/admins to their own dashboards */}
+          {/* Student dashboard — redirect teachers/admins/parents to their own screens */}
           <Route path="/dashboard" element={
             <ProtectedRoute>
               {user?.isAdmin
                 ? <Navigate to="/admin" replace />
                 : user?.role === 'teacher'
                   ? <Navigate to="/teacher" replace />
-                  : renderDashboard()
+                  : user?.role === 'parent'
+                    ? <Navigate to="/profiles" replace />
+                    : renderDashboard()
               }
             </ProtectedRoute>
           } />
+          {/* Family accounts: "Who's learning?" profile picker */}
+          <Route path="/profiles" element={<ProtectedRoute><ProfilePicker /></ProtectedRoute>} />
 
           <Route path="/leaderboard" element={<div className="pt-8"><Leaderboard /></div>} />
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
@@ -2450,10 +2478,11 @@ export default function App() {
               if (!user) { promptLogin('/profile'); }
               else if (user.isAdmin) { navigate('/admin'); }
               else if (user.role === 'teacher') { navigate('/teacher'); }
+              else if (user.role === 'parent') { navigate('/profiles'); }
               else { navigate('/dashboard'); }
             }}
             className={`flex flex-col items-center gap-1 px-4 py-1.5 rounded-2xl transition-all ${
-              (location.pathname === '/dashboard' || location.pathname === '/teacher' || location.pathname.startsWith('/admin'))
+              (location.pathname === '/dashboard' || location.pathname === '/teacher' || location.pathname === '/profiles' || location.pathname.startsWith('/admin'))
                 ? 'bg-brand-blue/10 text-brand-blue'
                 : 'text-brand-dark/40 hover:text-brand-dark/70'
             }`}
