@@ -4,6 +4,7 @@ import prisma from '../db.js';
 import { generateAIContent } from '../utils/ai.js';
 import { authenticateToken, AuthRequest } from '../middleware/authMiddleware.js';
 import { getActiveSeason, seasonScores } from '../utils/seasonScore.js';
+import { getTiers, isTieredEnabled, tierFor, DEFAULT_TIERS } from '../utils/referral.js';
 
 const router = express.Router();
 
@@ -324,46 +325,123 @@ router.patch('/redemptions/:id', async (req, res) => {
     }
 });
 
-// GET /api/admin/referrals — grouped report of who referred whom
+// ─── REFERRAL PROGRAMME ───────────────────────────────────────────────────────
+
+// GET /api/admin/referral-tiers — current tier table + tiered toggle
+router.get('/referral-tiers', async (_req, res) => {
+    try {
+        res.json({ tiered: await isTieredEnabled(), tiers: await getTiers(), defaults: DEFAULT_TIERS });
+    } catch (error) {
+        console.error('[ADMIN] Referral tiers error:', error);
+        res.status(500).json({ error: 'Failed to load referral tiers' });
+    }
+});
+
+// PUT /api/admin/referral-tiers — replace the tier table
+// body: { tiered: boolean, tiers: [{ minCount, maxCount|null, amountCents, splitMonths }] }
+router.put('/referral-tiers', async (req, res) => {
+    const { tiered, tiers } = req.body ?? {};
+    if (!Array.isArray(tiers) || tiers.length === 0) return res.status(400).json({ error: 'At least one tier is required.' });
+    const cleaned: Array<{ minCount: number; maxCount: number | null; amountCents: number; splitMonths: number; sortOrder: number }> = [];
+    for (let i = 0; i < tiers.length; i++) {
+        const t = tiers[i] ?? {};
+        const minCount = i === 0 ? 1 : Number(t.minCount);
+        const rawMax = t.maxCount;
+        const maxCount = rawMax === null || rawMax === undefined || rawMax === '' ? null : Number(rawMax);
+        const amountCents = Math.round(Number(t.amountCents));
+        const splitMonths = Math.max(1, Math.round(Number(t.splitMonths) || 1));
+        if (!Number.isInteger(minCount) || minCount < 1) return res.status(400).json({ error: `Tier ${i + 1}: invalid "from" value.` });
+        if (maxCount !== null && (!Number.isInteger(maxCount) || maxCount < minCount)) return res.status(400).json({ error: `Tier ${i + 1}: "up to" must be at least "from".` });
+        if (!Number.isFinite(amountCents) || amountCents < 0) return res.status(400).json({ error: `Tier ${i + 1}: invalid amount.` });
+        if (i > 0) {
+            const prev = cleaned[i - 1];
+            if (prev.maxCount === null) return res.status(400).json({ error: 'Only the last tier can be open-ended.' });
+            if (minCount !== prev.maxCount + 1) return res.status(400).json({ error: `Tier ${i + 1} must start at ${prev.maxCount + 1}.` });
+        }
+        cleaned.push({ minCount, maxCount, amountCents, splitMonths, sortOrder: i });
+    }
+    try {
+        await prisma.$transaction([
+            prisma.referralTier.deleteMany({}),
+            prisma.referralTier.createMany({ data: cleaned }),
+            prisma.appSetting.upsert({
+                where: { key: 'referral.tiered' },
+                update: { value: String(!!tiered) },
+                create: { key: 'referral.tiered', value: String(!!tiered) },
+            }),
+        ]);
+        res.json({ tiered: !!tiered, tiers: cleaned });
+    } catch (error) {
+        console.error('[ADMIN] Save referral tiers error:', error);
+        res.status(500).json({ error: 'Failed to save referral tiers' });
+    }
+});
+
+// GET /api/admin/referrals — per-referrer report: sign-ups, paid conversions, tier, credit ledger
 router.get('/referrals', async (_req, res) => {
     try {
-        // All users who signed up via a referral link.
         const referred = await prisma.user.findMany({
             where: { referredById: { not: null } },
-            select: { id: true, name: true, email: true, referredById: true },
+            select: { id: true, name: true, email: true, referredById: true, referralRewardGranted: true },
         });
-
-        // Group referred users by their referrer id.
-        const byReferrer = new Map<string, Array<{ id: string; name: string; email: string }>>();
+        const byReferrer = new Map<string, Array<{ id: string; name: string; email: string; paid: boolean }>>();
         for (const u of referred) {
             const key = u.referredById as string;
             if (!byReferrer.has(key)) byReferrer.set(key, []);
-            byReferrer.get(key)!.push({ id: u.id, name: u.name, email: u.email });
+            byReferrer.get(key)!.push({ id: u.id, name: u.name, email: u.email, paid: u.referralRewardGranted });
+        }
+        const referrerIds = Array.from(byReferrer.keys());
+        const [referrers, earnings, tiers, tiered] = await Promise.all([
+            prisma.user.findMany({
+                where: { id: { in: referrerIds } },
+                select: { id: true, name: true, email: true, referralCode: true, referralCreditCents: true },
+            }),
+            prisma.referralEarning.findMany({ where: { referrerId: { in: referrerIds } }, include: { instalments: true } }),
+            getTiers(),
+            isTieredEnabled(),
+        ]);
+        const referrerMap = new Map(referrers.map(r => [r.id, r]));
+        const earningsBy = new Map<string, typeof earnings>();
+        for (const e of earnings) {
+            if (!earningsBy.has(e.referrerId)) earningsBy.set(e.referrerId, []);
+            earningsBy.get(e.referrerId)!.push(e);
         }
 
-        // Hydrate each referrer's details.
-        const referrers = await prisma.user.findMany({
-            where: { id: { in: Array.from(byReferrer.keys()) } },
-            select: { id: true, name: true, email: true, referralCode: true, referralCreditCents: true },
-        });
-        const referrerMap = new Map(referrers.map(r => [r.id, r]));
-
-        const report = Array.from(byReferrer.entries())
-            .map(([referrerId, referredUsers]) => {
-                const r = referrerMap.get(referrerId);
-                return {
-                    referrer: {
-                        id: referrerId,
-                        name: r?.name || 'Unknown',
-                        email: r?.email || '—',
-                        referralCode: r?.referralCode || null,
-                        referralCreditCents: r?.referralCreditCents ?? 0,
-                    },
-                    count: referredUsers.length,
-                    referred: referredUsers,
-                };
-            })
-            .sort((a, b) => b.count - a.count);
+        const report = referrerIds.map(referrerId => {
+            const r = referrerMap.get(referrerId);
+            const referredUsers = byReferrer.get(referrerId)!;
+            const mine = earningsBy.get(referrerId) ?? [];
+            let totalEarnedCents = 0, creditedCents = 0, pendingCents = 0;
+            let nextDue: Date | null = null;
+            for (const e of mine) {
+                totalEarnedCents += e.tierAmountCents;
+                for (const inst of e.instalments) {
+                    if (inst.creditedAt) creditedCents += inst.amountCents;
+                    else {
+                        pendingCents += inst.amountCents;
+                        if (!nextDue || inst.dueDate < nextDue) nextDue = inst.dueDate;
+                    }
+                }
+            }
+            const paidReferrals = mine.length;
+            return {
+                referrer: {
+                    id: referrerId,
+                    name: r?.name || 'Unknown',
+                    email: r?.email || '—',
+                    referralCode: r?.referralCode || null,
+                    referralCreditCents: r?.referralCreditCents ?? 0,
+                },
+                count: referredUsers.length,
+                paidReferrals,
+                tier: tierFor(tiers, tiered, paidReferrals + 1),
+                totalEarnedCents,
+                creditedCents,
+                pendingCents,
+                nextDue,
+                referred: referredUsers,
+            };
+        }).sort((a, b) => b.paidReferrals - a.paidReferrals || b.count - a.count);
 
         res.json(report);
     } catch (error) {

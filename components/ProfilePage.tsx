@@ -58,6 +58,13 @@ export const ProfilePage: React.FC = () => {
     // Referral
     const [referralCode, setReferralCode] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
+    const [referralStats, setReferralStats] = useState<{
+        paidReferrals: number;
+        tier: { minCount: number; maxCount: number | null; amountCents: number; splitMonths: number };
+        pendingCents: number;
+        nextDue: string | null;
+        creditBalanceCents: number;
+    } | null>(null);
 
     const loadProfile = async () => {
         try {
@@ -86,6 +93,8 @@ export const ProfilePage: React.FC = () => {
                 const data = await res.json();
                 setReferralCode(data.code || null);
             }
+            const statsRes = await fetch('/api/profile/referral-stats', { headers: authHeaders() });
+            if (statsRes.ok) setReferralStats(await statsRes.json());
         } catch (err) {
             console.error('Failed to load referral code', err);
         }
@@ -359,6 +368,29 @@ export const ProfilePage: React.FC = () => {
                     </span>
                 </div>
                 <p className="text-sm text-brand-dark/60">{t('profile.referDesc')}</p>
+                {referralStats && (
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+                        <div className="bg-white/70 rounded-xl p-3">
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-brand-dark/40">{t('profile.paidReferrals')}</p>
+                            <p className="font-display font-bold text-xl text-brand-dark">{referralStats.paidReferrals}</p>
+                        </div>
+                        <div className="bg-white/70 rounded-xl p-3">
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-brand-dark/40">{t('profile.referralTier')}</p>
+                            <p className="font-display font-bold text-xl text-brand-orange">RM{(referralStats.tier.amountCents / 100).toFixed(0)}</p>
+                            <p className="text-[10px] text-brand-dark/50">{t('profile.perReferral')} · {t('profile.splitOver', { months: referralStats.tier.splitMonths })}</p>
+                        </div>
+                        <div className="bg-white/70 rounded-xl p-3">
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-brand-dark/40">{t('profile.pendingCredit')}</p>
+                            <p className="font-display font-bold text-xl text-brand-dark">RM{(referralStats.pendingCents / 100).toFixed(2)}</p>
+                        </div>
+                        <div className="bg-white/70 rounded-xl p-3">
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-brand-dark/40">{t('profile.nextCredit')}</p>
+                            <p className="font-display font-bold text-xl text-brand-dark">
+                                {referralStats.nextDue ? new Date(referralStats.nextDue).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '—'}
+                            </p>
+                        </div>
+                    </div>
+                )}
                 {referralCode ? (
                     <div className="flex flex-col sm:flex-row gap-2">
                         <input

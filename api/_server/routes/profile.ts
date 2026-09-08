@@ -2,6 +2,7 @@ import express from 'express';
 import crypto from 'crypto';
 import { authenticateToken, AuthRequest } from '../middleware/authMiddleware.js';
 import prisma from '../db.js';
+import { releaseDueInstalments, referralStatsFor } from '../utils/referral.js';
 import { expectedGradeFor, schoolAge } from '../utils/ageGrade.js';
 import { isValidSyllabus, isValidGradeForSyllabus } from '../utils/curriculumGrades.js';
 
@@ -322,6 +323,23 @@ router.put('/family', authenticateToken, async (req: AuthRequest, res) => {
         res.json(shapeProfile(user));
     } catch (error) {
         console.error('[PROFILE] PUT /family error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// GET /api/profile/referral-stats — the caller's referral programme summary
+router.get('/referral-stats', authenticateToken, async (req: AuthRequest, res) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+        await releaseDueInstalments(userId);
+        const [stats, u] = await Promise.all([
+            referralStatsFor(userId),
+            prisma.user.findUnique({ where: { id: userId }, select: { referralCreditCents: true } }),
+        ]);
+        res.json({ ...stats, creditBalanceCents: u?.referralCreditCents ?? 0 });
+    } catch (error) {
+        console.error('[PROFILE] referral-stats error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });

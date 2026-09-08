@@ -2,6 +2,7 @@ import express from 'express';
 import Stripe from 'stripe';
 import { authenticateToken, AuthRequest } from '../middleware/authMiddleware.js';
 import prisma from '../db.js';
+import { releaseDueInstalments, settleReferralGrant } from '../utils/referral.js';
 
 const router = express.Router();
 
@@ -32,6 +33,8 @@ router.post('/create-payment-intent', authenticateToken, async (req: any, res: a
     const STRIPE_MIN = 200; // 2.00 MYR floor so the charge stays valid
     let appliedCredit = 0;
     try {
+        // Release any referral instalments that have come due so the balance is current.
+        await releaseDueInstalments(user.id);
         const payer = await prisma.user.findUnique({
             where: { id: user.id },
             select: { referralCreditCents: true }
@@ -121,31 +124,9 @@ router.post('/confirm-payment', authenticateToken, async (req: any, res: any) =>
             }
         }
 
-        // GRANT the referrer RM5, exactly once per referred student.
-        if (payer.referredById && payer.referralRewardGranted === false) {
-            try {
-                const referrer = await prisma.user.findUnique({ where: { id: payer.referredById } });
-                if (referrer) {
-                    await prisma.$transaction([
-                        prisma.user.update({
-                            where: { id: payer.referredById },
-                            data: { referralCreditCents: { increment: 500 } }
-                        }),
-                        prisma.user.update({
-                            where: { id: userId },
-                            data: { referralRewardGranted: true }
-                        })
-                    ]);
-                    console.log(`[REFERRAL] Granted RM5 to referrer ${payer.referredById} for first payment by referred user ${userId}`);
-                } else {
-                    // Defensive: referrer no longer exists — still flag so we don't retry endlessly.
-                    await prisma.user.update({ where: { id: userId }, data: { referralRewardGranted: true } });
-                    console.warn(`[REFERRAL] Referrer ${payer.referredById} not found; flagged user ${userId} to avoid retries.`);
-                }
-            } catch (grantErr) {
-                console.error('[REFERRAL] Failed to grant referral reward:', grantErr);
-            }
-        }
+        // GRANT the referrer their tiered referral credit, exactly once per referred
+        // student (tier + instalment schedule live in utils/referral.ts).
+        await settleReferralGrant(userId);
     };
 
     // Handle Mock Confirmation

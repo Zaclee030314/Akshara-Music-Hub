@@ -1,6 +1,7 @@
 import express from 'express';
 import Stripe from 'stripe';
 import prisma from '../db.js';
+import { settleReferralGrant } from '../utils/referral.js';
 
 const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
@@ -110,6 +111,9 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
                 cancelAtPeriodEnd: sub.cancel_at_period_end
             }
         });
+
+        // A referred user's FIRST successful payment converts the referral (idempotent).
+        await settleReferralGrant(user.id);
 
         console.log(`[WEBHOOK] ✅ Subscription renewed for user: ${user.email}`);
     } catch (error: any) {

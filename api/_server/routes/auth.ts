@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import { authenticateToken, AuthRequest } from '../middleware/authMiddleware.js';
 import { checkExpiredSubscriptions } from '../middleware/checkExpiredSubscriptions.js';
 import prisma from '../db.js';
+import { releaseDueInstalments } from '../utils/referral.js';
 import { sendOTPEmail, sendPasswordResetEmail } from '../services/mailService.js';
 import { getUserSeasonXp } from '../utils/seasonScore.js';
 import { schoolAge } from '../utils/ageGrade.js';
@@ -321,6 +322,9 @@ router.get('/me', authenticateToken, checkExpiredSubscriptions, async (req: Auth
         const userId = req.user?.id;
 
         if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+        // Credit any referral instalments that have come due.
+        await releaseDueInstalments(userId);
 
         const user = await prisma.user.findUnique({
             where: { id: userId },

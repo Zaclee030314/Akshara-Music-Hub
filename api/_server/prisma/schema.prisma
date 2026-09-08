@@ -261,6 +261,50 @@ model QuestionBank {
   @@index([subject, grade, syllabus, topic])
 }
 
+// ─── Tiered referral programme ───────────────────────────────────────────────
+// A referral "converts" when the referred user makes their first payment. The
+// referrer's paid-referral count picks a tier; the tier amount is split into
+// monthly instalments credited to referralCreditCents (spent at checkout).
+
+model AppSetting {
+  key   String @id
+  value String // JSON-encoded
+}
+
+model ReferralTier {
+  id          String @id @default(uuid())
+  minCount    Int              // first paid referral covered by this tier (1-based)
+  maxCount    Int?             // null = no upper bound
+  amountCents Int              // credit per referral (sen)
+  splitMonths Int @default(1)  // instalments the amount is spread over
+  sortOrder   Int @default(0)
+}
+
+// One row per converted referral (idempotent via referredUserId).
+model ReferralEarning {
+  id              String   @id @default(uuid())
+  referrerId      String
+  referredUserId  String   @unique
+  tierAmountCents Int
+  splitMonths     Int
+  createdAt       DateTime @default(now())
+  instalments     ReferralInstalment[]
+
+  @@index([referrerId])
+}
+
+model ReferralInstalment {
+  id          String    @id @default(uuid())
+  earningId   String
+  dueDate     DateTime
+  amountCents Int
+  creditedAt  DateTime? // null until released into referralCreditCents
+  earning     ReferralEarning @relation(fields: [earningId], references: [id], onDelete: Cascade)
+
+  @@index([earningId])
+  @@index([dueDate, creditedAt])
+}
+
 // Questions already served to a student, so new quests never repeat them.
 // questionHash = hash of the normalised question text. Rows are per user; the
 // (subject, grade) index lets a quest look up only the relevant history.
