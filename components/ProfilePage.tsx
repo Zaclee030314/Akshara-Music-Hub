@@ -4,7 +4,7 @@ import { Card } from './Card';
 import { Button } from './Button';
 import { useAuth } from '../contexts/useAuth';
 import { useT } from '../contexts/LanguageContext';
-import { Loader2, Camera, User as UserIcon, Save, CheckCircle2, Gift, Copy, Check, Sparkles, Plus, Trash2, Users } from 'lucide-react';
+import { Loader2, Camera, User as UserIcon, Save, CheckCircle2, Gift, Sparkles, Plus, Trash2, Users, ArrowRight } from 'lucide-react';
 import { StandardEditor } from './StandardEditor';
 import { FamilySetupModal } from './FamilySetupModal';
 
@@ -61,16 +61,8 @@ export const ProfilePage: React.FC = () => {
     const [savingFamily, setSavingFamily] = useState(false);
     const [familySaved, setFamilySaved] = useState(false);
 
-    // Referral
-    const [referralCode, setReferralCode] = useState<string | null>(null);
-    const [copied, setCopied] = useState(false);
-    const [referralStats, setReferralStats] = useState<{
-        paidReferrals: number;
-        tier: { minCount: number; maxCount: number | null; amountCents: number; splitMonths: number };
-        pendingCents: number;
-        nextDue: string | null;
-        creditBalanceCents: number;
-    } | null>(null);
+    // Referral summary (full programme lives on /referrals)
+    const [referralEarnedCents, setReferralEarnedCents] = useState<number | null>(null);
 
     const loadProfile = async () => {
         try {
@@ -92,37 +84,19 @@ export const ProfilePage: React.FC = () => {
         }
     };
 
-    const loadReferralCode = async () => {
+    const loadReferralSummary = async () => {
         try {
-            const res = await fetch('/api/profile/referral-code', { headers: authHeaders() });
-            if (res.ok) {
-                const data = await res.json();
-                setReferralCode(data.code || null);
-            }
             const statsRes = await fetch('/api/profile/referral-stats', { headers: authHeaders() });
-            if (statsRes.ok) setReferralStats(await statsRes.json());
+            if (statsRes.ok) setReferralEarnedCents((await statsRes.json()).totalEarnedCents ?? 0);
         } catch (err) {
-            console.error('Failed to load referral code', err);
+            console.error('Failed to load referral summary', err);
         }
     };
 
     useEffect(() => {
         loadProfile();
-        loadReferralCode();
+        loadReferralSummary();
     }, []);
-
-    const referralLink = referralCode ? `${window.location.origin}/?ref=${referralCode}` : '';
-
-    const handleCopyReferral = async () => {
-        if (!referralLink) return;
-        try {
-            await navigator.clipboard.writeText(referralLink);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-        } catch (err) {
-            console.error('Copy failed', err);
-        }
-    };
 
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -400,56 +374,18 @@ export const ProfilePage: React.FC = () => {
 
             {/* Referral + family details are account-level: hidden inside a child profile */}
             {!profile.isChildProfile && (<>
-            {/* Refer & Earn */}
+            {/* Refer & Earn — summary only; the programme page has the link, tiers and rules */}
             <Card className="p-6 md:p-8 shadow-sm space-y-4 bg-gradient-to-br from-brand-orange/5 to-yellow-50/50">
                 <div className="flex items-center justify-between gap-3 flex-wrap">
                     <h3 className="font-bold text-brand-dark flex items-center gap-2"><Gift size={18} className="text-brand-orange" /> {t('profile.referEarn')}</h3>
                     <span className="text-sm font-bold text-brand-orange bg-brand-orange/10 px-3 py-1 rounded-full">
-                        {t('profile.earnedSoFar', { amount: ((profile.referralCreditCents ?? 0) / 100).toFixed(2) })}
+                        {t('profile.earnedSoFar', { amount: ((referralEarnedCents ?? 0) / 100).toFixed(2) })}
                     </span>
                 </div>
                 <p className="text-sm text-brand-dark/60">{t('profile.referDesc')}</p>
-                {referralStats && (
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
-                        <div className="bg-white/70 rounded-xl p-3">
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-brand-dark/40">{t('profile.paidReferrals')}</p>
-                            <p className="font-display font-bold text-xl text-brand-dark">{referralStats.paidReferrals}</p>
-                        </div>
-                        <div className="bg-white/70 rounded-xl p-3">
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-brand-dark/40">{t('profile.referralTier')}</p>
-                            <p className="font-display font-bold text-xl text-brand-orange">RM{(referralStats.tier.amountCents / 100).toFixed(0)}</p>
-                            <p className="text-[10px] text-brand-dark/50">{t('profile.perReferral')} · {t('profile.splitOver', { months: referralStats.tier.splitMonths })}</p>
-                        </div>
-                        <div className="bg-white/70 rounded-xl p-3">
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-brand-dark/40">{t('profile.pendingCredit')}</p>
-                            <p className="font-display font-bold text-xl text-brand-dark">RM{(referralStats.pendingCents / 100).toFixed(2)}</p>
-                        </div>
-                        <div className="bg-white/70 rounded-xl p-3">
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-brand-dark/40">{t('profile.nextCredit')}</p>
-                            <p className="font-display font-bold text-xl text-brand-dark">
-                                {referralStats.nextDue ? new Date(referralStats.nextDue).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '—'}
-                            </p>
-                        </div>
-                    </div>
-                )}
-                {referralCode ? (
-                    <div className="flex flex-col sm:flex-row gap-2">
-                        <input
-                            type="text"
-                            value={referralLink}
-                            readOnly
-                            onFocus={(e) => e.currentTarget.select()}
-                            className="flex-1 p-3 rounded-xl border-2 border-brand-dark/10 bg-white font-medium text-sm text-brand-dark/70 focus:outline-none focus:border-brand-orange"
-                        />
-                        <Button onClick={handleCopyReferral} className="bg-brand-orange hover:bg-orange-400 shrink-0">
-                            {copied ? <><Check size={16} /> {t('profile.copied')}</> : <><Copy size={16} /> {t('profile.copy')}</>}
-                        </Button>
-                    </div>
-                ) : (
-                    <div className="flex items-center gap-2 text-brand-dark/40 text-sm">
-                        <Loader2 className="animate-spin" size={16} /> {t('profile.generatingLink')}
-                    </div>
-                )}
+                <Button onClick={() => navigate('/referrals')} className="bg-brand-orange hover:bg-orange-400">
+                    {t('referral.viewProgramme')} <ArrowRight size={16} />
+                </Button>
             </Card>
 
             {/* Family details */}

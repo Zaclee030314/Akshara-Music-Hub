@@ -2,7 +2,7 @@ import express from 'express';
 import crypto from 'crypto';
 import { authenticateToken, requireParentSession, AuthRequest } from '../middleware/authMiddleware.js';
 import prisma from '../db.js';
-import { releaseDueInstalments, referralStatsFor } from '../utils/referral.js';
+import { releaseDueInstalments, referralStatsFor, getTiers } from '../utils/referral.js';
 import { expectedGradeFor, schoolAge } from '../utils/ageGrade.js';
 import { isValidSyllabus, isValidGradeForSyllabus } from '../utils/curriculumGrades.js';
 
@@ -335,11 +335,13 @@ router.get('/referral-stats', authenticateToken, requireParentSession, async (re
         const userId = req.user?.id;
         if (!userId) return res.status(401).json({ error: 'Unauthorized' });
         await releaseDueInstalments(userId);
-        const [stats, u] = await Promise.all([
+        const [stats, u, tiers] = await Promise.all([
             referralStatsFor(userId),
             prisma.user.findUnique({ where: { id: userId }, select: { referralCreditCents: true } }),
+            getTiers(),
         ]);
-        res.json({ ...stats, creditBalanceCents: u?.referralCreditCents ?? 0 });
+        // `tiers` is the full programme table so the client can show every level, not just the caller's.
+        res.json({ ...stats, tiers, creditBalanceCents: u?.referralCreditCents ?? 0 });
     } catch (error) {
         console.error('[PROFILE] referral-stats error:', error);
         res.status(500).json({ error: 'Internal server error' });

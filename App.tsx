@@ -34,6 +34,7 @@ import { ClassroomManager } from './components/ClassroomManager';
 import { Leaderboard } from './components/Leaderboard';
 import { ProfilePage } from './components/ProfilePage';
 import { ProfilePicker } from './components/ProfilePicker';
+import { ReferralPage } from './components/ReferralPage';
 import { BillingPage } from './components/BillingPage';
 import { ProfileCompletionModal } from './components/ProfileCompletionModal';
 import { SeasonBanner } from './components/SeasonBanner';
@@ -2252,6 +2253,9 @@ export default function App() {
             {user && (
               <button onClick={() => { setShowMobileMenu(false); navigate('/profile'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">👤 {t('nav.myProfile')}</button>
             )}
+            {user && !user.isChildProfile && (
+              <button onClick={() => { setShowMobileMenu(false); navigate('/referrals'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-orange/5 hover:text-brand-orange transition-all text-sm">🎁 {t('profile.referEarn')}</button>
+            )}
             {user && (
               <button onClick={() => { setShowMobileMenu(false); navigate('/billing'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">💳 {t('nav.mySubscription')}</button>
             )}
@@ -2363,6 +2367,14 @@ export default function App() {
                     >
                       <UserIcon size={16} /> {t('nav.myProfile')}
                     </button>
+                    {!user.isChildProfile && (
+                      <button
+                        onClick={() => { navigate('/referrals'); setShowProfileMenu(false); }}
+                        className="w-full text-left px-4 py-3 hover:bg-brand-orange/5 text-sm font-bold text-brand-dark/70 hover:text-brand-orange flex items-center gap-2 transition-colors"
+                      >
+                        <Gift size={16} /> {t('profile.referEarn')}
+                      </button>
+                    )}
                     <button
                       onClick={() => { navigate('/billing'); setShowProfileMenu(false); }}
                       className="w-full text-left px-4 py-3 hover:bg-brand-blue/5 text-sm font-bold text-brand-dark/70 hover:text-brand-blue flex items-center gap-2 transition-colors"
@@ -2411,6 +2423,7 @@ export default function App() {
           } />
           {/* Family accounts: "Who's learning?" profile picker */}
           <Route path="/profiles" element={<ProtectedRoute><ProfilePicker /></ProtectedRoute>} />
+          <Route path="/referrals" element={<ProtectedRoute><ReferralPage /></ProtectedRoute>} />
 
           <Route path="/leaderboard" element={<div className="pt-8"><Leaderboard /></div>} />
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
