@@ -240,6 +240,8 @@ export default function App() {
   const [paymentAmount, setPaymentAmount] = useState<number>(0);
   const [paymentAppliedCredit, setPaymentAppliedCredit] = useState<number>(0);
   const [paymentSeats, setPaymentSeats] = useState<number>(1);
+  const [paymentUnitAmount, setPaymentUnitAmount] = useState<number>(0);
+  const [paymentExtraChild, setPaymentExtraChild] = useState<number>(4500);
   const [paymentInterval, setPaymentInterval] = useState<'month' | 'year'>('month');
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [showQuotaModal, setShowQuotaModal] = useState(false);
@@ -867,6 +869,8 @@ export default function App() {
         setPaymentAmount(data.amount);
         setPaymentAppliedCredit(data.appliedCredit || 0);
         setPaymentSeats(data.seats || 1);
+        setPaymentUnitAmount(data.unitAmount || data.amount);
+        setPaymentExtraChild(data.extraChildAmount ?? 4500);
         setPaymentInterval(interval);
         setSelectedPlanLevel(planLevel);
         setSelectedSubscriptionSyllabus(syllabus);
@@ -1399,6 +1403,8 @@ export default function App() {
                 amount={paymentAmount}
                 appliedCredit={paymentAppliedCredit}
                 seats={paymentSeats}
+                unitAmount={paymentUnitAmount}
+                extraChildAmount={paymentExtraChild}
                 interval={paymentInterval}
                 planLevel={selectedPlanLevel}
                 syllabus={selectedSubscriptionSyllabus}
@@ -1448,9 +1454,10 @@ export default function App() {
                       {currencyConfig.symbol} {currencyConfig.amount.toFixed(2)}
                       <span className="text-lg font-normal opacity-40">{t('pricing.perMonth')}</span>
                     </div>
+                    <span className="mt-2 text-xs font-bold text-brand-dark/50">{t('pricing.extraChild', { symbol: currencyConfig.symbol })}</span>
                     {user?.role === 'parent' && (user.familyProfiles ?? 1) > 1 && (
                       <span className="mt-2 text-sm font-bold text-brand-dark/60 bg-brand-dark/5 px-3 py-1 rounded-full">
-                        {t('pricing.perLearner', { n: user.familyProfiles ?? 1, symbol: currencyConfig.symbol, unit: currencyConfig.amount.toFixed(2), total: (currencyConfig.amount * (user.familyProfiles ?? 1)).toFixed(2) })}
+                        {t('pricing.familyTotal', { symbol: currencyConfig.symbol, unit: currencyConfig.amount.toFixed(2), extra: (user.familyProfiles ?? 1) - 1, total: (currencyConfig.amount + 45 * ((user.familyProfiles ?? 1) - 1)).toFixed(2) })}
                       </span>
                     )}
                   </div>
@@ -1513,9 +1520,10 @@ export default function App() {
                       {currencyConfig.symbol} {currencyConfig.amountAll.toFixed(2)}
                       <span className="text-lg font-normal opacity-40">{t('pricing.perMonth')}</span>
                     </div>
+                    <span className="mt-2 text-xs font-bold text-brand-dark/50">{t('pricing.extraChild', { symbol: currencyConfig.symbol })}</span>
                     {user?.role === 'parent' && (user.familyProfiles ?? 1) > 1 && (
                       <span className="mt-2 text-sm font-bold text-brand-dark/60 bg-brand-dark/5 px-3 py-1 rounded-full">
-                        {t('pricing.perLearner', { n: user.familyProfiles ?? 1, symbol: currencyConfig.symbol, unit: currencyConfig.amountAll.toFixed(2), total: (currencyConfig.amountAll * (user.familyProfiles ?? 1)).toFixed(2) })}
+                        {t('pricing.familyTotal', { symbol: currencyConfig.symbol, unit: currencyConfig.amountAll.toFixed(2), extra: (user.familyProfiles ?? 1) - 1, total: (currencyConfig.amountAll + 45 * ((user.familyProfiles ?? 1) - 1)).toFixed(2) })}
                       </span>
                     )}
                   </div>

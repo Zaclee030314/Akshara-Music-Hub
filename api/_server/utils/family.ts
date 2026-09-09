@@ -37,6 +37,13 @@ export async function activeChildren(parentId: string) {
     });
 }
 
+/** Monthly add-on for every learner beyond the first (sen). Same on both plans. */
+export const EXTRA_CHILD_CENTS = 4500;
+
+/** Plan price covers the first learner; each additional active profile adds RM45. */
+export const familyPriceCents = (unitCents: number, seats: number): number =>
+    unitCents + EXTRA_CHILD_CENTS * Math.max(0, seats - 1);
+
 /** Learner seats a checkout must charge for: the parent's active profiles (at least 1). */
 export async function seatCountFor(userId: string): Promise<number> {
     const u = await prisma.user.findUnique({ where: { id: userId }, select: { role: true, parentId: true } });

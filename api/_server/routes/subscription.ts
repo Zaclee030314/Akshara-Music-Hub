@@ -3,7 +3,7 @@ import Stripe from 'stripe';
 import { authenticateToken, requireParentSession, AuthRequest } from '../middleware/authMiddleware.js';
 import prisma from '../db.js';
 import { releaseDueInstalments, settleReferralGrant } from '../utils/referral.js';
-import { seatCountFor, effectiveSubscription, billingAccountId } from '../utils/family.js';
+import { seatCountFor, effectiveSubscription, billingAccountId, familyPriceCents, EXTRA_CHILD_CENTS } from '../utils/family.js';
 
 const router = express.Router();
 
@@ -24,10 +24,10 @@ router.post('/create-payment-intent', authenticateToken, requireParentSession, a
     // Promo prices actually charged (MYR cents). Full prices are marketing strikethroughs on the frontend.
     const PRICE_TABLE: Record<string, number> = { single: 5990, all: 9990 };
     const unitAmount = PRICE_TABLE[planLevel] ?? PRICE_TABLE.single;
-    // Parent accounts pay per learner: one seat for every active child profile
-    // (computed server-side, never taken from the client).
+    // Parent accounts: plan price covers the first child, +RM45 for every additional
+    // active child profile (seat count computed server-side, never taken from the client).
     const seats = await seatCountFor(user.id);
-    let finalAmount = unitAmount * seats;
+    let finalAmount = familyPriceCents(unitAmount, seats);
     // Charged currency is always MYR regardless of client-detected display currency.
     const finalCurrency = 'myr';
 
@@ -60,6 +60,7 @@ router.post('/create-payment-intent', authenticateToken, requireParentSession, a
             appliedCredit,
             seats,
             unitAmount,
+            extraChildAmount: EXTRA_CHILD_CENTS,
             interval: interval || 'month',
             planLevel: planLevel || 'single',
             syllabus: syllabus || null,
@@ -87,6 +88,7 @@ router.post('/create-payment-intent', authenticateToken, requireParentSession, a
             appliedCredit,
             seats,
             unitAmount,
+            extraChildAmount: EXTRA_CHILD_CENTS,
             isMock: false
         });
     } catch (error: any) {
@@ -167,7 +169,7 @@ router.post('/confirm-payment', authenticateToken, requireParentSession, async (
         // Re-derive the applied credit server-side (never trust the client) using the exact
         // formula from create-payment-intent. The payer's balance is unchanged since then, so
         // this equals what was discounted.
-        const price = (PRICE_TABLE[planLevel || 'single'] ?? PRICE_TABLE.single) * seats;
+        const price = familyPriceCents(PRICE_TABLE[planLevel || 'single'] ?? PRICE_TABLE.single, seats);
         const applied = Math.max(0, Math.min(payer.referralCreditCents, price - STRIPE_MIN));
         await settleReferral(applied);
 
