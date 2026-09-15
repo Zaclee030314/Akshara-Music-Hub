@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from './Card';
 import { Button } from './Button';
-import { ArrowLeft, LogIn, Mail, Loader2, KeyRound, ShieldCheck, Lock, Eye, EyeOff, CheckCircle2, X } from 'lucide-react';
+import { ArrowLeft, LogIn, Mail, Loader2, KeyRound, ShieldCheck, Lock, Eye, EyeOff, CheckCircle2, X, Calendar } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
 import { useT } from '../contexts/LanguageContext';
 import { useNavigate } from 'react-router-dom';
@@ -59,6 +59,82 @@ const PasswordInput = ({ value, onChange, placeholder, onEnter }: {
     );
 };
 
+const BirthdayInput = ({ value, onChange, max }: { value: string, onChange: (val: string) => void, max: string }) => {
+    const [text, setText] = useState(() => {
+        if (!value) return '';
+        const [y, m, d] = value.split('-');
+        if (!y || !m || !d) return '';
+        return `${d}/${m}/${y}`;
+    });
+    const dateInputRef = React.useRef<HTMLInputElement>(null);
+
+    const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        let val = e.target.value.replace(/[^\d]/g, '');
+        if (val.length > 2) val = val.substring(0, 2) + '/' + val.substring(2);
+        if (val.length > 5) val = val.substring(0, 5) + '/' + val.substring(5);
+        if (val.length > 10) val = val.substring(0, 10);
+        
+        setText(val);
+        
+        if (val.length === 10) {
+            const [d, m, y] = val.split('/');
+            onChange(`${y}-${m}-${d}`);
+        } else {
+            onChange('');
+        }
+    };
+
+    const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+        onChange(val);
+        if (val) {
+            const [y, m, d] = val.split('-');
+            if (y && m && d) setText(`${d}/${m}/${y}`);
+        } else {
+            setText('');
+        }
+    };
+
+    const openPicker = () => {
+        if (dateInputRef.current && 'showPicker' in dateInputRef.current) {
+            try {
+                (dateInputRef.current as any).showPicker();
+            } catch (e) {
+                dateInputRef.current.focus();
+            }
+        } else if (dateInputRef.current) {
+            dateInputRef.current.focus();
+        }
+    };
+
+    return (
+        <div className="relative flex items-center">
+            <input 
+                type="text" 
+                value={text} 
+                onChange={handleTextChange} 
+                placeholder="DD/MM/YYYY" 
+                className="w-full p-3 rounded-lg border-2 border-brand-dark/10 bg-white min-h-[48px] pr-12 focus:outline-none focus:border-brand-orange text-brand-dark"
+            />
+            <button 
+                type="button"
+                onClick={openPicker}
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-brand-dark/50 hover:text-brand-orange hover:bg-brand-orange/10 rounded-full transition-colors"
+            >
+                <Calendar size={20} />
+            </button>
+            <input 
+                type="date" 
+                ref={dateInputRef}
+                value={value} 
+                max={max}
+                onChange={handleDateChange} 
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 opacity-0 cursor-pointer [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+            />
+        </div>
+    );
+};
+
 // OTP input
 const OtpInput = ({ value, onChange }: { value: string; onChange: (v: string) => void }) => (
     <input
@@ -92,6 +168,8 @@ export const LoginModal = ({ onClose, postLoginPath }: LoginModalProps) => {
     const { t } = useT();
     const navigate = useNavigate();
     const [view, setView] = useState<ModalView>('login');
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
     const [isSignUp, setIsSignUp] = useState(false);
 
     // Close on Escape; clicking the dark backdrop (not the card) also closes.
@@ -177,26 +255,38 @@ export const LoginModal = ({ onClose, postLoginPath }: LoginModalProps) => {
     const wrap = async (fn: () => Promise<void>) => { setLoading(true); try { await fn(); } finally { setLoading(false); } };
 
     const handleVerify = () => wrap(async () => {
-        if (!code) { alert(t('login.alertEnterCode')); return; }
-        const ok = await verifyCode(email, code);
-        if (ok) {
+        setError('');
+        setSuccess('');
+        if (!code) { setError(t('login.alertEnterCode')); return; }
+        const r = await verifyCode(email, code);
+        if (r === true) {
             onClose();
             navigate(postLoginPath || dashboardFor(getStoredUserRole()));
+        } else if (typeof r === 'object' && 'error' in r) {
+            setError(r.error);
         }
     });
 
-    const handleResend = () => wrap(async () => { await resendCode(email); });
+    const handleResend = () => wrap(async () => {
+        setError('');
+        setSuccess('');
+        const r = await resendCode(email);
+        if (r === true) setSuccess('New verification code sent to your email.');
+        else if (typeof r === 'object' && 'error' in r) setError(r.error);
+    });
 
     const handleSubmit = () => wrap(async () => {
+        setError('');
+        setSuccess('');
         // Sign-up has a dedicated email field, so use the email-specific message there.
-        if (!email) { alert(isSignUp ? t('login.alertValidEmail') : t('login.alertEnterEmailOrName')); return; }
-        if (isSignUp && !validEmail(email)) { alert(t('login.alertValidEmail')); return; }
+        if (!email) { setError(isSignUp ? t('login.alertValidEmail') : t('login.alertEnterEmailOrName')); return; }
+        if (isSignUp && !validEmail(email)) { setError(t('login.alertValidEmail')); return; }
         if (isSignUp) {
-            if (!name || !password) { alert(t('login.alertFillAll')); return; }
-            if (!birthday) { alert(t('login.alertEnterBirthday')); return; }
-            if (!phone.trim()) { alert(t('login.alertEnterPhone')); return; }
-            if (!selectedSyllabus) { alert(t('login.alertSelectSyllabus')); return; }
-            if (!selectedGrade) { alert(t('login.alertSelectGrade')); return; }
+            if (!name || !password) { setError(t('login.alertFillAll')); return; }
+            if (!birthday) { setError(t('login.alertEnterBirthday')); return; }
+            if (!phone.trim()) { setError(t('login.alertEnterPhone')); return; }
+            if (!selectedSyllabus) { setError(t('login.alertSelectSyllabus')); return; }
+            if (!selectedGrade) { setError(t('login.alertSelectGrade')); return; }
             const r = await signup({
                 name,
                 email,
@@ -207,16 +297,22 @@ export const LoginModal = ({ onClose, postLoginPath }: LoginModalProps) => {
                 birthday,
                 phone: phone.trim()
             });
-            if (typeof r === 'object' && r.needsVerification) { setEmail(r.email); setView('verify'); }
-            else if (r === true) {
+            if (typeof r === 'object' && 'error' in r) {
+                setError(r.error);
+            } else if (typeof r === 'object' && 'needsVerification' in r) {
+                setEmail(r.email); setView('verify');
+            } else if (r === true) {
                 onClose();
                 navigate(postLoginPath || dashboardFor(getStoredUserRole()));
             }
         } else {
-            if (!password) { alert(t('login.alertEnterPassword')); return; }
+            if (!password) { setError(t('login.alertEnterPassword')); return; }
             const r = await login(email, password);
-            if (typeof r === 'object' && r.needsVerification) { setEmail(r.email); setView('verify'); }
-            else if (r === true) {
+            if (typeof r === 'object' && 'error' in r) {
+                setError(r.error);
+            } else if (typeof r === 'object' && 'needsVerification' in r) {
+                setEmail(r.email); setView('verify');
+            } else if (r === true) {
                 onClose();
                 navigate(postLoginPath || dashboardFor(getStoredUserRole()));
             }
@@ -260,8 +356,8 @@ export const LoginModal = ({ onClose, postLoginPath }: LoginModalProps) => {
 
     // ── EMAIL VERIFICATION ──────────────────────────────────────────────────
     if (view === 'verify') return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex justify-center p-4 overflow-y-auto" onClick={onBackdrop}>
-            <Card className="max-w-md w-full p-8 relative m-auto">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex justify-center items-center p-4 overflow-y-auto" onClick={onBackdrop}>
+            <Card className="max-w-md w-full p-8 relative">
                 {backArrow(() => setView('login'))}
                 {closeX}
                 <div className="text-center mb-6">
@@ -276,6 +372,8 @@ export const LoginModal = ({ onClose, postLoginPath }: LoginModalProps) => {
                         <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-1">{t('login.sixDigitCode')}</label>
                         <OtpInput value={code} onChange={setCode} />
                     </div>
+                    {error && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg font-medium">{error}</p>}
+                    {success && <p className="text-sm text-brand-green bg-green-50 border border-green-200 p-3 rounded-lg font-medium">{success}</p>}
                     <Button fullWidth onClick={handleVerify} disabled={loading}>
                         {loading ? <Loader2 className="animate-spin" /> : t('login.verifyContinue')}
                     </Button>
@@ -292,8 +390,8 @@ export const LoginModal = ({ onClose, postLoginPath }: LoginModalProps) => {
 
     // ── FORGOT PASSWORD: STEP 1 – Email ─────────────────────────────────────
     if (view === 'forgot_email') return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex justify-center p-4 overflow-y-auto" onClick={onBackdrop}>
-            <Card className="max-w-md w-full p-8 relative m-auto">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex justify-center items-center p-4 overflow-y-auto" onClick={onBackdrop}>
+            <Card className="max-w-md w-full p-8 relative">
                 {backArrow(() => { setView('login'); setFpError(''); })}
                 {closeX}
                 <div className="text-center mb-6">
@@ -323,8 +421,8 @@ export const LoginModal = ({ onClose, postLoginPath }: LoginModalProps) => {
 
     // ── FORGOT PASSWORD: STEP 2 – OTP ───────────────────────────────────────
     if (view === 'forgot_otp') return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex justify-center p-4 overflow-y-auto" onClick={onBackdrop}>
-            <Card className="max-w-md w-full p-8 relative m-auto">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex justify-center items-center p-4 overflow-y-auto" onClick={onBackdrop}>
+            <Card className="max-w-md w-full p-8 relative">
                 {backArrow(() => { setView('forgot_email'); setFpError(''); setFpOtp(''); })}
                 {closeX}
                 <div className="text-center mb-6">
@@ -354,8 +452,8 @@ export const LoginModal = ({ onClose, postLoginPath }: LoginModalProps) => {
 
     // ── FORGOT PASSWORD: STEP 3 – New Password ──────────────────────────────
     if (view === 'forgot_newpass') return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex justify-center p-4 overflow-y-auto" onClick={onBackdrop}>
-            <Card className="max-w-md w-full p-8 relative m-auto">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex justify-center items-center p-4 overflow-y-auto" onClick={onBackdrop}>
+            <Card className="max-w-md w-full p-8 relative">
                 {closeX}
                 <div className="text-center mb-6">
                     <div className="w-16 h-16 bg-brand-green/10 rounded-full flex items-center justify-center mx-auto mb-4 text-brand-green">
@@ -391,8 +489,8 @@ export const LoginModal = ({ onClose, postLoginPath }: LoginModalProps) => {
 
     // ── MAIN LOGIN / SIGNUP ─────────────────────────────────────────────────
     return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex justify-center p-4 overflow-y-auto" onClick={onBackdrop}>
-            <Card className="max-w-md w-full p-8 relative m-auto">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex justify-center items-center p-4 overflow-y-auto" onClick={onBackdrop}>
+            <Card className="max-w-md w-full p-8 relative">
                 {closeX}
                 <div className="text-center mb-6">
                     <div className="w-16 h-16 bg-brand-orange/10 rounded-full flex items-center justify-center mx-auto mb-4 text-brand-orange">
@@ -403,6 +501,13 @@ export const LoginModal = ({ onClose, postLoginPath }: LoginModalProps) => {
                 </div>
 
                 <div className="space-y-4">
+                    {error && (
+                        <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-xl font-medium text-sm flex items-start gap-2 animate-in fade-in slide-in-from-top-2">
+                            <ShieldCheck className="shrink-0 mt-0.5" size={16} />
+                            <span>{error}</span>
+                        </div>
+                    )}
+
                     {isSignUp && (
                         <div>
                             <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-1">{t('login.fullName')}</label>
@@ -414,15 +519,7 @@ export const LoginModal = ({ onClose, postLoginPath }: LoginModalProps) => {
                     {isSignUp && (
                         <div>
                             <label className="block text-xs font-bold uppercase text-brand-dark/50 mb-1">{t('login.birthday')}</label>
-                            {/* appearance-none + min-h are required: iOS Safari renders a bare
-                                date input about 20px tall and unusable without them. */}
-                            <input
-                                type="date"
-                                value={birthday}
-                                max={todayISO}
-                                onChange={e => setBirthday(e.target.value)}
-                                className="w-full p-3 rounded-lg border-2 border-brand-dark/10 bg-white appearance-none min-h-[48px]"
-                            />
+                            <BirthdayInput value={birthday} max={todayISO} onChange={setBirthday} />
                             <p className="text-xs text-brand-dark/40 mt-1">{t('login.birthdayHint')}</p>
                         </div>
                     )}

@@ -75,7 +75,7 @@ app.use('/api/polls', pollRoutes);
 app.use('/api/family', familyRoutes);
 
 app.get('/api', (req, res) => {
-    res.send('Akshara Music Hub API is running on Vercel');
+    res.send('Akshara LearnQuest API is running on Vercel');
 });
 
 export default app;

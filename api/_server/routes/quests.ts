@@ -53,6 +53,10 @@ router.post('/', authenticateToken, checkExpiredSubscriptions, async (req: AuthR
         return res.status(403).json({ error: 'Only teachers can create quests' });
     }
 
+    if (!Array.isArray(questions) || questions.length < 20) {
+        return res.status(400).json({ error: 'A quest must contain at least 20 questions.' });
+    }
+
     try {
         // Enforce 1-quest creation limit for free teachers
         const own = await prisma.user.findUnique({ where: { id: userId! } });

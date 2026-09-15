@@ -37,7 +37,7 @@ export const Benefits: React.FC = () => {
             <div className="max-w-7xl mx-auto px-4">
                 <div className="text-center mb-16 space-y-4">
                     <h2 className="text-4xl md:text-6xl font-display font-bold text-brand-dark tracking-tight leading-none text-brand-dark">
-                        {t('benefits.titlePre')} <span className="text-brand-orange">Akshara Music Hub</span> {t('benefits.titlePost')}
+                        {t('benefits.titlePre')} <span className="text-brand-orange">Akshara LearnQuest</span> {t('benefits.titlePost')}
                     </h2>
                     <p className="text-xl text-brand-dark/60 max-w-2xl mx-auto font-medium">
                         {t('benefits.subtitle')}

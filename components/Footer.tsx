@@ -18,7 +18,7 @@ export const Footer: React.FC = () => {
                 <div className="space-y-4 flex flex-col items-center sm:items-start col-span-1 sm:col-span-2 lg:col-span-1">
                     <div className="flex items-center gap-2">
                         <img src="/logo.jpg" alt="Akshara Fine Arts" className="w-9 h-9 md:w-10 md:h-10 rounded-lg object-cover" />
-                        <span className="font-display font-bold text-lg md:text-xl tracking-tight">Akshara Music Hub</span>
+                        <span className="font-display font-bold text-lg md:text-xl tracking-tight">Akshara LearnQuest</span>
                     </div>
                     <p className="text-white/50 leading-relaxed text-xs md:text-sm max-w-xs">
                         {t('footer.tagline')}
@@ -69,6 +69,12 @@ export const Footer: React.FC = () => {
                         </button>
                     </div>
                 </div>
+            </div>
+
+            <div className="w-full pt-8 pb-4 text-center border-t border-white/5 mt-8">
+                <p className="text-white/20 text-[10px] md:text-xs font-medium max-w-4xl mx-auto leading-relaxed">
+                    Educational games for students • school syllabus quizzes • online learning Malaysia • music quizzes • Carnatic music learning • gamified education • student challenges • learning rewards • educational competitions
+                </p>
             </div>
 
             <div className="w-full pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-white/30 text-[10px] md:text-xs font-medium">

@@ -23,8 +23,10 @@ const AdminLogin: React.FC = () => {
         try {
             const result = await login(email, password);
             // login handles the user state update. 
-            // If it returns an object, it might be a verification requirement.
-            if (typeof result === 'object' && 'needsVerification' in result) {
+            // If it returns an object, it might be a verification requirement or an error.
+            if (typeof result === 'object' && 'error' in result) {
+                setError(result.error);
+            } else if (typeof result === 'object' && 'needsVerification' in result) {
                 setError("Admin accounts must be pre-verified and authorized.");
             } else if (result === false) {
                 setError("Invalid credentials or unauthorized access.");

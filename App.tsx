@@ -2253,9 +2253,7 @@ export default function App() {
             {user && (
               <button onClick={() => { setShowMobileMenu(false); navigate('/profile'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">👤 {t('nav.myProfile')}</button>
             )}
-            {user && !user.isChildProfile && (
-              <button onClick={() => { setShowMobileMenu(false); navigate('/referrals'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-orange/5 hover:text-brand-orange transition-all text-sm">🎁 {t('profile.referEarn')}</button>
-            )}
+
             {user && (
               <button onClick={() => { setShowMobileMenu(false); navigate('/billing'); }} className="text-left px-4 py-3 rounded-xl font-bold text-brand-dark/70 hover:bg-brand-blue/5 hover:text-brand-blue transition-all text-sm">💳 {t('nav.mySubscription')}</button>
             )}
@@ -2268,21 +2266,22 @@ export default function App() {
       )}
 
       {/* Navbar */}
-      <nav className="p-3 md:p-4 lg:p-5 flex justify-between items-center max-w-6xl mx-auto z-50 relative">
-        <div className="flex items-center gap-2 cursor-pointer min-w-0" onClick={() => navigate('/')}>
+      <nav className="p-3 md:p-4 lg:p-5 flex justify-between items-center max-w-7xl mx-auto z-50 relative">
+        <div className="flex items-center gap-2 cursor-pointer shrink-0" onClick={() => navigate('/')}>
           <img src="/logo.jpg" alt="Akshara Fine Arts" className="w-8 h-8 md:w-10 md:h-10 shrink-0 rounded-lg object-cover ring-1 ring-black/5" />
-          <span className="font-display font-bold text-sm sm:text-base md:text-lg tracking-tight truncate">Akshara Music Hub</span>
+          <span className="hidden lg:block font-display font-bold text-base lg:text-lg tracking-tight whitespace-nowrap">Akshara LearnQuest</span>
         </div>
 
-        <div className="hidden md:flex items-center gap-4 lg:gap-8 flex-1 justify-center px-4">
+        <div className="hidden md:flex items-center gap-3 lg:gap-6 flex-1 justify-center px-2 lg:px-4">
           <button onClick={() => { if (user && (user.role === 'student' || user.role === 'teacher') && !user.isAdmin) { handleNewQuest(); } else { navigate('/'); setTimeout(() => document.getElementById('courses')?.scrollIntoView({ behavior: 'smooth' }), 100); } }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">{user && (user.role === 'student' || user.role === 'teacher') && !user.isAdmin ? t('nav.newQuest') : t('nav.courses')}</button>
           <button onClick={() => { if (!user) setShowLoginModal(true); else navigate(user?.isAdmin ? '/admin' : user?.role === 'teacher' ? '/teacher' : user?.role === 'parent' ? '/profiles' : '/dashboard'); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">{t('nav.dashboard')}</button>
           <button onClick={() => { if (!user) promptLogin('/classrooms'); else navigate('/classrooms'); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">{t('nav.classrooms')}</button>
           <button onClick={() => { navigate('/leaderboard'); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">{t('nav.leaderboard')}</button>
           <button onClick={() => { navigate('/pricing'); }} className="font-bold text-brand-dark/60 hover:text-brand-blue transition-colors text-xs lg:text-sm whitespace-nowrap">{t('nav.pricing')}</button>
+
         </div>
 
-        <div className="flex items-center gap-2 md:gap-4">
+        <div className="flex items-center gap-2 lg:gap-3 shrink-0">
           {/* Hamburger button - mobile only */}
           <button
             className="md:hidden flex flex-col items-center justify-center w-9 h-9 rounded-xl bg-brand-dark/5 hover:bg-brand-dark/10 transition-all gap-1.5 p-2"
@@ -2307,20 +2306,21 @@ export default function App() {
               {user && (
                 <button
                   onClick={() => { navigate('/rewards'); setShowProfileMenu(false); }}
-                  className="hidden md:flex items-center gap-1.5 bg-brand-orange/10 hover:bg-brand-orange/20 border border-brand-orange/20 text-brand-orange px-3 py-1 rounded-full font-bold text-sm transition-all"
+                  className="hidden md:flex items-center gap-1.5 bg-pink-50 hover:bg-pink-100 border border-pink-200 text-pink-500 px-3 py-1.5 rounded-full font-bold text-sm transition-all"
                 >
-                  🛍️ {t('nav.rewards')}
+                  <Gift size={14} />
+                  {t('nav.rewards')}
                 </button>
               )}
               {/* Show Coins in Navbar */}
-              <div className="hidden items-center gap-1 bg-yellow-100/80 px-3 py-1 rounded-full border border-yellow-200 text-yellow-700 sm:flex">
+              <div className="hidden items-center gap-1 bg-yellow-100/80 px-3 py-1.5 rounded-full border border-yellow-200 text-yellow-700 sm:flex">
                 <Coins className="w-4 h-4 fill-yellow-500" />
                 <span className="font-bold text-sm">{stats.coins || 0}</span>
               </div>
 
               {/* Hidden on phones (like the coins pill above) — it pushed the
                   avatar/profile menu off-screen. XP is shown in the mobile menu. */}
-              <div className="hidden sm:flex items-center gap-2 bg-white/60 backdrop-blur px-3 py-1 rounded-full border border-white/50">
+              <div className="hidden sm:flex items-center gap-2 bg-white/60 backdrop-blur px-3 py-1.5 rounded-full border border-white/50">
                 <Star className="w-4 h-4 text-brand-accent fill-brand-accent" />
                 <span className="font-bold text-sm">{stats.xp} XP</span>
               </div>
@@ -2367,14 +2367,7 @@ export default function App() {
                     >
                       <UserIcon size={16} /> {t('nav.myProfile')}
                     </button>
-                    {!user.isChildProfile && (
-                      <button
-                        onClick={() => { navigate('/referrals'); setShowProfileMenu(false); }}
-                        className="w-full text-left px-4 py-3 hover:bg-brand-orange/5 text-sm font-bold text-brand-dark/70 hover:text-brand-orange flex items-center gap-2 transition-colors"
-                      >
-                        <Gift size={16} /> {t('profile.referEarn')}
-                      </button>
-                    )}
+
                     <button
                       onClick={() => { navigate('/billing'); setShowProfileMenu(false); }}
                       className="w-full text-left px-4 py-3 hover:bg-brand-blue/5 text-sm font-bold text-brand-dark/70 hover:text-brand-blue flex items-center gap-2 transition-colors"

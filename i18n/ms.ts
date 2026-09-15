@@ -55,7 +55,7 @@ const ms: Record<string, string> = {
   'testimonials.title': 'Apa kata wira kami',
   'testimonials.rating': '4.9/5 berdasarkan 2,000+ ulasan',
   'testimonials.review1.role': 'Pelajar Tingkatan 5',
-  'testimonials.review1.text': 'Akshara Music Hub menjadikan Sejarah menyeronokkan! Penjelasan AI benar-benar membantu saya memahami sebab peristiwa sejarah, bukan sekadar menghafal tarikh.',
+  'testimonials.review1.text': 'Akshara LearnQuest menjadikan Sejarah menyeronokkan! Penjelasan AI benar-benar membantu saya memahami sebab peristiwa sejarah, bukan sekadar menghafal tarikh.',
   'testimonials.review2.role': 'Pelajar Tahun 6',
   'testimonials.review2.text': 'Dulu saya bergelut dengan Matematik, tetapi misi bergamifikasi membuatkan saya mahu berlatih setiap hari. Saya mencapai tahap 15 minggu lepas!',
   'testimonials.review3.role': 'Ibu Bapa',
@@ -63,8 +63,8 @@ const ms: Record<string, string> = {
 
   // ── FAQ ────────────────────────────────────────────────────────────
   'faq.title': 'Soalan Lazim',
-  'faq.subtitle': 'Semua yang anda perlu tahu tentang Akshara Music Hub.',
-  'faq.q1': 'Adakah Akshara Music Hub selari dengan sukatan pelajaran Malaysia?',
+  'faq.subtitle': 'Semua yang anda perlu tahu tentang Akshara LearnQuest.',
+  'faq.q1': 'Adakah Akshara LearnQuest selari dengan sukatan pelajaran Malaysia?',
   'faq.a1': 'Ya! Kami merangkumi kurikulum kebangsaan (KSSR/KSSM), MOE Singapura dan IGCSE untuk kebanyakan subjek utama.',
   'faq.q2': 'Bagaimanakah Tutor AI berfungsi?',
   'faq.a2': 'AI kami menganalisis setiap soalan dan memberikan petunjuk atau penjelasan langkah demi langkah jika anda tersekat, membantu anda memahami konsep di sebalik jawapan.',
@@ -88,7 +88,7 @@ const ms: Record<string, string> = {
   'footer.subscribe': 'Langgan',
   'footer.subscribeDesc': 'Dapatkan kemas kini sukatan pelajaran terkini dan tip AI.',
   'footer.emailPlaceholder': 'E-mel anda',
-  'footer.rights': '© 2026 Akshara Music Hub. Hak cipta terpelihara.',
+  'footer.rights': '© 2026 Akshara LearnQuest. Hak cipta terpelihara.',
   'footer.partner': 'Rakan Pembelajaran Global Anda 🌍',
 
   // ── Promotion Banner ───────────────────────────────────────────────
@@ -103,7 +103,7 @@ const ms: Record<string, string> = {
   // ── Login / Signup ─────────────────────────────────────────────────
   'login.createAccount': 'Cipta Akaun',
   'login.welcomeBack': 'Selamat Kembali!',
-  'login.joinToday': 'Sertai Akshara Music Hub hari ini!',
+  'login.joinToday': 'Sertai Akshara LearnQuest hari ini!',
   'login.loginToContinue': 'Log masuk untuk meneruskan misi anda.',
   'login.fullName': 'Nama Penuh',
   'login.fullNamePlaceholder': 'cth. Ali bin Abu',
@@ -204,7 +204,7 @@ const ms: Record<string, string> = {
   'quota.body': 'Kami telah mencapai had AI harian untuk hari ini. Guru AI kami perlukan sedikit rehat (dan kami perlu menunggu kuota ditetapkan semula)!',
   'quota.retry': 'Cuba lagi dalam beberapa jam atau esok pagi.',
   'quota.understand': 'Faham',
-  'quota.footer': 'Had harian membantu memastikan Akshara Music Hub kekal percuma untuk semua.',
+  'quota.footer': 'Had harian membantu memastikan Akshara LearnQuest kekal percuma untuk semua.',
 
   // ── Harga ──────────────────────────────────────────────────────────
   'pricing.backHome': 'Kembali ke Laman Utama',
@@ -439,10 +439,10 @@ const ms: Record<string, string> = {
   'profile.generatingLink': 'Menjana pautan anda…',
   // ── Halaman program rujukan (/referrals) ──
   'referral.viewProgramme': 'Lihat program rujukan & peringkat',
-  'referral.subtitle': 'Jemput keluarga lain ke Akshara Music Hub. Setiap keluarga yang melanggan memberi anda kredit langganan, dan semakin ramai keluarga yang anda bawa, semakin besar ganjaran setiap rujukan.',
+  'referral.subtitle': 'Jemput keluarga lain ke Akshara LearnQuest. Setiap keluarga yang melanggan memberi anda kredit langganan, dan semakin ramai keluarga yang anda bawa, semakin besar ganjaran setiap rujukan.',
   'referral.yourLink': 'Pautan rujukan anda',
   'referral.shareWhatsApp': 'Kongsi di WhatsApp',
-  'referral.shareText': 'Sertai saya di Akshara Music Hub – kuest muzik yang seronok untuk anak-anak! Daftar dengan pautan saya: {link}',
+  'referral.shareText': 'Sertai saya di Akshara LearnQuest – kuest muzik yang seronok untuk anak-anak! Daftar dengan pautan saya: {link}',
   'referral.codeHint': 'Kod anda ialah {code}. Rakan juga boleh memasukkannya semasa mendaftar.',
   'referral.totalEarned': 'Jumlah diperoleh',
   'referral.creditedSoFar': 'Dikreditkan setakat ini',
@@ -556,7 +556,7 @@ const ms: Record<string, string> = {
   'billing.planAll': 'Maks Akses Penuh',
   'billing.planSingle': 'Sukatan Tunggal',
   'billing.planFree': 'Percuma',
-  'billing.manageDesc': 'Urus pelan Akshara Music Hub anda.',
+  'billing.manageDesc': 'Urus pelan Akshara LearnQuest anda.',
   'billing.referralCredit': 'Anda mempunyai kredit rujukan RM{amount} — ia akan digunakan semasa pembayaran.',
   'billing.currentPlan': 'Pelan Semasa',
   'billing.free': 'Percuma',

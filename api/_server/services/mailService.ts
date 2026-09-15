@@ -28,12 +28,12 @@ transporter.verify((error, success) => {
 
 export const sendOTPEmail = async (email: string, code: string) => {
     const mailOptions = {
-        from: `"Akshara Music Hub" <${process.env.GMAIL_USER}>`,
+        from: `"Akshara LearnQuest" <${process.env.GMAIL_USER}>`,
         to: email,
-        subject: 'Your Akshara Music Hub Verification Code',
+        subject: 'Your Akshara LearnQuest Verification Code',
         html: `
             <div style="font-family: sans-serif; padding: 20px; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 10px;">
-                <h2 style="color: #ff8c00; text-align: center;">Welcome to Akshara Music Hub!</h2>
+                <h2 style="color: #ff8c00; text-align: center;">Welcome to Akshara LearnQuest!</h2>
                 <p>Thank you for joining our learning community. Please use the verification code below to activate your account:</p>
                 <div style="background: #f8f9fa; padding: 30px; text-align: center; border-radius: 10px; margin: 20px 0; border: 2px dashed #ff8c00;">
                     <span style="font-size: 36px; font-weight: bold; letter-spacing: 5px; color: #007bff;">${code}</span>
@@ -41,12 +41,19 @@ export const sendOTPEmail = async (email: string, code: string) => {
                 <p>This code will expire in 10 minutes. If you did not request this, please ignore this email.</p>
                 <hr style="border: none; border-top: 1px solid #eee; margin: 25px 0;" />
                 <p style="font-size: 11px; color: #999; text-align: center;">
-                    Akshara Music Hub - Gamified Learning for Malaysia<br/>
-                    Powered by @Akshara Music Hub Team
+                    Akshara LearnQuest - Gamified Learning for Malaysia<br/>
+                    Powered by @Akshara LearnQuest Team
                 </p>
             </div>
         `
     };
+
+    if (!process.env.GMAIL_USER) {
+        console.log(`[MAIL MOCK] 🛡️ Email sending mocked for local dev.`);
+        console.log(`[MAIL MOCK] 📧 To: ${email}`);
+        console.log(`[MAIL MOCK] 🔑 OTP Code: ${code}`);
+        return true;
+    }
 
     try {
         console.log(`[MAIL] Attempting to send OTP to ${email}...`);
@@ -68,13 +75,13 @@ export const sendOTPEmail = async (email: string, code: string) => {
 export const sendWelcomeEmail = async (email: string, name: string, tempPassword: string) => {
     const appUrl = process.env.FRONTEND_URL || 'https://akshara-music-hub.vercel.app';
     const mailOptions = {
-        from: `"Akshara Music Hub" <${process.env.GMAIL_USER}>`,
+        from: `"Akshara LearnQuest" <${process.env.GMAIL_USER}>`,
         to: email,
-        subject: 'Your Akshara Music Hub account is ready',
+        subject: 'Your Akshara LearnQuest account is ready',
         html: `
             <div style="font-family: sans-serif; padding: 20px; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 10px;">
-                <h2 style="color: #ff8c00; text-align: center;">Welcome to Akshara Music Hub, ${name}!</h2>
-                <p>An account has been created for you by Akshara Fine Arts. Log in with the details below and change your password from your profile afterwards.</p>
+                <h2 style="color: #ff8c00; text-align: center;">Welcome to Akshara LearnQuest, ${name}!</h2>
+                <p>An account has been created for you Powered by Akshara Fine Arts. Log in with the details below and change your password from your profile afterwards.</p>
                 <div style="background: #f8f9fa; padding: 24px; border-radius: 10px; margin: 20px 0; border: 2px dashed #ff8c00;">
                     <p style="margin: 0 0 8px 0;"><b>Email:</b> ${email}</p>
                     <p style="margin: 0;"><b>Temporary password:</b> <span style="font-family: monospace; font-size: 18px; color: #007bff;">${tempPassword}</span></p>
@@ -82,12 +89,19 @@ export const sendWelcomeEmail = async (email: string, name: string, tempPassword
                 <p style="text-align: center;"><a href="${appUrl}" style="display: inline-block; background: #ff8c00; color: #fff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold;">Log in now</a></p>
                 <hr style="border: none; border-top: 1px solid #eee; margin: 25px 0;" />
                 <p style="font-size: 11px; color: #999; text-align: center;">
-                    Akshara Music Hub - Gamified Learning for Malaysia<br/>
-                    Powered by @Akshara Music Hub Team
+                    Akshara LearnQuest - Gamified Learning for Malaysia<br/>
+                    Powered by @Akshara LearnQuest Team
                 </p>
             </div>
         `
     };
+    if (!process.env.GMAIL_USER) {
+        console.log(`[MAIL MOCK] 🛡️ Email sending mocked for local dev.`);
+        console.log(`[MAIL MOCK] 📧 To: ${email}`);
+        console.log(`[MAIL MOCK] 🔑 Temp Password: ${tempPassword}`);
+        return true;
+    }
+
     try {
         const info = await transporter.sendMail(mailOptions);
         console.log(`[MAIL] ✅ Welcome email sent to ${email}: ${info.messageId}`);
@@ -100,25 +114,32 @@ export const sendWelcomeEmail = async (email: string, name: string, tempPassword
 
 export const sendPasswordResetEmail = async (email: string, otp: string) => {
     const mailOptions = {
-        from: `"Akshara Music Hub" <${process.env.GMAIL_USER}>`,
+        from: `"Akshara LearnQuest" <${process.env.GMAIL_USER}>`,
         to: email,
-        subject: 'Reset Your Akshara Music Hub Password',
+        subject: 'Reset Your Akshara LearnQuest Password',
         html: `
             <div style="font-family: sans-serif; padding: 20px; color: #333; max-width: 600px; margin: auto; border: 1px solid #eee; border-radius: 10px;">
                 <h2 style="color: #ff8c00; text-align: center;">Password Reset Request</h2>
-                <p>We received a request to reset your Akshara Music Hub password. Use the code below to proceed:</p>
+                <p>We received a request to reset your Akshara LearnQuest password. Use the code below to proceed:</p>
                 <div style="background: #f8f9fa; padding: 30px; text-align: center; border-radius: 10px; margin: 20px 0; border: 2px dashed #ff8c00;">
                     <span style="font-size: 36px; font-weight: bold; letter-spacing: 5px; color: #007bff;">${otp}</span>
                 </div>
                 <p>This code will expire in <strong>10 minutes</strong>. If you did not request a password reset, please ignore this email — your account remains secure.</p>
                 <hr style="border: none; border-top: 1px solid #eee; margin: 25px 0;" />
                 <p style="font-size: 11px; color: #999; text-align: center;">
-                    Akshara Music Hub - Gamified Learning for Malaysia<br/>
-                    Powered by @Akshara Music Hub Team
+                    Akshara LearnQuest - Gamified Learning for Malaysia<br/>
+                    Powered by @Akshara LearnQuest Team
                 </p>
             </div>
         `
     };
+
+    if (!process.env.GMAIL_USER) {
+        console.log(`[MAIL MOCK] 🛡️ Email sending mocked for local dev.`);
+        console.log(`[MAIL MOCK] 📧 To: ${email}`);
+        console.log(`[MAIL MOCK] 🔑 Reset OTP: ${otp}`);
+        return true;
+    }
 
     try {
         console.log(`[MAIL] Attempting to send password reset OTP to ${email}...`);

@@ -237,7 +237,7 @@ router.post('/checkout', authenticateToken, requireParentSession, async (req: an
                     price_data: {
                         currency: finalCurrency,
                         product_data: {
-                            name: `Akshara Music Hub Pro - ${finalInterval === 'year' ? '1 Year' : '1 Month'} Access`,
+                            name: `Akshara LearnQuest Pro - ${finalInterval === 'year' ? '1 Year' : '1 Month'} Access`,
                             description: `Unlimited Quizzes and Quest Creation for ${finalInterval === 'year' ? '1 year' : '1 month'}. No auto-renewal.`,
                         },
                         unit_amount: finalAmount,

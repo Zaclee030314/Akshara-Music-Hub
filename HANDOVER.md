@@ -1,4 +1,4 @@
-# Akshara Music Hub — Developer Handover
+# Akshara LearnQuest — Developer Handover
 
 This guide gets a second developer from a fresh clone to shipping changes. It covers setup, how the app is put together, the features built recently, the rules that keep production safe, and what is still open.
 

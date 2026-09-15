@@ -19,9 +19,9 @@ const en: Record<string, string> = {
   'nav.language': 'Language',
 
   // ── Hero ───────────────────────────────────────────────────────────
-  'hero.badge': 'The Future of Smart Revision',
-  'hero.subtitle': 'Where Music, Education & Smart Practice Meet',
-  'hero.by': 'by Akshara Fine Arts',
+  'hero.badge': '"Have you completed today\'s Akshara LearnQuest?"',
+  'hero.subtitle': 'Gamified Learning for School Subjects & Indian Music',
+  'hero.by': '⭐ Learn. Play. Achieve. — Powered by Akshara Learning Academy',
   'hero.ctaContinue': 'Continue Practising',
   'hero.ctaStart': 'Start Practising Today',
   'hero.trust.users': 'Trusted by 10,000+ Users',
@@ -55,7 +55,7 @@ const en: Record<string, string> = {
   'testimonials.title': 'What our heroes say',
   'testimonials.rating': '4.9/5 based on 2,000+ reviews',
   'testimonials.review1.role': 'Form 5 Student',
-  'testimonials.review1.text': 'Akshara Music Hub made Sejarah fun! The AI explanations actually help me understand the causes of historical events, not just memorize dates.',
+  'testimonials.review1.text': 'Akshara LearnQuest made Sejarah fun! The AI explanations actually help me understand the causes of historical events, not just memorize dates.',
   'testimonials.review2.role': 'Standard 6 Student',
   'testimonials.review2.text': 'I used to struggle with Math, but the gamified quests make me want to practice every day. I reached level 15 last week!',
   'testimonials.review3.role': 'Parent',
@@ -63,8 +63,8 @@ const en: Record<string, string> = {
 
   // ── FAQ ────────────────────────────────────────────────────────────
   'faq.title': 'Frequently Asked Questions',
-  'faq.subtitle': 'Everything you need to know about Akshara Music Hub.',
-  'faq.q1': 'Is Akshara Music Hub aligned with the Malaysian syllabus?',
+  'faq.subtitle': 'Everything you need to know about Akshara LearnQuest.',
+  'faq.q1': 'Is Akshara LearnQuest aligned with the Malaysian syllabus?',
   'faq.a1': 'Yes! We cover the national curriculum (KSSR/KSSM), MOE Singapore, and IGCSE for most major subjects.',
   'faq.q2': 'How does the AI Tutor work?',
   'faq.a2': 'Our AI analyzes each question and provides hints or step-by-step explanations if you get stuck, helping you learn the concepts behind the answers.',
@@ -88,7 +88,7 @@ const en: Record<string, string> = {
   'footer.subscribe': 'Subscribe',
   'footer.subscribeDesc': 'Get the latest syllabus updates and AI tips.',
   'footer.emailPlaceholder': 'Your email',
-  'footer.rights': '© 2026 Akshara Music Hub. All rights reserved.',
+  'footer.rights': '© 2026 Akshara LearnQuest. All rights reserved.',
   'footer.partner': 'Your Global Learning Partner 🌍',
 
   // ── Promotion Banner ───────────────────────────────────────────────
@@ -103,7 +103,7 @@ const en: Record<string, string> = {
   // ── Login / Signup modal ───────────────────────────────────────────
   'login.createAccount': 'Create Account',
   'login.welcomeBack': 'Welcome Back!',
-  'login.joinToday': 'Join Akshara Music Hub today!',
+  'login.joinToday': 'Join Akshara LearnQuest today!',
   'login.loginToContinue': 'Log in to continue your quest.',
   'login.fullName': 'Full Name',
   'login.fullNamePlaceholder': 'e.g. Ali bin Abu',
@@ -204,7 +204,7 @@ const en: Record<string, string> = {
   'quota.body': "We've hit the daily AI limit for today. Our AI teacher needs some rest (and we need to wait for the quota to reset)!",
   'quota.retry': 'Try again in a few hours or tomorrow morning.',
   'quota.understand': 'Understand',
-  'quota.footer': 'Daily limits help keep Akshara Music Hub free for everyone.',
+  'quota.footer': 'Daily limits help keep Akshara LearnQuest free for everyone.',
 
   // ── Pricing ────────────────────────────────────────────────────────
   'pricing.backHome': 'Back to Home',
@@ -439,10 +439,10 @@ const en: Record<string, string> = {
   'profile.generatingLink': 'Generating your link…',
   // ── Referral programme page (/referrals) ──
   'referral.viewProgramme': 'View referral programme & tiers',
-  'referral.subtitle': 'Invite other families to Akshara Music Hub. Every family that subscribes earns you subscription credit, and the more families you bring, the more each referral pays.',
+  'referral.subtitle': 'Invite other families to Akshara LearnQuest. Every family that subscribes earns you subscription credit, and the more families you bring, the more each referral pays.',
   'referral.yourLink': 'Your referral link',
   'referral.shareWhatsApp': 'Share on WhatsApp',
-  'referral.shareText': 'Join me on Akshara Music Hub – fun music quests for kids! Sign up with my link: {link}',
+  'referral.shareText': 'Join me on Akshara LearnQuest – fun music quests for kids! Sign up with my link: {link}',
   'referral.codeHint': 'Your code is {code}. Friends can also enter it when they sign up.',
   'referral.totalEarned': 'Total earned',
   'referral.creditedSoFar': 'Credited so far',
@@ -556,7 +556,7 @@ const en: Record<string, string> = {
   'billing.planAll': 'Max All-Access',
   'billing.planSingle': 'Single Syllabus',
   'billing.planFree': 'Free',
-  'billing.manageDesc': 'Manage your Akshara Music Hub plan.',
+  'billing.manageDesc': 'Manage your Akshara LearnQuest plan.',
   'billing.referralCredit': "You have RM{amount} referral credit — it'll be applied at checkout.",
   'billing.currentPlan': 'Current Plan',
   'billing.free': 'Free',

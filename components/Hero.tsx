@@ -39,7 +39,7 @@ export const Hero: React.FC<HeroProps> = ({ onStart, onViewPricing, isLoggedIn, 
             {/* Headline */}
             <div className="space-y-4 max-w-4xl mx-auto animate-reveal-up delay-200">
                 <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold text-white tracking-tight leading-[1.15] drop-shadow-lg">
-                    Akshara Music Hub
+                    🥇 Akshara LearnQuest
                     <br className="hidden sm:block" />
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue via-brand-orange to-brand-green filter drop-shadow-md text-3xl sm:text-4xl mt-2 inline-block">
                         {t('hero.subtitle')}

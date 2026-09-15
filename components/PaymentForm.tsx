@@ -176,7 +176,7 @@ export const PaymentForm = ({ amount, appliedCredit = 0, seats = 1, unitAmount, 
         <Card className="max-w-md w-full p-8 shadow-2xl border-2 border-brand-orange/20 animate-pop-in">
             <div className="text-center mb-8">
                 <h3 className="text-2xl font-bold font-display mb-2">Secure Payment</h3>
-                <p className="text-gray-500 text-sm">{isMock ? 'Simulating Akshara Music Hub Pro Upgrade' : 'Complete your upgrade to Akshara Music Hub Pro'}</p>
+                <p className="text-gray-500 text-sm">{isMock ? 'Simulating Akshara LearnQuest Pro Upgrade' : 'Complete your upgrade to Akshara LearnQuest Pro'}</p>
                 {seats > 1 && (
                     <p className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-brand-dark/70 bg-brand-dark/5 px-3 py-1.5 rounded-full">
                         {seats} learners · RM{(planPrice / 100).toFixed(2)} + {seats - 1} × RM{(extraChildAmount / 100).toFixed(0)}

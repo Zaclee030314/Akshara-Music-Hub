@@ -55,7 +55,7 @@ const zh: Record<string, string> = {
   'testimonials.title': '我们的小英雄怎么说',
   'testimonials.rating': '基于 2,000+ 条评价，评分 4.9/5',
   'testimonials.review1.role': '中五学生',
-  'testimonials.review1.text': 'Akshara Music Hub 让历史变得有趣！AI 讲解真正帮助我理解历史事件的成因，而不只是死记日期。',
+  'testimonials.review1.text': 'Akshara LearnQuest 让历史变得有趣！AI 讲解真正帮助我理解历史事件的成因，而不只是死记日期。',
   'testimonials.review2.role': '六年级学生',
   'testimonials.review2.text': '我以前很怕数学，但游戏化任务让我每天都想练习。上周我升到了第 15 级！',
   'testimonials.review3.role': '家长',
@@ -63,8 +63,8 @@ const zh: Record<string, string> = {
 
   // ── FAQ ────────────────────────────────────────────────────────────
   'faq.title': '常见问题',
-  'faq.subtitle': '关于 Akshara Music Hub 你需要知道的一切。',
-  'faq.q1': 'Akshara Music Hub 符合马来西亚课程大纲吗？',
+  'faq.subtitle': '关于 Akshara LearnQuest 你需要知道的一切。',
+  'faq.q1': 'Akshara LearnQuest 符合马来西亚课程大纲吗？',
   'faq.a1': '是的！我们涵盖国家课程（KSSR/KSSM）、新加坡 MOE 以及 IGCSE 的大多数主要科目。',
   'faq.q2': 'AI 导师是如何运作的？',
   'faq.a2': '我们的 AI 会分析每道题目，在你卡住时提供提示或逐步讲解，帮助你理解答案背后的概念。',
@@ -88,7 +88,7 @@ const zh: Record<string, string> = {
   'footer.subscribe': '订阅',
   'footer.subscribeDesc': '获取最新的课程大纲更新和 AI 小贴士。',
   'footer.emailPlaceholder': '你的电邮',
-  'footer.rights': '© 2026 Akshara Music Hub。版权所有。',
+  'footer.rights': '© 2026 Akshara LearnQuest。版权所有。',
   'footer.partner': '你的全球学习伙伴 🌍',
 
   // ── Promotion Banner ───────────────────────────────────────────────
@@ -103,7 +103,7 @@ const zh: Record<string, string> = {
   // ── Login / Signup ─────────────────────────────────────────────────
   'login.createAccount': '创建账户',
   'login.welcomeBack': '欢迎回来！',
-  'login.joinToday': '今天就加入 Akshara Music Hub！',
+  'login.joinToday': '今天就加入 Akshara LearnQuest！',
   'login.loginToContinue': '登录以继续你的任务。',
   'login.fullName': '全名',
   'login.fullNamePlaceholder': '例如：Ali bin Abu',
@@ -204,7 +204,7 @@ const zh: Record<string, string> = {
   'quota.body': '我们已达到今天的每日 AI 上限。我们的 AI 老师需要休息一下（我们也要等配额重置）！',
   'quota.retry': '请在几小时后或明天早上再试。',
   'quota.understand': '明白了',
-  'quota.footer': '每日限额有助于让 Akshara Music Hub 对所有人保持免费。',
+  'quota.footer': '每日限额有助于让 Akshara LearnQuest 对所有人保持免费。',
 
   // ── 价格 ────────────────────────────────────────────────────────────
   'pricing.backHome': '返回首页',
@@ -439,10 +439,10 @@ const zh: Record<string, string> = {
   'profile.generatingLink': '正在生成你的链接…',
   // ── 推荐计划页面 (/referrals) ──
   'referral.viewProgramme': '查看推荐计划与等级',
-  'referral.subtitle': '邀请其他家庭加入 Akshara Music Hub。每个订阅的家庭都会为您带来订阅积分，推荐的家庭越多，每次推荐的奖励越高。',
+  'referral.subtitle': '邀请其他家庭加入 Akshara LearnQuest。每个订阅的家庭都会为您带来订阅积分，推荐的家庭越多，每次推荐的奖励越高。',
   'referral.yourLink': '您的推荐链接',
   'referral.shareWhatsApp': '分享到 WhatsApp',
-  'referral.shareText': '和我一起加入 Akshara Music Hub，孩子的趣味音乐任务！用我的链接注册：{link}',
+  'referral.shareText': '和我一起加入 Akshara LearnQuest，孩子的趣味音乐任务！用我的链接注册：{link}',
   'referral.codeHint': '您的推荐码是 {code}。朋友注册时也可以直接输入。',
   'referral.totalEarned': '累计获得',
   'referral.creditedSoFar': '已到账',
@@ -556,7 +556,7 @@ const zh: Record<string, string> = {
   'billing.planAll': '至尊全部权限',
   'billing.planSingle': '单一课程',
   'billing.planFree': '免费',
-  'billing.manageDesc': '管理你的 Akshara Music Hub 配套。',
+  'billing.manageDesc': '管理你的 Akshara LearnQuest 配套。',
   'billing.referralCredit': '你有 RM{amount} 的推荐抵扣额 — 将在结账时使用。',
   'billing.currentPlan': '当前配套',
   'billing.free': '免费',

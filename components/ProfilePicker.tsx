@@ -109,7 +109,7 @@ const ProfileEditor: React.FC<EditorProps> = ({ initial, saving, onCancel, onSav
 };
 
 export const ProfilePicker: React.FC = () => {
-    const { user, switchProfile, familyToken } = useAuth();
+    const { user, switchProfile, familyToken, exitProfile } = useAuth();
     const { t } = useT();
     const navigate = useNavigate();
 
@@ -307,7 +307,7 @@ export const ProfilePicker: React.FC = () => {
                 <Button variant={manage ? 'primary' : 'outline'} onClick={() => { setManage(m => !m); setEditing(null); }} className={manage ? 'bg-brand-dark hover:bg-brand-dark/90' : ''}>
                     {manage ? <><Check size={16} /> {t('family.done')}</> : <><Settings2 size={16} /> {t('family.manage')}</>}
                 </Button>
-                <Button variant="outline" onClick={() => navigate('/profile')}>
+                <Button variant="outline" onClick={async () => { await exitProfile(); navigate('/profile'); }}>
                     <UserIcon size={16} /> {t('family.parentAccount')}
                 </Button>
             </div>

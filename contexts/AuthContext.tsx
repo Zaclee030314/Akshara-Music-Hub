@@ -32,7 +32,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     }, []);
 
-    const signup = async (options: SignupOptions): Promise<boolean | { needsVerification: true; email: string }> => {
+    const signup = async (options: SignupOptions): Promise<boolean | { needsVerification: true; email: string } | { error: string }> => {
         const { name, email, password, role, grade, syllabus, birthday, phone } = options;
         setIsLoading(true);
         try {
@@ -44,9 +44,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             });
             const data = await res.json();
             if (!res.ok) {
-                alert(data.error || 'Signup failed');
                 setIsLoading(false);
-                return false;
+                return { error: data.error || 'Signup failed' };
             }
             // Referral consumed — clear it so it doesn't attach to a future signup.
             localStorage.removeItem('ref_code');
@@ -54,13 +53,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             return { needsVerification: true, email: data.email || email };
         } catch (error) {
             console.error(error);
-            alert('Signup failed');
             setIsLoading(false);
-            return false;
+            return { error: 'Signup failed' };
         }
     };
 
-    const verifyCode = async (email: string, code: string): Promise<boolean> => {
+    const verifyCode = async (email: string, code: string): Promise<boolean | { error: string }> => {
         setIsLoading(true);
         try {
             const res = await fetch('/api/auth/verify', {
@@ -70,9 +68,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             });
             const data = await res.json();
             if (!res.ok) {
-                alert(data.error || 'Verification failed');
                 setIsLoading(false);
-                return false;
+                return { error: data.error || 'Verification failed' };
             }
             setUser(data.user);
             localStorage.setItem('quest_token', data.token);
@@ -81,18 +78,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             return true;
         } catch (error) {
             console.error(error);
-            alert('Verification failed');
             setIsLoading(false);
-            return false;
+            return { error: 'Verification failed' };
         }
     };
 
-    const login = async (identifier: string, password?: string): Promise<boolean | { needsVerification: true; email: string }> => {
+    const login = async (identifier: string, password?: string): Promise<boolean | { needsVerification: true; email: string } | { error: string }> => {
         setIsLoading(true);
         if (!password) {
-            alert("Backend requires password login.");
             setIsLoading(false);
-            return false;
+            return { error: "Backend requires password login." };
         }
 
         try {
@@ -107,9 +102,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     setIsLoading(false);
                     return { needsVerification: true, email: data.email };
                 }
-                alert(data.error || 'Login failed');
                 setIsLoading(false);
-                return false;
+                return { error: data.error || 'Login failed' };
             }
             setUser(data.user);
             localStorage.setItem('quest_token', data.token);
@@ -118,13 +112,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             return true;
         } catch (error) {
             console.error(error);
-            alert('Login failed');
             setIsLoading(false);
-            return false;
+            return { error: 'Login failed' };
         }
     };
 
-    const resendCode = async (email: string): Promise<boolean> => {
+    const resendCode = async (email: string): Promise<boolean | { error: string }> => {
         setIsLoading(true);
         try {
             const res = await fetch('/api/auth/resend-otp', {
@@ -134,18 +127,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             });
             const data = await res.json();
             if (res.ok) {
-                alert('New verification code sent to your email.');
                 setIsLoading(false);
                 return true;
             }
-            alert(data.error || 'Failed to resend code');
             setIsLoading(false);
-            return false;
+            return { error: data.error || 'Failed to resend code' };
         } catch (error) {
             console.error(error);
-            alert('Failed to resend code');
             setIsLoading(false);
-            return false;
+            return { error: 'Failed to resend code' };
         }
     };
 

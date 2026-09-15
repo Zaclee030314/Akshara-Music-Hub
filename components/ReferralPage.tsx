@@ -35,6 +35,8 @@ export const ReferralPage: React.FC = () => {
     const [blocked, setBlocked] = useState(false);
     const [copied, setCopied] = useState(false);
 
+    const [activeTab, setActiveTab] = useState<'my_referrals' | 'tiered_reference'>('my_referrals');
+
     useEffect(() => {
         (async () => {
             try {
@@ -94,50 +96,76 @@ export const ReferralPage: React.FC = () => {
                 <p className="text-brand-dark/60 max-w-2xl mx-auto">{t('referral.subtitle')}</p>
             </div>
 
-            {/* Your link */}
-            <Card className="p-6 md:p-8 shadow-xl space-y-4 bg-gradient-to-br from-brand-orange/5 to-yellow-50/50">
-                <h3 className="font-bold text-brand-dark flex items-center gap-2"><Link2 size={18} className="text-brand-orange" /> {t('referral.yourLink')}</h3>
-                {code ? (
-                    <div className="flex flex-col sm:flex-row gap-2">
-                        <input
-                            type="text" value={link} readOnly onFocus={(e) => e.currentTarget.select()}
-                            className="flex-1 p-3 rounded-xl border-2 border-brand-dark/10 bg-white font-medium text-sm text-brand-dark/70 focus:outline-none focus:border-brand-orange"
-                        />
-                        <Button onClick={copy} className="bg-brand-orange hover:bg-orange-400 shrink-0">
-                            {copied ? <><Check size={16} /> {t('profile.copied')}</> : <><Copy size={16} /> {t('profile.copy')}</>}
-                        </Button>
-                        <a
-                            href={`https://wa.me/?text=${encodeURIComponent(shareText)}`} target="_blank" rel="noreferrer"
-                            className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl font-bold text-white bg-[#25D366] hover:bg-[#1ebe5b] transition-colors shrink-0"
-                        >
-                            <Share2 size={16} /> {t('referral.shareWhatsApp')}
-                        </a>
-                    </div>
-                ) : (
-                    <div className="flex items-center gap-2 text-brand-dark/40 text-sm"><Loader2 className="animate-spin" size={16} /> {t('profile.generatingLink')}</div>
-                )}
-                <p className="text-xs text-brand-dark/50">{t('referral.codeHint', { code: code || '…' })}</p>
-            </Card>
+            <div className="flex justify-center border-b border-brand-dark/10 mb-8">
+                <div className="flex gap-8">
+                    <button
+                        onClick={() => setActiveTab('my_referrals')}
+                        className={`pb-4 font-bold text-sm transition-colors relative ${activeTab === 'my_referrals' ? 'text-brand-orange' : 'text-brand-dark/40 hover:text-brand-dark'}`}
+                    >
+                        My Referrals
+                        {activeTab === 'my_referrals' && <span className="absolute bottom-0 left-0 right-0 h-1 bg-brand-orange rounded-t-full"></span>}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('tiered_reference')}
+                        className={`pb-4 font-bold text-sm transition-colors relative ${activeTab === 'tiered_reference' ? 'text-brand-orange' : 'text-brand-dark/40 hover:text-brand-dark'}`}
+                    >
+                        Tiered Reference
+                        {activeTab === 'tiered_reference' && <span className="absolute bottom-0 left-0 right-0 h-1 bg-brand-orange rounded-t-full"></span>}
+                    </button>
+                </div>
+            </div>
 
-            {/* Progress */}
-            {stats && (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 text-center">
-                    {[
-                        { label: t('profile.paidReferrals'), value: String(stats.paidReferrals), accent: '' },
-                        { label: t('profile.referralTier'), value: rm(stats.tier.amountCents, 0), accent: 'text-brand-orange', sub: t('profile.splitOver', { months: stats.tier.splitMonths }) },
-                        { label: t('referral.totalEarned'), value: rm(stats.totalEarnedCents), accent: '' },
-                        { label: t('referral.creditedSoFar'), value: rm(stats.creditedCents), accent: 'text-brand-green' },
-                        { label: t('profile.pendingCredit'), value: rm(stats.pendingCents), accent: '' },
-                        { label: t('referral.balance'), value: rm(stats.creditBalanceCents), accent: 'text-brand-blue', sub: stats.nextDue ? t('referral.nextOn', { date: new Date(stats.nextDue).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) }) : undefined },
-                    ].map((c, i) => (
-                        <div key={i} className="bg-white rounded-2xl p-3 border border-brand-dark/5 shadow-sm">
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-brand-dark/40">{c.label}</p>
-                            <p className={`font-display font-bold text-xl text-brand-dark ${c.accent}`}>{c.value}</p>
-                            {c.sub && <p className="text-[10px] text-brand-dark/50">{c.sub}</p>}
+            {activeTab === 'my_referrals' && (
+                <div className="space-y-8">
+                    {/* Your link */}
+                    <Card className="p-6 md:p-8 shadow-xl space-y-4 bg-gradient-to-br from-brand-orange/5 to-yellow-50/50">
+                        <h3 className="font-bold text-brand-dark flex items-center gap-2"><Link2 size={18} className="text-brand-orange" /> {t('referral.yourLink')}</h3>
+                        {code ? (
+                            <div className="flex flex-col sm:flex-row gap-2">
+                                <input
+                                    type="text" value={link} readOnly onFocus={(e) => e.currentTarget.select()}
+                                    className="flex-1 p-3 rounded-xl border-2 border-brand-dark/10 bg-white font-medium text-sm text-brand-dark/70 focus:outline-none focus:border-brand-orange"
+                                />
+                                <Button onClick={copy} className="bg-brand-orange hover:bg-orange-400 shrink-0">
+                                    {copied ? <><Check size={16} /> {t('profile.copied')}</> : <><Copy size={16} /> {t('profile.copy')}</>}
+                                </Button>
+                                <a
+                                    href={`https://wa.me/?text=${encodeURIComponent(shareText)}`} target="_blank" rel="noreferrer"
+                                    className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl font-bold text-white bg-[#25D366] hover:bg-[#1ebe5b] transition-colors shrink-0"
+                                >
+                                    <Share2 size={16} /> {t('referral.shareWhatsApp')}
+                                </a>
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-2 text-brand-dark/40 text-sm"><Loader2 className="animate-spin" size={16} /> {t('profile.generatingLink')}</div>
+                        )}
+                        <p className="text-xs text-brand-dark/50">{t('referral.codeHint', { code: code || '…' })}</p>
+                    </Card>
+
+                    {/* Progress */}
+                    {stats && (
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 text-center">
+                            {[
+                                { label: t('profile.paidReferrals'), value: String(stats.paidReferrals), accent: '' },
+                                { label: t('profile.referralTier'), value: rm(stats.tier.amountCents, 0), accent: 'text-brand-orange', sub: t('profile.splitOver', { months: stats.tier.splitMonths }) },
+                                { label: t('referral.totalEarned'), value: rm(stats.totalEarnedCents), accent: '' },
+                                { label: t('referral.creditedSoFar'), value: rm(stats.creditedCents), accent: 'text-brand-green' },
+                                { label: t('profile.pendingCredit'), value: rm(stats.pendingCents), accent: '' },
+                                { label: t('referral.balance'), value: rm(stats.creditBalanceCents), accent: 'text-brand-blue', sub: stats.nextDue ? t('referral.nextOn', { date: new Date(stats.nextDue).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) }) : undefined },
+                            ].map((c, i) => (
+                                <div key={i} className="bg-white rounded-2xl p-3 border border-brand-dark/5 shadow-sm">
+                                    <p className="text-[10px] font-bold uppercase tracking-wider text-brand-dark/40">{c.label}</p>
+                                    <p className={`font-display font-bold text-xl text-brand-dark ${c.accent}`}>{c.value}</p>
+                                    {c.sub && <p className="text-[10px] text-brand-dark/50">{c.sub}</p>}
+                                </div>
+                            ))}
                         </div>
-                    ))}
+                    )}
                 </div>
             )}
+
+            {activeTab === 'tiered_reference' && (
+                <div className="space-y-8">
 
             {/* How it works */}
             <Card className="p-6 md:p-8 shadow-sm space-y-5">
@@ -193,7 +221,7 @@ export const ReferralPage: React.FC = () => {
                                         </td>
                                         <td className="py-3 pr-3 font-bold text-brand-dark">
                                             {tiered
-                                                ? (x.maxCount === null ? <span className="inline-flex items-center gap-1">{x.minCount}<InfinityIcon size={14} className="text-brand-dark/40" /></span> : `${x.minCount} – ${x.maxCount}`)
+                                                ? (x.maxCount === null ? <span className="inline-flex items-center gap-1">{x.minCount}+</span> : `${x.minCount} - ${x.maxCount}`)
                                                 : t('referral.everyReferral')}
                                         </td>
                                         <td className="py-3 pr-3 font-display font-bold text-brand-orange text-lg">{rm(x.amountCents, 0)}</td>
@@ -217,6 +245,8 @@ export const ReferralPage: React.FC = () => {
                     <li>{t('referral.note3')}</li>
                 </ul>
             </Card>
+                </div>
+            )}
         </div>
     );
 };

@@ -555,7 +555,7 @@ router.post('/quest', authenticateToken, checkExpiredSubscriptions, async (req: 
 
             prompt = `You are an expert exam question compiler with comprehensive knowledge of official past year exam papers.
 
-TASK: Reproduce 15-20 actual multiple-choice questions from the official ${examName} ${year} paper for ${subject} at ${grade} level.
+TASK: Reproduce 22-25 actual multiple-choice questions from the official ${examName} ${year} paper for ${subject} at ${grade} level.
 
 CRITICAL RULES — READ CAREFULLY:
 1. LANGUAGE: The entire question, options, and explanation MUST be written in ${targetLanguage}. This is strict.

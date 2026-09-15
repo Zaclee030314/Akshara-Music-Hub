@@ -1,5 +1,5 @@
 // Official grade-exam syllabi (Grade 1-8), transcribed from the "Grade Level
-// Syllabus" documents supplied by Akshara Fine Arts. Injected into AI quest
+// Syllabus" documents supplied Powered by Akshara Fine Arts. Injected into AI quest
 // prompts as the authoritative per-grade exam scope, and used to derive topic
 // lists for subjects that have no hand-authored curriculum tree.
 //
