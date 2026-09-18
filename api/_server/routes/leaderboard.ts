@@ -77,9 +77,9 @@ router.get('/', async (req, res) => {
             : 100;
 
         let leaderboard: ReturnType<typeof shape>[];
-
         if (q) {
             const matches = await prisma.user.findMany({
+                // @ts-ignore
                 where: { role: 'student', archivedAt: null, name: { contains: q, mode: 'insensitive' } },
                 select: ROW_SELECT,
                 orderBy: ORDER,

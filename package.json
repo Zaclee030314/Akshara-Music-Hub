@@ -15,8 +15,7 @@
     "vercel-build": "prisma generate --schema=api/_server/prisma/schema.prisma && prisma db push --schema=api/_server/prisma/schema.prisma --accept-data-loss && vite build",
     "start:all": "concurrently \"npm run dev\" \"npm run dev:server\"",
     "seed:music": "npx tsx scripts/seedMusicQuestionBank.ts",
-    "migrate:music-split": "npx tsx scripts/migrateIndianMusicSplit.ts",
-    "postinstall": "prisma generate --schema=api/_server/prisma/schema.prisma"
+    "migrate:music-split": "npx tsx scripts/migrateIndianMusicSplit.ts"
   },
   "dependencies": {
     "@google/genai": "^1.39.0",

@@ -74,8 +74,23 @@ app.use('/api/seasons', seasonRoutes);
 app.use('/api/polls', pollRoutes);
 app.use('/api/family', familyRoutes);
 
+// Geolocation endpoint (was a standalone Vercel function, now integrated for cPanel)
+app.get('/api/geolocation', async (req, res) => {
+    try {
+        const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0] ||
+            req.headers['x-real-ip'] as string;
+        const apiUrl = ip ? `https://freeipapi.com/api/json/${ip}` : 'https://freeipapi.com/api/json';
+        const response = await fetch(apiUrl);
+        if (!response.ok) throw new Error(`Geolocation API returned ${response.status}`);
+        const data = await response.json();
+        res.status(200).json(data);
+    } catch (error) {
+        res.status(200).json({ countryCode: 'MY', countryName: 'Malaysia' });
+    }
+});
+
 app.get('/api', (req, res) => {
-    res.send('Akshara LearnQuest API is running on Vercel');
+    res.send('Akshara LearnQuest API is running');
 });
 
 export default app;

@@ -1,0 +1,428 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Quest {
+  id        String   @id @default(uuid())
+  title     String
+  subject   String
+  grade     String
+  syllabus  String
+  creatorId String
+  questions String
+  createdAt DateTime @default(now())
+  creator   User     @relation(fields: [creatorId], references: [id])
+  results   Result[]
+
+  @@index([creatorId])
+}
+
+model Result {
+  id             String   @id @default(uuid())
+  userId         String
+  questId        String?
+  score          Int
+  correctAnswers Int      @default(0)
+  totalQuestions Int      @default(0)
+  mode           String
+  subject        String?
+  topic          String?
+  grade          String?
+  xpAwarded      Int      @default(0)
+  coinsAwarded   Int      @default(0)
+  date           DateTime @default(now())
+  quest          Quest?   @relation(fields: [questId], references: [id])
+  user           User     @relation(fields: [userId], references: [id])
+
+  @@index([questId])
+  @@index([userId])
+}
+
+model User {
+  id                     String                 @id @default(uuid())
+  email                  String                 @unique(map: "User_email_key")
+  password               String
+  name                   String
+  role                   String
+  grade                  String?
+  gradeSyllabus          String?
+  birthday               DateTime? // immutable after set — drives the age-based XP award gate
+  avatar                 String?
+  parentName             String?
+  parentPhone            String?
+  parentEmail            String?
+  children               String? // JSON array [{name, birthday}] — managed via PUT /api/profile/family
+  profileCompleted       Boolean                @default(false)
+  createdAt              DateTime               @default(now()) // date joined (accounts predating this column get the migration date)
+  xp                     Int                    @default(0)
+  coins                  Int                    @default(0)
+  isSubscribed           Boolean                @default(false)
+  isVerified             Boolean                @default(false)
+  verificationCode       String?
+  stripeCustomerId       String?
+  subscriptionInterval   String? // 'month' or 'year'
+  subscriptionStartDate  DateTime?
+  subscriptionEndDate    DateTime?
+  subscriptionLevel      String? // 'single' or 'all'
+  subscribedSyllabus     String? // For 'single' level, which syllabus they chose
+  cancelAtPeriodEnd      Boolean                @default(false)
+  isAdmin                Boolean                @default(false)
+  questsPlayed           Int                    @default(0)
+  questsCreated          Int                    @default(0)
+  resetPasswordOtp       String?
+  resetPasswordOtpExpiry DateTime?
+  referralCode           String?                @unique
+  referredById           String?
+  referralCreditCents    Int                    @default(0) // earned, spendable referral credit balance (sen)
+  referralRewardGranted  Boolean                @default(false) // set on a REFERRED user once their first payment has granted the referrer's reward (fires exactly once)
+  language               String? // preferred UI language: 'en' | 'ms' | 'zh' | 'ta'
+  lastSeenSeasonId       String?
+  // ── Family profiles ── a parent account (role 'parent') owns child profiles:
+  // ordinary student rows with parentId set, a synthetic e-mail and no login.
+  parentId               String?
+  archivedAt             DateTime? // soft-deleted child profile (hidden from picker + leaderboards)
+  subscriptionSeats      Int                    @default(1) // learner seats paid for on the last checkout
+  parent                 User?                  @relation("FamilyProfiles", fields: [parentId], references: [id])
+  childProfiles          User[]                 @relation("FamilyProfiles")
+  quests                 Quest[]
+  results                Result[]
+  redemptions            Redemption[]
+  studyPlans             StudyPlan[]
+  teachingClassrooms     Classroom[]            @relation("TeacherClassrooms")
+  studentClassrooms      Classroom[]            @relation("StudentClassrooms")
+  submissions            AssignmentSubmission[] @relation("StudentSubmissions")
+  createdRewards         Reward[]               @relation("TeacherRewards")
+  seasonWins             SeasonWinner[]         @relation("SeasonWins")
+  pollVotes              PollVote[]             @relation("PollVotes")
+
+  @@index([referredById])
+  @@index([parentId])
+  // Backs the all-time leaderboard: role-filtered ordering by xp and the
+  // rank-by-count queries that mirror that ordering.
+  @@index([role, xp])
+}
+
+model Season {
+  id                String           @id @default(uuid())
+  name              String
+  description       String?
+  prizeTitle        String
+  prizeDetails      String?
+  secondPlacePoints Int              @default(0)
+  thirdPlacePoints  Int              @default(0)
+  secondPrizeTitle  String?
+  thirdPrizeTitle   String?
+  firstPrizeCoins   Int              @default(0)
+  secondPrizeCoins  Int              @default(0)
+  thirdPrizeCoins   Int              @default(0)
+  startDate         DateTime
+  endDate           DateTime
+  status            String           @default("upcoming") // upcoming | active | ended | finalized
+  createdAt         DateTime         @default(now())
+  finalizedAt       DateTime?
+  winners           SeasonWinner[]
+  standings         SeasonStanding[]
+}
+
+// Immutable top-100 snapshot of a season's leaderboard, written once at finalize time.
+// Past seasons must never change, so once a season is finalized its standings are
+// served from these rows instead of being recomputed from Result.
+//
+// NOTE: `userId` deliberately has NO `user User @relation`. Identity (name / avatar /
+// grade) is COPIED into this table rather than joined, precisely so that a later
+// rename, avatar change, or a student→teacher role flip cannot retroactively rewrite
+// a finalized season's standings. Joining the live User row would reintroduce exactly
+// the mutability this table exists to remove. `userId` is kept (and indexed) only as a
+// lookup key for "where did I place?" queries.
+model SeasonStanding {
+  id       String  @id @default(uuid())
+  seasonId String
+  userId   String
+  rank     Int
+  points   Int
+  name     String // frozen at finalize time
+  avatar   String? // frozen at finalize time — FALLBACK only: serving re-hydrates the live User.avatar (photos are identity, not history)
+  grade    String? // frozen at finalize time
+  season   Season  @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  @@unique([seasonId, rank])
+  @@index([seasonId])
+  @@index([userId])
+}
+
+model SeasonWinner {
+  id            String @id @default(uuid())
+  seasonId      String
+  userId        String
+  rank          Int
+  points        Int // final season score snapshot
+  awardedPoints Int    @default(0) // bonus XP credited (ranks 2/3)
+  prizeTitle    String // snapshot of the season prize at finalize time
+  season        Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  user          User   @relation("SeasonWins", fields: [userId], references: [id])
+
+  @@unique([seasonId, rank])
+  @@index([userId])
+}
+
+model Poll {
+  id               String     @id @default(uuid())
+  question         String
+  description      String?
+  options          String // JSON string array
+  allowSuggestions Boolean    @default(false)
+  isActive         Boolean    @default(true)
+  seasonId         String?
+  createdAt        DateTime   @default(now())
+  // JSON array of student-added options: [{ index, text, userId, userName, createdAt }]
+  suggestedMeta    String?
+  // JSON array of soft-removed option indices, e.g. [2, 5].
+  // Options are APPEND-ONLY — votes reference options by array index, so entries
+  // in `options` must never be deleted or reordered. Removal is a soft-hide.
+  removedOptions   String?
+  votes            PollVote[]
+}
+
+model PollVote {
+  id          String   @id @default(uuid())
+  pollId      String
+  userId      String
+  optionIndex Int?
+  suggestion  String?
+  createdAt   DateTime @default(now())
+  poll        Poll     @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  user        User     @relation("PollVotes", fields: [userId], references: [id])
+
+  @@unique([pollId, userId])
+}
+
+model Reward {
+  id          String       @id @default(uuid())
+  title       String
+  description String?
+  coinCost    Int
+  icon        String? // Lucide icon name or emoji
+  imageUrl    String? // base64 data URL for reward image
+  stock       Int? // Null means unlimited
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  creatorId   String?
+  creator     User?        @relation("TeacherRewards", fields: [creatorId], references: [id])
+  redemptions Redemption[]
+}
+
+model Redemption {
+  id         String   @id @default(uuid())
+  userId     String
+  rewardId   String
+  status     String   @default("pending") // pending, fulfilled, cancelled
+  redeemedAt DateTime @default(now())
+  reward     Reward   @relation(fields: [rewardId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+
+  receiverName    String?
+  receiverPhone   String?
+  receiverAddress String?
+
+  @@index([userId])
+  @@index([rewardId])
+}
+
+model PendingUser {
+  id               String    @id @default(uuid())
+  email            String    @unique
+  password         String
+  name             String
+  role             String
+  grade            String?
+  syllabus         String?
+  birthday         DateTime?
+  parentPhone      String?
+  referredById     String?
+  verificationCode String
+  createdAt        DateTime  @default(now())
+}
+
+model QuestionBank {
+  id             String   @id @default(uuid())
+  subject        String
+  grade          String // e.g., "Form 5", "Standard 6", "Year 10"
+  syllabus       String // e.g., "KSSM", "IGCSE"
+  topic          String
+  subtopic       String?
+  year           Int // e.g., 2023
+  question       String
+  options        String // JSON string: ["A", "B", "C", "D"]
+  correctAnswer  String
+  explanation    String
+  difficulty     String // Easy, Medium, Hard
+  classification String? // Music focus: "Theory" | "Practical" (null = fits both)
+  source         String? // e.g., "SPM 2023 Paper 1"
+  createdAt      DateTime @default(now())
+
+  @@index([subject, grade, syllabus, topic])
+}
+
+// ─── Tiered referral programme ───────────────────────────────────────────────
+// A referral "converts" when the referred user makes their first payment. The
+// referrer's paid-referral count picks a tier; the tier amount is split into
+// monthly instalments credited to referralCreditCents (spent at checkout).
+
+model AppSetting {
+  key   String @id
+  value String // JSON-encoded
+}
+
+model ReferralTier {
+  id          String @id @default(uuid())
+  minCount    Int // first paid referral covered by this tier (1-based)
+  maxCount    Int? // null = no upper bound
+  amountCents Int // credit per referral (sen)
+  splitMonths Int    @default(1) // instalments the amount is spread over
+  sortOrder   Int    @default(0)
+}
+
+// One row per converted referral (idempotent via referredUserId).
+model ReferralEarning {
+  id              String               @id @default(uuid())
+  referrerId      String
+  referredUserId  String               @unique
+  tierAmountCents Int
+  splitMonths     Int
+  createdAt       DateTime             @default(now())
+  instalments     ReferralInstalment[]
+
+  @@index([referrerId])
+}
+
+model ReferralInstalment {
+  id          String          @id @default(uuid())
+  earningId   String
+  dueDate     DateTime
+  amountCents Int
+  creditedAt  DateTime? // null until released into referralCreditCents
+  earning     ReferralEarning @relation(fields: [earningId], references: [id], onDelete: Cascade)
+
+  @@index([earningId])
+  @@index([dueDate, creditedAt])
+}
+
+// Questions already served to a student, so new quests never repeat them.
+// questionHash = hash of the normalised question text. Rows are per user; the
+// (subject, grade) index lets a quest look up only the relevant history.
+model ServedQuestion {
+  id           String   @id @default(uuid())
+  userId       String
+  subject      String
+  grade        String
+  syllabus     String?
+  questionHash String
+  questionText String // trimmed to 300 chars — fed back to the AI as "do not repeat"
+  createdAt    DateTime @default(now())
+
+  @@unique([userId, questionHash])
+  @@index([userId, subject, grade])
+}
+
+model CourseSyllabus {
+  id        String   @id @default(uuid())
+  subject   String
+  grade     String
+  syllabus  String // e.g., "KSSM", "IGCSE", "Singapore Math"
+  language  String   @default("en") // UI language code the topics are written in: 'en' | 'ms' | 'zh' | 'ta'
+  topics    String // JSON: ["Algebra", "Geometry"] or nested objects
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([subject, grade, syllabus, language])
+}
+
+model PaperFile {
+  id        String   @id @default(uuid())
+  syllabus  String
+  grade     String
+  subject   String
+  year      Int
+  label     String // e.g. "SPM 2023 — Paper 1"
+  fileData  String // base64-encoded PDF
+  fileSize  Int // original size in bytes
+  createdAt DateTime @default(now())
+
+  @@index([syllabus, grade, subject, year])
+}
+
+model StudyPlan {
+  id        String      @id @default(uuid())
+  userId    String
+  title     String
+  overview  String?
+  subject   String
+  grade     String
+  syllabus  String
+  timeframe String
+  createdAt DateTime    @default(now())
+  user      User        @relation(fields: [userId], references: [id])
+  tasks     StudyTask[]
+
+  @@index([userId])
+}
+
+model StudyTask {
+  id          String    @id @default(uuid())
+  planId      String
+  weekNumber  Int
+  day         String // e.g. "Day 1"
+  title       String
+  topicSearch String
+  isCompleted Boolean   @default(false)
+  completedAt DateTime?
+  studyPlan   StudyPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@index([planId])
+}
+
+model Classroom {
+  id        String   @id @default(uuid())
+  name      String
+  joinCode  String   @unique // 6-character unique code
+  teacherId String
+  createdAt DateTime @default(now())
+
+  teacher     User         @relation("TeacherClassrooms", fields: [teacherId], references: [id])
+  students    User[]       @relation("StudentClassrooms")
+  assignments Assignment[]
+}
+
+model Assignment {
+  id          String    @id @default(uuid())
+  classroomId String
+  title       String
+  description String?
+  questId     String? // Links to a CustomQuest id (optional)
+  dueDate     DateTime?
+  createdAt   DateTime  @default(now())
+
+  classroom   Classroom              @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  submissions AssignmentSubmission[]
+}
+
+model AssignmentSubmission {
+  id           String    @id @default(uuid())
+  assignmentId String
+  studentId    String
+  status       String    @default("pending") // pending, submitted, completed
+  score        Int?
+  proofUrl     String?
+  completedAt  DateTime?
+
+  assignment Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  student    User       @relation("StudentSubmissions", fields: [studentId], references: [id])
+
+  @@unique([assignmentId, studentId])
+}

@@ -1,0 +1,873 @@
+import express from 'express';
+import bcrypt from 'bcryptjs';
+import prisma from '../db.js';
+import { generateAIContent } from '../utils/ai.js';
+import { authenticateToken } from '../middleware/authMiddleware.js';
+import { getActiveSeason, seasonScores } from '../utils/seasonScore.js';
+import { getTiers, isTieredEnabled, tierFor, DEFAULT_TIERS } from '../utils/referral.js';
+import crypto from 'crypto';
+import { isValidSyllabus, isValidGradeForSyllabus } from '../utils/curriculumGrades.js';
+import { schoolAge } from '../utils/ageGrade.js';
+import { sendWelcomeEmail } from '../services/mailService.js';
+const router = express.Router();
+// Middleware: require isAdmin
+const requireAdmin = async (req, res, next) => {
+    const userId = req.user?.id;
+    if (!userId)
+        return res.status(401).json({ error: 'Unauthorized' });
+    try {
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if (!user || !user.isAdmin) {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+        next();
+    }
+    catch {
+        res.status(500).json({ error: 'Server error' });
+    }
+};
+router.use(authenticateToken, requireAdmin);
+// GET /api/admin/stats — aggregate analytics (student-scoped)
+router.get('/stats', async (_req, res) => {
+    try {
+        const [studentCount, totalCoins, totalXP, performance] = await Promise.all([
+            prisma.user.count({ where: { role: 'student' } }),
+            prisma.user.aggregate({ where: { role: 'student' }, _sum: { coins: true } }),
+            prisma.user.aggregate({ where: { role: 'student' }, _sum: { xp: true } }),
+            prisma.result.aggregate({
+                where: { user: { role: 'student' } },
+                _sum: {
+                    totalQuestions: true,
+                    correctAnswers: true
+                }
+            })
+        ]);
+        // Season participation: how many students have scored points in the live season.
+        const season = await getActiveSeason(new Date());
+        let activeThisSeason = 0;
+        if (season) {
+            const scores = await seasonScores(season.startDate, season.endDate);
+            activeThisSeason = scores.filter(s => s.points > 0).length;
+        }
+        res.json({
+            users: studentCount,
+            totalStudents: studentCount,
+            totalCoins: totalCoins._sum.coins || 0,
+            totalXP: totalXP._sum.xp || 0,
+            totalQuestions: performance._sum.totalQuestions || 0,
+            totalCorrect: performance._sum.correctAnswers || 0,
+            averageAccuracy: performance._sum.totalQuestions ?
+                Math.round((performance._sum.correctAnswers || 0) / performance._sum.totalQuestions * 100) : 0,
+            activeThisSeason,
+            seasonName: season ? season.name : null,
+            generatedAt: new Date().toISOString()
+        });
+    }
+    catch (error) {
+        console.error('[ADMIN] Stats error:', error);
+        res.status(500).json({ error: 'Failed to fetch analytics' });
+    }
+});
+// GET /api/admin/users — list all users (with aggregate stats)
+router.get('/users', async (_req, res) => {
+    try {
+        const users = await prisma.user.findMany({
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+                xp: true,
+                coins: true,
+                isAdmin: true,
+                isSubscribed: true,
+                questsPlayed: true,
+                parentId: true,
+                archivedAt: true,
+                subscriptionSeats: true,
+                parent: { select: { email: true, name: true } },
+                results: {
+                    select: {
+                        totalQuestions: true,
+                        correctAnswers: true,
+                        subject: true
+                    }
+                }
+            },
+            orderBy: { xp: 'desc' }
+        });
+        const usersWithStats = users.map(u => {
+            const totalQ = u.results.reduce((sum, r) => sum + r.totalQuestions, 0);
+            const totalC = u.results.reduce((sum, r) => sum + r.correctAnswers, 0);
+            const subjects = Array.from(new Set(u.results.map(r => r.subject).filter(Boolean))).sort();
+            return {
+                ...u,
+                totalQuestions: totalQ,
+                totalCorrect: totalC,
+                accuracy: totalQ ? Math.round((totalC / totalQ) * 100) : 0,
+                subjectsDone: subjects,
+                // Family profiles: child rows point at the parent account that logs in.
+                parentEmail: u.parent?.email ?? null,
+                parentAccountName: u.parent?.name ?? null,
+                isArchived: !!u.archivedAt,
+                parent: undefined,
+                archivedAt: undefined,
+                results: undefined
+            };
+        });
+        res.json(usersWithStats);
+    }
+    catch (error) {
+        console.error('[ADMIN] Users error:', error);
+        res.status(500).json({ error: 'Failed to fetch users' });
+    }
+});
+// ─── STUDENT CSV EXPORT / IMPORT ─────────────────────────────────────────────
+const csvEscape = (v) => {
+    const s = v === null || v === undefined ? '' : String(v);
+    return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+};
+const isoDay = (d) => (d ? new Date(d).toISOString().slice(0, 10) : '');
+// Same rules as auth.ts: 'YYYY-MM-DD' → UTC midnight, rejecting rolled-over dates.
+const parseBirthdayStr = (value) => {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value).trim());
+    if (!m)
+        return null;
+    const y = Number(m[1]), mo = Number(m[2]), d = Number(m[3]);
+    const date = new Date(Date.UTC(y, mo - 1, d));
+    if (isNaN(date.getTime()) || date.getUTCFullYear() !== y || date.getUTCMonth() !== mo - 1 || date.getUTCDate() !== d)
+        return null;
+    return date;
+};
+const TEMP_PW_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+const tempPassword = () => {
+    const bytes = crypto.randomBytes(10);
+    return Array.from(bytes, b => TEMP_PW_ALPHABET[b % TEMP_PW_ALPHABET.length]).join('');
+};
+export const IMPORT_COLUMNS = ['name', 'email', 'grade', 'syllabus', 'birthday', 'parentName', 'parentPhone', 'parentEmail'];
+// GET /api/admin/users/export — every account as CSV
+router.get('/users/export', async (_req, res) => {
+    try {
+        const users = await prisma.user.findMany({
+            orderBy: { createdAt: 'asc' },
+            select: {
+                name: true, email: true, role: true, grade: true, gradeSyllabus: true, birthday: true, createdAt: true,
+                parentName: true, parentPhone: true, parentEmail: true, children: true,
+                xp: true, coins: true, isSubscribed: true, subscriptionLevel: true, subscribedSyllabus: true, subscriptionEndDate: true,
+                isVerified: true, isAdmin: true, referralCode: true, referralCreditCents: true,
+                subscriptionSeats: true, archivedAt: true, parent: { select: { email: true } },
+            },
+        });
+        const header = ['name', 'email', 'role', 'grade', 'syllabus', 'birthday', 'dateJoined', 'parentName', 'parentPhone', 'parentEmail', 'children',
+            'xp', 'coins', 'isSubscribed', 'subscriptionLevel', 'subscribedSyllabus', 'subscriptionEndDate', 'subscriptionSeats', 'isVerified', 'isAdmin', 'referralCode', 'referralCreditRM',
+            'parentAccountEmail', 'archived'];
+        const lines = [header.join(',')];
+        for (const u of users) {
+            lines.push([
+                u.name, u.parent ? '' : u.email, u.role, u.grade, u.gradeSyllabus, isoDay(u.birthday), isoDay(u.createdAt),
+                u.parentName, u.parentPhone, u.parentEmail, u.children,
+                u.xp, u.coins, u.isSubscribed ? 'yes' : 'no', u.subscriptionLevel, u.subscribedSyllabus, isoDay(u.subscriptionEndDate), u.subscriptionSeats,
+                u.isVerified ? 'yes' : 'no', u.isAdmin ? 'yes' : 'no', u.referralCode, ((u.referralCreditCents ?? 0) / 100).toFixed(2),
+                u.parent?.email ?? '', u.archivedAt ? 'yes' : 'no',
+            ].map(csvEscape).join(','));
+        }
+        const csv = '﻿' + lines.join('\r\n'); // BOM so Excel opens UTF-8 (Tamil/Chinese names) correctly
+        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+        res.setHeader('Content-Disposition', `attachment; filename="akshara-students-${new Date().toISOString().slice(0, 10)}.csv"`);
+        res.send(csv);
+    }
+    catch (error) {
+        console.error('[ADMIN] Users export error:', error);
+        res.status(500).json({ error: 'Failed to export users' });
+    }
+});
+// POST /api/admin/users/import — create-or-update students from parsed CSV rows
+// body: { rows: [{ name, email, grade, syllabus, birthday, parentName, parentPhone, parentEmail }] }
+// Existing email → update the provided fields (birthday only if not already set);
+// new email → create a verified student with a temporary password sent by email.
+router.post('/users/import', async (req, res) => {
+    const rows = Array.isArray(req.body?.rows) ? req.body.rows : null;
+    if (!rows)
+        return res.status(400).json({ error: 'rows must be an array' });
+    if (rows.length > 2000)
+        return res.status(400).json({ error: 'Import at most 2000 rows at a time' });
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const summary = { created: 0, updated: 0, failed: [], details: [] };
+    const seen = new Set();
+    for (let i = 0; i < rows.length; i++) {
+        const r = rows[i] ?? {};
+        const rowNo = i + 1;
+        const str = (v) => (v === null || v === undefined ? '' : String(v).trim());
+        const email = str(r.email).toLowerCase();
+        const fail = (reason) => summary.failed.push({ row: rowNo, email, reason });
+        if (!emailRegex.test(email)) {
+            fail('Invalid or missing email');
+            continue;
+        }
+        if (seen.has(email)) {
+            fail('Duplicate email within this file');
+            continue;
+        }
+        seen.add(email);
+        const name = str(r.name);
+        const syllabus = str(r.syllabus);
+        const grade = str(r.grade);
+        const birthday = str(r.birthday);
+        const parentName = str(r.parentName), parentPhone = str(r.parentPhone), parentEmail = str(r.parentEmail);
+        if (syllabus && !isValidSyllabus(syllabus)) {
+            fail(`Unknown syllabus "${syllabus}"`);
+            continue;
+        }
+        if (parentEmail && !emailRegex.test(parentEmail)) {
+            fail('Invalid parent email');
+            continue;
+        }
+        let birthdayDate = null;
+        if (birthday) {
+            birthdayDate = parseBirthdayStr(birthday);
+            if (!birthdayDate) {
+                fail('Birthday must be YYYY-MM-DD');
+                continue;
+            }
+            const age = schoolAge(birthdayDate, new Date());
+            if (age < 4 || age > 100) {
+                fail('Birthday gives an unrealistic age');
+                continue;
+            }
+        }
+        try {
+            const existing = await prisma.user.findUnique({ where: { email } });
+            if (existing) {
+                const effSyllabus = syllabus || existing.gradeSyllabus || '';
+                if (grade && (!effSyllabus || !isValidGradeForSyllabus(effSyllabus, grade))) {
+                    fail(`Grade "${grade}" is not valid for syllabus "${effSyllabus || '(none)'}"`);
+                    continue;
+                }
+                const data = {};
+                if (name)
+                    data.name = name;
+                if (syllabus)
+                    data.gradeSyllabus = syllabus;
+                if (grade)
+                    data.grade = grade;
+                if (parentName)
+                    data.parentName = parentName;
+                if (parentPhone)
+                    data.parentPhone = parentPhone;
+                if (parentEmail)
+                    data.parentEmail = parentEmail;
+                if (birthdayDate && !existing.birthday)
+                    data.birthday = birthdayDate; // immutable once set
+                await prisma.user.update({ where: { id: existing.id }, data });
+                summary.updated++;
+                summary.details.push({ row: rowNo, email, action: 'updated' });
+            }
+            else {
+                if (!name) {
+                    fail('Name is required for a new student');
+                    continue;
+                }
+                if (grade && (!syllabus || !isValidGradeForSyllabus(syllabus, grade))) {
+                    fail(`Grade "${grade}" needs a valid syllabus`);
+                    continue;
+                }
+                await prisma.pendingUser.deleteMany({ where: { email } });
+                const pw = tempPassword();
+                const hashed = await bcrypt.hash(pw, 10);
+                await prisma.user.create({
+                    data: {
+                        name, email, password: hashed, role: 'student', isVerified: true,
+                        gradeSyllabus: syllabus || null, grade: grade || null, birthday: birthdayDate,
+                        parentName: parentName || null, parentPhone: parentPhone || null, parentEmail: parentEmail || null,
+                    },
+                });
+                const emailSent = await sendWelcomeEmail(email, name, pw);
+                summary.created++;
+                summary.details.push({ row: rowNo, email, action: 'created', emailSent });
+            }
+        }
+        catch (err) {
+            console.error(`[ADMIN] Import row ${rowNo} (${email}) failed:`, err);
+            fail(err?.message || 'Database error');
+        }
+    }
+    console.log(`[ADMIN] CSV import: ${summary.created} created, ${summary.updated} updated, ${summary.failed.length} failed`);
+    res.json(summary);
+});
+// POST /api/admin/create-teacher — provision a verified teacher account
+// Teachers can no longer self-register, so admins create them here.
+router.post('/create-teacher', async (req, res) => {
+    const { name, email, password } = req.body;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!name || !email || !password) {
+        return res.status(400).json({ error: 'Name, email and password are required' });
+    }
+    if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: 'Please provide a valid email address' });
+    }
+    if (String(password).length < 6) {
+        return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+    try {
+        const normalizedEmail = String(email).trim().toLowerCase();
+        const existing = await prisma.user.findUnique({ where: { email: normalizedEmail } });
+        if (existing) {
+            return res.status(400).json({ error: 'A user with this email already exists' });
+        }
+        // Clear any stale pending self-registration for this email
+        await prisma.pendingUser.deleteMany({ where: { email: normalizedEmail } });
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const teacher = await prisma.user.create({
+            data: {
+                name: String(name).trim(),
+                email: normalizedEmail,
+                password: hashedPassword,
+                role: 'teacher',
+                isVerified: true,
+            },
+            select: { id: true, name: true, email: true, role: true },
+        });
+        console.log(`[ADMIN] Created teacher account: ${teacher.email}`);
+        res.json({ success: true, teacher });
+    }
+    catch (error) {
+        console.error('[ADMIN] Create teacher error:', error);
+        res.status(500).json({ error: 'Failed to create teacher account' });
+    }
+});
+// PATCH /api/admin/users/:id/role — change a user's role and/or admin access
+router.patch('/users/:id/role', async (req, res) => {
+    const { id } = req.params;
+    const { role, isAdmin } = req.body;
+    if (role !== undefined && role !== 'student' && role !== 'teacher') {
+        return res.status(400).json({ error: "role must be 'student' or 'teacher'" });
+    }
+    if (isAdmin !== undefined && typeof isAdmin !== 'boolean') {
+        return res.status(400).json({ error: 'isAdmin must be a boolean' });
+    }
+    if (role === undefined && isAdmin === undefined) {
+        return res.status(400).json({ error: 'Nothing to update' });
+    }
+    // Prevent an admin from revoking their own admin access (avoids lockout)
+    if (isAdmin === false && id === req.user?.id) {
+        return res.status(400).json({ error: 'You cannot revoke your own admin access' });
+    }
+    try {
+        const data = {};
+        if (role !== undefined)
+            data.role = role;
+        if (isAdmin !== undefined)
+            data.isAdmin = isAdmin;
+        const updated = await prisma.user.update({
+            where: { id },
+            data,
+            select: { id: true, name: true, email: true, role: true, isAdmin: true },
+        });
+        console.log(`[ADMIN] Updated access for ${updated.email}: role=${updated.role}, isAdmin=${updated.isAdmin}`);
+        res.json({ success: true, user: updated });
+    }
+    catch (error) {
+        console.error('[ADMIN] Update role error:', error);
+        res.status(500).json({ error: 'Failed to update user role' });
+    }
+});
+// GET /api/admin/users/:userId/performance — Daily stats for a user
+router.get('/users/:userId/performance', async (req, res) => {
+    const { userId } = req.params;
+    try {
+        const results = await prisma.result.findMany({
+            where: { userId },
+            orderBy: { date: 'asc' },
+            select: {
+                date: true,
+                totalQuestions: true,
+                correctAnswers: true
+            }
+        });
+        const dailyStats = {};
+        results.forEach(r => {
+            const day = r.date.toISOString().split('T')[0];
+            if (!dailyStats[day]) {
+                dailyStats[day] = { answered: 0, correct: 0 };
+            }
+            dailyStats[day].answered += r.totalQuestions;
+            dailyStats[day].correct += r.correctAnswers;
+        });
+        const formattedStats = Object.entries(dailyStats).map(([date, stats]) => ({
+            date,
+            ...stats,
+            accuracy: stats.answered ? Math.round((stats.correct / stats.answered) * 100) : 0
+        })).sort((a, b) => b.date.localeCompare(a.date));
+        res.json(formattedStats);
+    }
+    catch (error) {
+        console.error('[ADMIN] Performance error:', error);
+        res.status(500).json({ error: 'Failed to fetch performance data' });
+    }
+});
+// --- REWARD MANAGEMENT ---
+// GET /api/admin/rewards — list all rewards (including inactive)
+router.get('/rewards', async (_req, res) => {
+    try {
+        const rewards = await prisma.reward.findMany({
+            orderBy: { createdAt: 'desc' }
+        });
+        res.json(rewards);
+    }
+    catch (error) {
+        res.status(500).json({ error: 'Failed to fetch rewards' });
+    }
+});
+// POST /api/admin/rewards — create a new reward
+router.post('/rewards', async (req, res) => {
+    try {
+        const { title, description, coinCost, icon, stock } = req.body;
+        const reward = await prisma.reward.create({
+            data: { title, description, coinCost: parseInt(coinCost), icon, stock: stock ? parseInt(stock) : null }
+        });
+        res.json(reward);
+    }
+    catch (error) {
+        res.status(500).json({ error: 'Failed to create reward' });
+    }
+});
+// PUT /api/admin/rewards/:id — update a reward
+router.put('/rewards/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const data = req.body;
+        const reward = await prisma.reward.update({
+            where: { id },
+            data
+        });
+        res.json(reward);
+    }
+    catch (error) {
+        res.status(500).json({ error: 'Failed to update reward' });
+    }
+});
+// DELETE /api/admin/rewards/:id — delete a reward (and its linked redemptions first)
+router.delete('/rewards/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        // Delete linked redemptions first to avoid foreign key constraint errors
+        await prisma.redemption.deleteMany({ where: { rewardId: id } });
+        await prisma.reward.delete({ where: { id } });
+        res.json({ success: true });
+    }
+    catch (error) {
+        console.error('[ADMIN] Delete reward error:', error);
+        res.status(500).json({ error: 'Failed to delete reward' });
+    }
+});
+// GET /api/admin/redemptions — list all redemptions
+router.get('/redemptions', async (_req, res) => {
+    try {
+        const redemptions = await prisma.redemption.findMany({
+            include: {
+                user: { select: { name: true, email: true } },
+                reward: { select: { title: true } }
+            },
+            orderBy: { redeemedAt: 'desc' }
+        });
+        res.json(redemptions);
+    }
+    catch (error) {
+        res.status(500).json({ error: 'Failed to fetch redemptions' });
+    }
+});
+// PATCH /api/admin/redemptions/:id — update redemption status
+router.patch('/redemptions/:id', async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    try {
+        const redemption = await prisma.redemption.update({
+            where: { id },
+            data: { status }
+        });
+        res.json(redemption);
+    }
+    catch (error) {
+        res.status(500).json({ error: 'Failed to update redemption' });
+    }
+});
+// ─── REFERRAL PROGRAMME ───────────────────────────────────────────────────────
+// GET /api/admin/referral-tiers — current tier table + tiered toggle
+router.get('/referral-tiers', async (_req, res) => {
+    try {
+        res.json({ tiered: await isTieredEnabled(), tiers: await getTiers(), defaults: DEFAULT_TIERS });
+    }
+    catch (error) {
+        console.error('[ADMIN] Referral tiers error:', error);
+        res.status(500).json({ error: 'Failed to load referral tiers' });
+    }
+});
+// PUT /api/admin/referral-tiers — replace the tier table
+// body: { tiered: boolean, tiers: [{ minCount, maxCount|null, amountCents, splitMonths }] }
+router.put('/referral-tiers', async (req, res) => {
+    const { tiered, tiers } = req.body ?? {};
+    if (!Array.isArray(tiers) || tiers.length === 0)
+        return res.status(400).json({ error: 'At least one tier is required.' });
+    const cleaned = [];
+    for (let i = 0; i < tiers.length; i++) {
+        const t = tiers[i] ?? {};
+        const minCount = i === 0 ? 1 : Number(t.minCount);
+        const rawMax = t.maxCount;
+        const maxCount = rawMax === null || rawMax === undefined || rawMax === '' ? null : Number(rawMax);
+        const amountCents = Math.round(Number(t.amountCents));
+        const splitMonths = Math.max(1, Math.round(Number(t.splitMonths) || 1));
+        if (!Number.isInteger(minCount) || minCount < 1)
+            return res.status(400).json({ error: `Tier ${i + 1}: invalid "from" value.` });
+        if (maxCount !== null && (!Number.isInteger(maxCount) || maxCount < minCount))
+            return res.status(400).json({ error: `Tier ${i + 1}: "up to" must be at least "from".` });
+        if (!Number.isFinite(amountCents) || amountCents < 0)
+            return res.status(400).json({ error: `Tier ${i + 1}: invalid amount.` });
+        if (i > 0) {
+            const prev = cleaned[i - 1];
+            if (prev.maxCount === null)
+                return res.status(400).json({ error: 'Only the last tier can be open-ended.' });
+            if (minCount !== prev.maxCount + 1)
+                return res.status(400).json({ error: `Tier ${i + 1} must start at ${prev.maxCount + 1}.` });
+        }
+        cleaned.push({ minCount, maxCount, amountCents, splitMonths, sortOrder: i });
+    }
+    try {
+        await prisma.$transaction([
+            prisma.referralTier.deleteMany({}),
+            prisma.referralTier.createMany({ data: cleaned }),
+            prisma.appSetting.upsert({
+                where: { key: 'referral.tiered' },
+                update: { value: String(!!tiered) },
+                create: { key: 'referral.tiered', value: String(!!tiered) },
+            }),
+        ]);
+        res.json({ tiered: !!tiered, tiers: cleaned });
+    }
+    catch (error) {
+        console.error('[ADMIN] Save referral tiers error:', error);
+        res.status(500).json({ error: 'Failed to save referral tiers' });
+    }
+});
+// GET /api/admin/referrals — per-referrer report: sign-ups, paid conversions, tier, credit ledger
+router.get('/referrals', async (_req, res) => {
+    try {
+        const referred = await prisma.user.findMany({
+            where: { referredById: { not: null } },
+            select: { id: true, name: true, email: true, referredById: true, referralRewardGranted: true },
+        });
+        const byReferrer = new Map();
+        for (const u of referred) {
+            const key = u.referredById;
+            if (!byReferrer.has(key))
+                byReferrer.set(key, []);
+            byReferrer.get(key).push({ id: u.id, name: u.name, email: u.email, paid: u.referralRewardGranted });
+        }
+        const referrerIds = Array.from(byReferrer.keys());
+        const [referrers, earnings, tiers, tiered] = await Promise.all([
+            prisma.user.findMany({
+                where: { id: { in: referrerIds } },
+                select: { id: true, name: true, email: true, referralCode: true, referralCreditCents: true },
+            }),
+            prisma.referralEarning.findMany({ where: { referrerId: { in: referrerIds } }, include: { instalments: true } }),
+            getTiers(),
+            isTieredEnabled(),
+        ]);
+        const referrerMap = new Map(referrers.map(r => [r.id, r]));
+        const earningsBy = new Map();
+        for (const e of earnings) {
+            if (!earningsBy.has(e.referrerId))
+                earningsBy.set(e.referrerId, []);
+            earningsBy.get(e.referrerId).push(e);
+        }
+        const report = referrerIds.map(referrerId => {
+            const r = referrerMap.get(referrerId);
+            const referredUsers = byReferrer.get(referrerId);
+            const mine = earningsBy.get(referrerId) ?? [];
+            let totalEarnedCents = 0, creditedCents = 0, pendingCents = 0;
+            let nextDue = null;
+            for (const e of mine) {
+                totalEarnedCents += e.tierAmountCents;
+                for (const inst of e.instalments) {
+                    if (inst.creditedAt)
+                        creditedCents += inst.amountCents;
+                    else {
+                        pendingCents += inst.amountCents;
+                        if (!nextDue || inst.dueDate < nextDue)
+                            nextDue = inst.dueDate;
+                    }
+                }
+            }
+            const paidReferrals = mine.length;
+            return {
+                referrer: {
+                    id: referrerId,
+                    name: r?.name || 'Unknown',
+                    email: r?.email || '—',
+                    referralCode: r?.referralCode || null,
+                    referralCreditCents: r?.referralCreditCents ?? 0,
+                },
+                count: referredUsers.length,
+                paidReferrals,
+                tier: tierFor(tiers, tiered, paidReferrals + 1),
+                totalEarnedCents,
+                creditedCents,
+                pendingCents,
+                nextDue,
+                referred: referredUsers,
+            };
+        }).sort((a, b) => b.paidReferrals - a.paidReferrals || b.count - a.count);
+        res.json(report);
+    }
+    catch (error) {
+        console.error('[ADMIN] Referrals error:', error);
+        res.status(500).json({ error: 'Failed to fetch referrals' });
+    }
+});
+// ─── QUESTION BANK MANAGEMENT ────────────────────────────────────────────────
+// Helpers
+const resolveExamName = (syllabus, grade) => {
+    const s = syllabus.toLowerCase();
+    const g = grade.toLowerCase();
+    if (s.includes('kssr') || s.includes('kssm') || s.includes('malaysian')) {
+        if (g.includes('form 5'))
+            return 'SPM (Sijil Pelajaran Malaysia)';
+        if (g.includes('form 3'))
+            return 'PT3 (Pentaksiran Tingkatan 3)';
+        if (g.includes('standard 6'))
+            return 'UPSR (Ujian Pencapaian Sekolah Rendah)';
+        if (g.includes('form 6'))
+            return 'STPM (Sijil Tinggi Persekolahan Malaysia)';
+        return 'Malaysian National Exam';
+    }
+    if (s.includes('igcse') || s.includes('cambridge'))
+        return 'Cambridge IGCSE';
+    if (s.includes('singapore') || s.includes('moe'))
+        return 'Singapore GCE O-Level';
+    if (s.includes('ib'))
+        return 'IB (International Baccalaureate)';
+    return syllabus;
+};
+const repairJSON = (text) => {
+    let cleaned = text.trim();
+    const jsonMatch = cleaned.match(/\{[\s\S]*\}/) || cleaned.match(/\[[\s\S]*\]/);
+    if (jsonMatch) {
+        cleaned = jsonMatch[0];
+    }
+    else {
+        const start = cleaned.indexOf('{') !== -1 ? cleaned.indexOf('{') : cleaned.indexOf('[');
+        if (start !== -1)
+            cleaned = cleaned.substring(start);
+        else
+            throw new Error('No JSON found in response');
+    }
+    const stack = [];
+    let inStr = false, esc = false;
+    for (const char of cleaned) {
+        if (esc) {
+            esc = false;
+            continue;
+        }
+        if (char === '\\') {
+            esc = true;
+            continue;
+        }
+        if (char === '"') {
+            inStr = !inStr;
+            continue;
+        }
+        if (!inStr) {
+            if (char === '{' || char === '[')
+                stack.push(char);
+            else if (char === '}' || char === ']')
+                stack.pop();
+        }
+    }
+    if (inStr)
+        cleaned += '"';
+    while (stack.length)
+        cleaned += stack.pop() === '{' ? '}' : ']';
+    return JSON.parse(cleaned);
+};
+// ⚠️ IMPORTANT: /question-bank/ai-generate MUST come BEFORE /question-bank to avoid Express swallowing it
+// POST /api/admin/question-bank/ai-generate — AI auto-generate & save questions
+router.post('/question-bank/ai-generate', async (req, res) => {
+    const { syllabus, grade, subject, year, count = 25 } = req.body;
+    if (!syllabus || !grade || !subject || !year) {
+        return res.status(400).json({ error: 'syllabus, grade, subject, and year are required' });
+    }
+    const parsedYear = parseInt(String(year), 10);
+    if (isNaN(parsedYear)) {
+        return res.status(400).json({ error: 'year must be a valid number' });
+    }
+    const examName = resolveExamName(syllabus, grade);
+    const numQ = Math.min(Math.max(parseInt(String(count), 10) || 25, 5), 40);
+    const prompt = `You are an expert exam question compiler with comprehensive knowledge of official past year exam papers.
+
+TASK: Generate ${numQ} multiple-choice questions representative of the official ${examName} ${parsedYear} paper for ${subject} at ${grade} level.
+
+REQUIREMENTS:
+1. Each question must have exactly 4 options as full answer text (not just A/B/C/D labels).
+2. correctAnswer must be EXACTLY one of: "A", "B", "C", or "D".
+3. Include the topic/chapter name for each question.
+4. Include a 2-3 sentence explanation for each answer.
+5. Include difficulty: "Easy", "Medium", or "Hard".
+6. Include source like "${subject} ${examName} ${parsedYear} Paper 1".
+7. Cover diverse topics from the full ${subject} syllabus.
+8. Difficulty spread: ~30% Easy, ~45% Medium, ~25% Hard.
+9. THE RESPONSE MUST BE EXACTLY ${numQ} QUESTIONS. DO NOT RETURN FEWER.
+${syllabus.toLowerCase().includes('kssr') || syllabus.toLowerCase().includes('kssm') || syllabus.toLowerCase().includes('malaysian') ? '10. Follow Malaysian DSKP standard terminology.' : ''}
+${syllabus.toLowerCase().includes('igcse') || syllabus.toLowerCase().includes('cambridge') ? '10. Follow Cambridge syllabus. Use command words: state, describe, explain, calculate, suggest.' : ''}
+
+Return ONLY a valid JSON object (no other text):
+{
+  "questions": [
+    {
+      "question": "Full question text?",
+      "options": ["Option A text", "Option B text", "Option C text", "Option D text"],
+      "correctAnswer": "A",
+      "topic": "Chapter/topic name",
+      "difficulty": "Medium",
+      "explanation": "Why the answer is correct...",
+      "source": "${subject} ${examName} ${parsedYear}"
+    }
+  ]
+}`;
+    try {
+        console.log(`🤖 [QB-AI] Generating ${numQ} questions for ${syllabus}/${grade}/${subject}/${parsedYear}`);
+        const responseText = await generateAIContent(prompt, 'gemini-2.5-flash', 'application/json');
+        if (!responseText) {
+            return res.status(500).json({ error: 'AI returned empty response. Please try again.' });
+        }
+        let parsed;
+        try {
+            parsed = repairJSON(responseText);
+        }
+        catch (e) {
+            console.error('[QB-AI] JSON parse failure:', e.message);
+            return res.status(500).json({ error: 'AI returned malformed JSON. Please try again.' });
+        }
+        const rawQuestions = parsed.questions || (Array.isArray(parsed) ? parsed : []);
+        if (rawQuestions.length < Math.min(numQ, 5)) {
+            return res.status(500).json({ error: `AI returned too few questions (${rawQuestions.length}/${numQ}). Please try again.` });
+        }
+        const created = await prisma.$transaction(rawQuestions.map((q) => prisma.questionBank.create({
+            data: {
+                subject,
+                grade,
+                syllabus,
+                year: parsedYear,
+                topic: q.topic || 'General',
+                subtopic: q.subtopic || null,
+                question: q.question || q.text || '',
+                options: JSON.stringify(Array.isArray(q.options) ? q.options : ['A', 'B', 'C', 'D']),
+                correctAnswer: String(q.correctAnswer || 'A').toUpperCase().charAt(0),
+                explanation: q.explanation || '',
+                difficulty: q.difficulty || 'Medium',
+                source: q.source || `${subject} ${examName} ${parsedYear}`,
+            },
+        })));
+        console.log(`✅ [QB-AI] Saved ${created.length} questions to QuestionBank`);
+        res.json({ uploaded: created.length, message: `Successfully generated and imported ${created.length} questions!` });
+    }
+    catch (error) {
+        console.error('[QB-AI] Error:', error);
+        res.status(500).json({ error: 'AI generation failed', details: error.message });
+    }
+});
+// POST /api/admin/question-bank — upload single question or bulk array (manual JSON)
+router.post('/question-bank', async (req, res) => {
+    try {
+        const { syllabus, grade, subject, year, questions } = req.body;
+        if (!syllabus || !grade || !subject || !year) {
+            return res.status(400).json({ error: 'syllabus, grade, subject, and year are required' });
+        }
+        const parsedYear = parseInt(String(year), 10);
+        if (isNaN(parsedYear)) {
+            return res.status(400).json({ error: 'year must be a valid number' });
+        }
+        const rawList = Array.isArray(questions) ? questions : [questions];
+        if (!rawList.length) {
+            return res.status(400).json({ error: 'No questions provided' });
+        }
+        const created = await prisma.$transaction(rawList.map((q) => prisma.questionBank.create({
+            data: {
+                subject,
+                grade,
+                syllabus,
+                year: parsedYear,
+                topic: q.topic || 'General',
+                subtopic: q.subtopic || null,
+                question: q.question,
+                options: JSON.stringify(q.options),
+                correctAnswer: q.correctAnswer,
+                explanation: q.explanation || '',
+                difficulty: q.difficulty || 'Medium',
+                source: q.source || null,
+            },
+        })));
+        console.log(`[QB] ✅ Uploaded ${created.length} questions for ${syllabus} / ${grade} / ${subject} / ${parsedYear}`);
+        res.json({ uploaded: created.length, ids: created.map((q) => q.id) });
+    }
+    catch (error) {
+        console.error('[QB] Upload error:', error);
+        res.status(500).json({ error: 'Failed to upload questions', details: error.message });
+    }
+});
+// GET /api/admin/question-bank — list questions with optional filters
+router.get('/question-bank', async (req, res) => {
+    try {
+        const { syllabus, grade, subject, year } = req.query;
+        const where = {};
+        if (syllabus)
+            where.syllabus = syllabus;
+        if (grade)
+            where.grade = grade;
+        if (subject)
+            where.subject = subject;
+        if (year)
+            where.year = parseInt(year, 10);
+        const questions = await prisma.questionBank.findMany({
+            where,
+            orderBy: [{ year: 'desc' }, { createdAt: 'desc' }],
+        });
+        res.json(questions);
+    }
+    catch (error) {
+        console.error('[QB] List error:', error);
+        res.status(500).json({ error: 'Failed to fetch questions' });
+    }
+});
+// DELETE /api/admin/question-bank/:id — delete a single question
+router.delete('/question-bank/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        await prisma.questionBank.delete({ where: { id } });
+        res.json({ success: true });
+    }
+    catch (error) {
+        console.error('[QB] Delete error:', error);
+        res.status(500).json({ error: 'Failed to delete question' });
+    }
+});
+// DELETE /api/admin/question-bank — delete ALL questions matching a filter (bulk delete)
+router.delete('/question-bank', async (req, res) => {
+    const { syllabus, grade, subject, year } = req.query;
+    try {
+        const where = {};
+        if (syllabus)
+            where.syllabus = syllabus;
+        if (grade)
+            where.grade = grade;
+        if (subject)
+            where.subject = subject;
+        if (year)
+            where.year = parseInt(year, 10);
+        const result = await prisma.questionBank.deleteMany({ where });
+        res.json({ deleted: result.count });
+    }
+    catch (error) {
+        console.error('[QB] Bulk delete error:', error);
+        res.status(500).json({ error: 'Failed to bulk delete questions' });
+    }
+});
+export default router;

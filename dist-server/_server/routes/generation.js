@@ -1,0 +1,1030 @@
+import express from 'express';
+import prisma from '../db.js';
+import { generateAIContent, PRIMARY_MODEL } from '../utils/ai.js';
+// import { GoogleGenerativeAI } from '@google/generative-ai';
+// import fetch from 'node-fetch'; // DISABLED: Using native fetch (Node 18+)
+import { authenticateToken } from '../middleware/authMiddleware.js';
+import { checkExpiredSubscriptions } from '../middleware/checkExpiredSubscriptions.js';
+import { effectiveSubscription, countFreeQuest } from '../utils/family.js';
+import { isMusicSyllabus } from '../utils/ageGrade.js';
+import { getCuratedTopics, getInstrumentFacts } from '../data/musicCurriculum.js';
+import { REFERENCE_QUESTIONS } from '../data/referenceBanks.js';
+import { getGradeSyllabus, syllabusToTopics } from '../data/gradeSyllabus.js';
+const router = express.Router();
+// Helper function to check mock mode dynamically
+const isMockMode = () => process.env.AI_MOCK_MODE === 'true';
+// Types (replicated from client for server usage)
+var Subject;
+(function (Subject) {
+    Subject["MATH"] = "Mathematics";
+    Subject["SCIENCE"] = "Science";
+    Subject["PHYSICS"] = "Physics";
+    Subject["CHEMISTRY"] = "Chemistry";
+    Subject["BIOLOGY"] = "Biology";
+    Subject["ADD_MATH"] = "Additional Mathematics";
+    Subject["COMPUTER_SCIENCE"] = "Computer Science";
+    Subject["BAHASA_MELAYU"] = "Bahasa Melayu";
+    Subject["ENGLISH"] = "English";
+    Subject["SEJARAH"] = "Sejarah (History)";
+    Subject["GEOGRAPHY"] = "Geografi";
+    Subject["ECONOMICS"] = "Economics";
+    Subject["BUSINESS"] = "Business Studies";
+    Subject["EDUCATION_ISLAM"] = "Pendidikan Islam";
+    Subject["EDUCATION_MORAL"] = "Pendidikan Moral";
+    Subject["RBT"] = "Reka Bentuk & Teknologi (RBT)";
+})(Subject || (Subject = {}));
+// Helper functions 
+const getSubjectCategory = (subject) => {
+    const stem = [Subject.MATH, Subject.SCIENCE, Subject.PHYSICS, Subject.CHEMISTRY, Subject.BIOLOGY, Subject.ADD_MATH, Subject.COMPUTER_SCIENCE];
+    const langs = [Subject.BAHASA_MELAYU, Subject.ENGLISH];
+    const hums = [Subject.SEJARAH, Subject.GEOGRAPHY, Subject.ECONOMICS, Subject.BUSINESS];
+    if (stem.includes(subject))
+        return 'STEM';
+    if (langs.includes(subject))
+        return 'LANGS';
+    if (hums.includes(subject))
+        return 'HUMS';
+    return 'VALUES';
+};
+// Convert QuestionBank rows to the frontend Question shape (shared by the
+// past-year branch and the music bank-first path).
+const formatBankQuestions = (rows, sourceLabel) => rows.map((q) => {
+    let options = [];
+    try {
+        options = JSON.parse(q.options);
+    }
+    catch {
+        options = ['A', 'B', 'C', 'D'];
+    }
+    const letterMap = { A: 0, B: 1, C: 2, D: 3 };
+    const correctAnswerIndex = letterMap[q.correctAnswer?.toUpperCase()] ?? 0;
+    return {
+        id: `real-${q.id}`,
+        text: q.question,
+        options,
+        correctAnswerIndex,
+        explanation: q.explanation || 'No explanation provided.',
+        source: q.source || sourceLabel,
+        isRealQuestion: true,
+    };
+});
+// ─── NO-REPEAT QUESTION HISTORY ────────────────────────────────────────
+// Every question served to a student is recorded (ServedQuestion) so later
+// quests on the same subject/grade never repeat it — both the AI prompt and
+// the bank-first path consult this history.
+const questionHash = (text) => {
+    const norm = text.toLowerCase().replace(/[^a-z0-9஀-௿一-鿿]+/g, ' ').trim();
+    let h = 2166136261;
+    for (let i = 0; i < norm.length; i++) {
+        h ^= norm.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+    }
+    return (h >>> 0).toString(16).padStart(8, '0') + norm.length.toString(16);
+};
+const loadSeenQuestions = async (userId, subject, grade) => {
+    try {
+        const rows = await prisma.servedQuestion.findMany({
+            where: { userId, subject, grade },
+            orderBy: { createdAt: 'desc' },
+            take: 400,
+            select: { questionHash: true, questionText: true }
+        });
+        // texts oldest→newest so a tail slice keeps the most recent ones
+        return { hashes: new Set(rows.map(r => r.questionHash)), texts: rows.map(r => r.questionText).reverse() };
+    }
+    catch (e) {
+        console.warn(`[GEN] Could not load served-question history: ${e.message}`);
+        return { hashes: new Set(), texts: [] };
+    }
+};
+const recordServedQuestions = async (userId, subject, grade, syllabus, texts) => {
+    if (!texts.length)
+        return;
+    try {
+        await prisma.servedQuestion.createMany({
+            data: texts.map(t => ({ userId, subject, grade, syllabus: syllabus || null, questionHash: questionHash(t), questionText: t.slice(0, 300) })),
+            skipDuplicates: true
+        });
+    }
+    catch (e) {
+        console.warn(`[GEN] Could not record served questions: ${e.message}`);
+    }
+};
+// ─── MUSIC PROMPT RULES ────────────────────────────────────────────────
+// Keep the subject lists in sync with lib/musicSubjects.ts.
+const CARNATIC_TECHNIQUE_FOCUS = {
+    'Sangeetham (Vocal)': 'voice culture, breath control, swara singing, and compositions (Geetham, Varnam, Kriti)',
+    'Mridangam': 'fingering, strokes (Tha, Dhi, Nam, Thom, Chapu), sollukattu recitation, and tala accompaniment',
+    'Veena': 'meettu (plucking), fretting, gamaka, and raga playing',
+    'Keyboard (Carnatic)': 'swara-to-key mapping (always state the selected Sa, e.g. Sa = E), fingering (thumb 1 to little finger 5), and raga playing',
+    'Harmonium': 'left-hand bellows control, right-hand fingering, and swara-to-key mapping (always state the selected Sa)',
+    'Violin (Carnatic)': 'seated playing posture, bowing (full/half/quarter bow), left-hand fingering and gamaka slides, varisais and compositions',
+    'Flute (Carnatic)': 'blowing and tonguing techniques, fingering and half-holing for gamakas, breath control, varisais and compositions',
+    'Tavil': 'stick (left hand) and finger-cap (right hand) technique, vazhi paadams, mohra, korvai, arudhi and nadaswaram accompaniment',
+    'Bharatanatyam (Dance)': 'adavus, hastas and their viniyogas, bhedas, abhinaya, tala reckoning, and the margam repertoire'
+};
+const HINDUSTANI_TECHNIQUE_FOCUS = {
+    'Vocal (Hindustani)': 'voice culture, sargam singing, alankar practice, and khayal fundamentals (sthayi/antara)',
+    'Tabla': 'hand technique on dayan and bayan, basic bols (Dha, Dhin, Na, Tin, Ge, Ke), kaida practice, and taal accompaniment',
+    'Harmonium': 'left-hand bellows control, right-hand fingering, and sargam-to-key mapping (always state the selected Sa)',
+    'Sitar': 'mizrab strokes (da, ra, diri), fretting, meend (glides), and raag playing'
+};
+// focus: 'Theory' | 'Aural & Practical' — the per-instrument study focus
+// chosen by the student. Undefined = mixed.
+const musicFocusRules = (subject, focus) => {
+    if (focus === 'Theory') {
+        return `- STUDY FOCUS = THEORY: Test concepts, definitions, terminology, notation, structure, history and composers relevant to ${subject}. Avoid pure playing-technique questions.`;
+    }
+    if (focus === 'Aural & Practical') {
+        return `- STUDY FOCUS = AURAL & PRACTICAL: Test playing technique, fingering/hand method, posture, practice discipline, and listening scenarios described in words (e.g. "the teacher plays a note higher than Sa — what should the student notice?"). Avoid pure book-theory questions.`;
+    }
+    return '- STUDY FOCUS: Mix theory and practical questions.';
+};
+// Sample official Akshara bank questions for this subject/grade so the AI can
+// imitate their style, difficulty and terminology (the banks ship inside the
+// bundle — no database needed). Prefers questions matching the study focus.
+const referenceExamplesBlock = (subject, grade, focus, count = 6) => {
+    let pool = REFERENCE_QUESTIONS.filter(q => q.subject === subject && q.grade === grade);
+    if (pool.length === 0)
+        return '';
+    if (focus) {
+        const wanted = focus === 'Theory' ? 'Theory' : 'Practical';
+        const byFocus = pool.filter(q => !q.classification || q.classification === wanted);
+        if (byFocus.length >= count)
+            pool = byFocus;
+    }
+    const sample = [...pool].sort(() => Math.random() - 0.5).slice(0, count);
+    const rendered = sample.map((q, i) => `Example ${i + 1}: ${q.question}\n${q.options.map((o, j) => `${'ABCD'[j]}. ${o}`).join(' | ')} (Correct: ${'ABCD'[q.correctIndex]})`).join('\n');
+    return `
+OFFICIAL REFERENCE QUESTIONS — real questions from the Akshara Fine Arts question bank for ${subject} ${grade}. LEARN from their style, difficulty, terminology and topic focus, and write NEW questions of the same standard. Do NOT copy them verbatim, and do NOT imitate their answer-letter positions (randomize your own).
+${rendered}
+`;
+};
+// The official grade-exam syllabus (theory + practical units) for this
+// subject/grade, when one exists — the authoritative exam scope.
+const gradeSyllabusBlock = (subject, grade) => {
+    const s = getGradeSyllabus(subject, grade);
+    if (!s)
+        return '';
+    return `
+OFFICIAL GRADE EXAM SYLLABUS — ${subject} ${grade} (the exam board's own scope; every question must fall inside it):
+Theory units:
+${s.theory.map(t => `- ${t}`).join('\n')}
+Practical units:
+${s.practical.map(p => `- ${p}`).join('\n')}
+${s.notes ? `Note: ${s.notes}\n` : ''}`;
+};
+const musicPromptRules = (syllabus, subject, grade, focus) => {
+    if (!isMusicSyllabus(syllabus))
+        return '';
+    const curated = getCuratedTopics(syllabus, subject, grade);
+    const gradeProtection = curated
+        ? `GRADE PROTECTION — the official ${grade} scope for ${subject} is EXACTLY these topics:\n${curated.map(t => `- ${t}`).join('\n')}\nTest ONLY these topics. NEVER include concepts from higher grades.`
+        : `GRADE PROTECTION: Test only concepts appropriate for ${grade}. NEVER include concepts from higher grades.`;
+    const examSyllabus = gradeSyllabusBlock(subject, grade);
+    const facts = getInstrumentFacts(subject);
+    const factGrounding = facts.length
+        ? `AUTHORITATIVE INSTRUMENT FACTS — every physical, posture or technique question MUST agree with these:\n${facts.map(f => `- ${f}`).join('\n')}\n`
+        : '';
+    const factualSafety = `FACTUAL SAFETY: Before finalising each question, verify the marked correct answer is factually true${facts.length ? ' and consistent with the authoritative facts above' : ''}. If you are not 100% certain of a physical or factual detail (posture, instrument construction, hand usage), DO NOT test it — write a question about a concept you are certain of instead. A wrong marked answer is a serious failure.`;
+    if (syllabus === 'Carnatic Music' || syllabus === 'Indian Music' /* legacy */) {
+        return `
+MUSIC SYLLABUS RULES (Carnatic Music):
+- This is a ${subject === 'Bharatanatyam (Dance)' ? 'BHARATANATYAM (South Indian classical DANCE)' : 'CARNATIC MUSIC'} examination for ${subject} students of Akshara Fine Arts (Grades 1-10).
+- Use authentic Carnatic terminology: swara (Sa Ri Ga Ma Pa Da Ni), shruti, sthayi, tala (Adi, Rupaka, Eka, Misra Chapu, Khanda Chapu), raga, sarali/janta/dhatu varisai, alankaram, geetham, varnam, kriti, sollukattu.
+- Anchor beginner content (Grades 1-3) on raga Mayamalavagowla.
+- Emphasise ${subject}-specific technique: ${CARNATIC_TECHNIQUE_FOCUS[subject] || 'instrument technique and theory'}.
+${musicFocusRules(subject, focus)}
+- Questions must be answerable in text form without audio or images — describe sounds and techniques in words.
+${factGrounding}${factualSafety}
+${examSyllabus}${referenceExamplesBlock(subject, grade, focus)}
+${gradeProtection}
+`;
+    }
+    if (syllabus === 'Hindustani Music') {
+        return `
+MUSIC SYLLABUS RULES (Hindustani Music):
+- This is a HINDUSTANI (North Indian) CLASSICAL MUSIC examination for ${subject} students of Akshara Fine Arts (Grades 1-10).
+- Use authentic Hindustani terminology: sargam (Sa Re Ga Ma Pa Dha Ni), shuddha/komal/tivra swaras, saptak (mandra, madhya, taar), taal (Teentaal 16, Keherwa 8, Dadra 6, Jhaptaal 10), theka, bol, sam, khali, matra, alankar, raag, aaroh/avroh, vadi/samvadi, bandish, alap, gharana awareness.
+- Anchor beginner content (Grades 1-3) on raag Bilawal (the natural-note reference) and simple alankar patterns.
+- Emphasise ${subject}-specific technique: ${HINDUSTANI_TECHNIQUE_FOCUS[subject] || 'instrument technique and theory'}.
+${musicFocusRules(subject, focus)}
+- Do NOT use Carnatic-specific terms (varnam, kriti, sarali varisai, sollukattu) — this is the Hindustani tradition.
+- Questions must be answerable in text form without audio or images — describe sounds and techniques in words.
+${factGrounding}${factualSafety}
+${examSyllabus}${referenceExamplesBlock(subject, grade, focus)}
+${gradeProtection}
+`;
+    }
+    return `
+MUSIC SYLLABUS RULES (Western Music):
+- This is an ABRSM/Trinity-style graded music examination for ${subject}, ${grade} (Grades 1-8).
+${subject === 'Drums'
+        ? '- Cover grade-appropriate drum kit content: rudiments, grooves and styles, fills, coordination, drum notation reading, timing and dynamics. Drums are unpitched — do NOT ask about scales, keys or melody.'
+        : `- Cover grade-appropriate content: staff notation, note values, time signatures, scales and key signatures, intervals, chords and cadences, musical terms (Italian/German/French), composers and periods${subject !== 'Music Theory' ? `, plus ${subject}-specific technique and repertoire knowledge` : ''}.`}
+${musicFocusRules(subject, focus)}
+- Describe any staff-notation content in WORDS only (e.g. "the note on the second line of the treble clef") — no images are available.
+${factualSafety}
+${gradeProtection}
+`;
+};
+// ─── LANGUAGE RESOLUTION ───────────────────────────────────────────────
+// Map UI language code → target language name for AI content.
+const LANG_NAME_MAP = {
+    en: 'English',
+    ms: 'Bahasa Melayu',
+    zh: 'Simplified Chinese (简体中文)',
+    ta: 'Tamil (தமிழ்)',
+};
+// Existing syllabus+subject-derived language (backward-compatible fallback).
+// This is the ONE source of truth for the legacy derivation used by both
+// the past-year and general quest paths.
+const deriveSyllabusLanguage = (subject, syllabus) => {
+    const s = (syllabus || '').toLowerCase();
+    const sub = (subject || '').toLowerCase();
+    if (s.includes('uec')) {
+        if (sub.includes('bahasa melayu') || sub.includes('sejarah'))
+            return 'Bahasa Melayu (Malay)';
+        if (sub.includes('english'))
+            return 'English';
+        return 'Simplified Chinese (简体中文)';
+    }
+    if (s.includes('kssr') || s.includes('kssm') || s.includes('malaysian')) {
+        if (sub.includes('english'))
+            return 'English';
+        return 'Bahasa Melayu (Malay)';
+    }
+    return 'English';
+};
+/**
+ * Resolve the target language for AI-generated content.
+ * - If the client sends a valid UI language code ('en'|'ms'|'zh'|'ta'),
+ *   the content follows the selected site language — EXCEPT intrinsic
+ *   language subjects (subject 'Bahasa Melayu' → always Bahasa Melayu;
+ *   subject 'English' → always English), regardless of UI language.
+ * - If no/invalid language is provided (old clients, classroom HomeworkCreator),
+ *   fall back to the existing syllabus+subject-derived behavior.
+ */
+const resolveTargetLanguage = (uiLang, subject, syllabus) => {
+    if (uiLang && LANG_NAME_MAP[uiLang]) {
+        const sub = (subject || '').toLowerCase();
+        // Intrinsic language-subject exception.
+        if (sub.includes('bahasa melayu'))
+            return 'Bahasa Melayu';
+        if (sub.includes('english'))
+            return 'English';
+        return LANG_NAME_MAP[uiLang];
+    }
+    return deriveSyllabusLanguage(subject, syllabus);
+};
+/**
+ * Resolve the 4-letter language code used for language-aware syllabus caching.
+ * Mirrors resolveTargetLanguage's rule but returns 'en'|'ms'|'zh'|'ta'.
+ * Falls back to 'en' when no valid UI language is provided (keeps old clients
+ * consistently hitting the same cache rows they always did).
+ */
+const resolveLangCode = (uiLang, subject) => {
+    if (uiLang && LANG_NAME_MAP[uiLang]) {
+        const sub = (subject || '').toLowerCase();
+        if (sub.includes('bahasa melayu'))
+            return 'ms';
+        if (sub.includes('english'))
+            return 'en';
+        return uiLang;
+    }
+    return 'en';
+};
+// Mock Generation Logic (Server Side)
+const generateMockQuestions = (subject, grade, topic, syllabus) => {
+    return Array.from({ length: 15 }).map((_, i) => ({
+        id: `mock-${Date.now()}-${i}`,
+        text: `[Server Mock] ${topic} Question ${i + 1} for ${grade}`,
+        options: ["A", "B", "C", "D"],
+        correctAnswerIndex: 0,
+        explanation: "Server mock explanation."
+    }));
+};
+const generateMockSyllabus = () => {
+    return ["Mock Topic 1", "Mock Topic 2", "Mock Topic 3", "Mock Topic 4", "Mock Topic 5"];
+};
+/**
+ * SUPER-ROBUST JSON REPAIR
+ * Handles truncated or slightly malformed JSON by:
+ * 1. Extracting the core JSON part via regex
+ * 2. Closing open braces/brackets if truncated
+ */
+const superRepairJSON = (text) => {
+    // Stage 1: Basic Extraction
+    let cleaned = text.trim();
+    const jsonMatch = cleaned.match(/\{[\s\S]*\}/) || cleaned.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) {
+        // If no full match, try to find the start and fix the end
+        const startIdx = cleaned.indexOf('{');
+        if (startIdx !== -1) {
+            cleaned = cleaned.substring(startIdx);
+        }
+        else {
+            const arrStartIdx = cleaned.indexOf('[');
+            if (arrStartIdx !== -1)
+                cleaned = cleaned.substring(arrStartIdx);
+            else
+                throw new Error("No JSON start found");
+        }
+    }
+    else {
+        cleaned = jsonMatch[0];
+    }
+    // Stage 2: Balanced Brackets (Repair Truncation)
+    const stack = [];
+    let insideString = false;
+    let escape = false;
+    let lastValidIdx = cleaned.length;
+    for (let i = 0; i < cleaned.length; i++) {
+        const char = cleaned[i];
+        if (escape) {
+            escape = false;
+            continue;
+        }
+        if (char === '\\') {
+            escape = true;
+            continue;
+        }
+        if (char === '"') {
+            insideString = !insideString;
+            continue;
+        }
+        if (!insideString) {
+            if (char === '{' || char === '[') {
+                stack.push(char);
+            }
+            else if (char === '}' || char === ']') {
+                const last = stack.pop();
+                if ((char === '}' && last !== '{') || (char === ']' && last !== '[')) {
+                    // Mismatch - might be malformed in the middle
+                }
+            }
+        }
+    }
+    // If we are inside an unterminated string, close it
+    if (insideString)
+        cleaned += '"';
+    // Close remaining brackets in reverse order
+    while (stack.length > 0) {
+        const last = stack.pop();
+        if (last === '{')
+            cleaned += '}';
+        if (last === '[')
+            cleaned += ']';
+    }
+    return JSON.parse(cleaned);
+};
+// ... Limit Check & Increment ...
+router.post('/quest', authenticateToken, checkExpiredSubscriptions, async (req, res) => {
+    const { subject, grade, topic, syllabus, isPastYear, year, language, focus } = req.body;
+    const userId = req.user?.id;
+    if (userId) {
+        try {
+            // Child profiles inherit the parent's subscription; a free family shares one allowance.
+            const user = await effectiveSubscription(userId);
+            // Check Limit
+            if (user && !user.isSubscribed && user.questsPlayed >= 3) {
+                console.log(`[GEN] ❌ Limit reached for user ${userId}`);
+                return res.status(403).json({
+                    error: "Free limit reached. Upgrade to Pro for unlimited quests!",
+                    code: "USER_LIMIT_REACHED"
+                });
+            }
+            // Increment Usage (Count attempt)
+            if (user && !user.isSubscribed) {
+                await countFreeQuest(userId);
+                console.log(`[GEN] Incremented usage for user ${userId}`);
+            }
+        }
+        catch (error) {
+            console.error("[GEN] Error checking/updating user limit:", error);
+            return res.status(500).json({ error: "Internal Server Error" });
+        }
+    }
+    console.log(`[GEN] Request: ${subject} / ${grade} / ${topic || 'Full Paper'} / ${syllabus} ${isPastYear ? `(Past Year ${year})` : ''}`);
+    // ─── MUSIC: BANK-FIRST ────────────────────────────────────────────
+    // Music quests serve real questions from the official Akshara bank when
+    // enough exist for the subject/grade. Placed BEFORE the API-key and
+    // mock-mode checks so seeded content works with no AI configured.
+    if (!isPastYear && typeof syllabus === 'string' && isMusicSyllabus(syllabus)) {
+        try {
+            const QUEST_SIZE = 20;
+            let rows = await prisma.questionBank.findMany({
+                where: { subject, grade, syllabus }
+            });
+            // Soft focus filter: prefer questions matching the chosen study focus
+            // (Theory vs Aural & Practical); rows with no classification fit both.
+            if (focus && rows.length > 0) {
+                const wanted = focus === 'Theory' ? 'Theory' : 'Practical';
+                const byFocus = rows.filter((r) => !r.classification || r.classification === wanted);
+                if (byFocus.length >= QUEST_SIZE)
+                    rows = byFocus;
+            }
+            // Soft topic filter: prefer questions tagged with the chosen topic,
+            // but never shrink below a serveable pool.
+            if (topic && topic !== 'Full Paper' && rows.length > 0) {
+                const t = String(topic).toLowerCase();
+                const filtered = rows.filter((r) => r.topic && t.includes(r.topic.toLowerCase()));
+                if (filtered.length >= QUEST_SIZE)
+                    rows = filtered;
+            }
+            if (rows.length >= QUEST_SIZE) {
+                // Never repeat: questions this student has not seen come first; seen
+                // ones only fill the quest when the unseen pool runs low.
+                const seenBank = userId ? await loadSeenQuestions(userId, subject, grade) : { hashes: new Set(), texts: [] };
+                const shuffle = (a) => [...a].sort(() => Math.random() - 0.5);
+                const unseen = rows.filter((r) => !seenBank.hashes.has(questionHash(r.question)));
+                const seenRows = rows.filter((r) => seenBank.hashes.has(questionHash(r.question)));
+                const picked = [...shuffle(unseen), ...shuffle(seenRows)].slice(0, QUEST_SIZE);
+                if (userId)
+                    await recordServedQuestions(userId, subject, grade, syllabus, picked.map((r) => r.question));
+                console.log(`✅ [GEN] Serving ${picked.length} official bank questions for ${subject}/${grade} (${syllabus}) — ${Math.min(unseen.length, QUEST_SIZE)} unseen`);
+                return res.json(formatBankQuestions(picked, `${subject} ${grade} — Akshara Official Bank`));
+            }
+            console.log(`[GEN] Music bank has only ${rows.length} rows for ${subject}/${grade} — falling through to AI.`);
+        }
+        catch (dbErr) {
+            console.error(`❌ [GEN] Music bank lookup failed: ${dbErr.message} — falling through to AI.`);
+        }
+    }
+    // Check API Key
+    if (!process.env.GEMINI_API_KEY) {
+        console.error("❌ [GEN] GEMINI_API_KEY is MISSING in environment.");
+        return res.status(500).json({
+            error: "Gemini API Key is missing. Please add it to your .env file or Vercel environment variables.",
+            instruction: "Go to https://aistudio.google.com/app/apikey to get a new key."
+        });
+    }
+    if (isMockMode()) {
+        console.warn("⚠️ [GEN] AI_MOCK_MODE is ON. But user requested real questions. Stopping here to prevent mock data.");
+        return res.status(403).json({ error: "Mock mode is enabled in .env but real questions were requested." });
+    }
+    // ─── PAST YEAR: STRICT QuestionBank requirement ───────────────────
+    if (isPastYear && year) {
+        try {
+            const parsedYear = parseInt(String(year).split(' ')[0], 10);
+            if (!isNaN(parsedYear)) {
+                // Smart Matching: Extract key acronyms (KSSR, KSSM, IGCSE, SPM, etc.)
+                const acronyms = (syllabus.match(/\b(KSSR|KSSM|IGCSE|SPM|UPSR|PT3|STPM|IB)\b/gi) || [])
+                    .map(a => a.toUpperCase());
+                const sKeywords = syllabus.split('(')[0].trim();
+                // Grade Normalization: Standard 1 <-> Year 1 <-> Grade 1
+                const gradeMatch = grade.match(/\d+/);
+                const gradeNum = gradeMatch ? gradeMatch[0] : null;
+                const gradeVariations = gradeNum ? [
+                    `Standard ${gradeNum}`,
+                    `Year ${gradeNum}`,
+                    `Grade ${gradeNum}`,
+                    `Form ${gradeNum}`,
+                    grade
+                ] : [grade];
+                const realQuestions = await prisma.questionBank.findMany({
+                    where: {
+                        subject,
+                        grade: { in: gradeVariations },
+                        year: parsedYear,
+                        OR: [
+                            { syllabus: { contains: sKeywords, mode: 'insensitive' } },
+                            { syllabus: syllabus },
+                            ...acronyms.map(a => ({ syllabus: { contains: a, mode: 'insensitive' } }))
+                        ]
+                    },
+                    orderBy: { createdAt: 'asc' },
+                });
+                if (realQuestions.length > 0) {
+                    console.log(`✅ [GEN] Found ${realQuestions.length} real QuestionBank questions for ${subject}/${grade}/${parsedYear} (Variations: ${gradeVariations.join(', ')})`);
+                    const formatted = formatBankQuestions(realQuestions, `${subject} ${year}`);
+                    // Return all found questions (max 50 to keep it manageable but satisfying)
+                    return res.json(formatted.sort(() => Math.random() - 0.5).slice(0, 50));
+                }
+                else {
+                    console.warn(`❌ [GEN] No Questions Found in Bank for ${subject} ${grade} ${parsedYear}.`);
+                    return res.status(404).json({
+                        error: "No questions found in the official bank for this year.",
+                        instruction: "Administrator: Please use the 'AI Generate & Import' tool in the Admin Dashboard to add these questions."
+                    });
+                }
+            }
+        }
+        catch (dbErr) {
+            console.error(`❌ [GEN] DB lookup failed: ${dbErr.message}`);
+            return res.status(500).json({ error: "Failed to retrieve questions from database." });
+        }
+    }
+    try {
+        // PURE AI GENERATION - Skip database entirely
+        // GEMINI GENERATION - Generate questions with Gemini
+        console.log("🤖 [GEN] Generating questions with Gemini...");
+        let prompt = "";
+        if (isPastYear) {
+            // Resolve official exam name from syllabus + grade
+            const examName = (() => {
+                const s = syllabus.toLowerCase();
+                const g = grade.toLowerCase();
+                if (s.includes('uec'))
+                    return 'UEC (Unified Examination Certificate)';
+                if (s.includes('kssr') || s.includes('kssm') || s.includes('malaysian')) {
+                    if (g.includes('form 5'))
+                        return 'SPM (Sijil Pelajaran Malaysia)';
+                    if (g.includes('form 3'))
+                        return 'PT3 (Pentaksiran Tingkatan 3)';
+                    if (g.includes('standard 6'))
+                        return 'UPSR (Ujian Pencapaian Sekolah Rendah)';
+                    if (g.includes('form 6'))
+                        return 'STPM (Sijil Tinggi Persekolahan Malaysia)';
+                    return 'Malaysian National Exam';
+                }
+                if (s.includes('igcse') || s.includes('cambridge'))
+                    return 'Cambridge IGCSE';
+                if (s.includes('singapore') || s.includes('moe'))
+                    return 'Singapore GCE O-Level';
+                if (s.includes('ib'))
+                    return 'IB (International Baccalaureate)';
+                return syllabus;
+            })();
+            // Language: follow selected UI language (with language-subject
+            // exception) when provided; else legacy syllabus-derived.
+            const targetLanguage = resolveTargetLanguage(language, subject, syllabus);
+            prompt = `You are an expert exam question compiler with comprehensive knowledge of official past year exam papers.
+
+TASK: Reproduce 22-25 actual multiple-choice questions from the official ${examName} ${year} paper for ${subject} at ${grade} level.
+
+CRITICAL RULES — READ CAREFULLY:
+1. LANGUAGE: The entire question, options, and explanation MUST be written in ${targetLanguage}. This is strict.
+2. RECALL REAL QUESTIONS: You were trained on official ${examName} past year papers published before your cutoff. Reproduce questions that genuinely appeared in or are extremely representative of the actual ${year} ${subject} paper. Do NOT invent generic revision questions.
+3. CORRECT ANSWERS MUST BE 100% ACCURATE: Every correctAnswerIndex must be provably correct based on the official answer scheme. Wrong answers here are a serious failure.
+4. REALISTIC DISTRACTORS: The wrong options must be the same plausible misconceptions that students commonly choose in the real exam — not obviously wrong choices.
+5. YEAR-SPECIFIC EMPHASIS: Reflect the specific topics stressed in the ${year} paper.
+6. FULL PAPER COVERAGE: Distribute questions across the main chapters/topics of ${subject} at ${grade} level.
+7. DIFFICULTY SPREAD: Include approximately 8 easy, 10 medium, and 7 challenging questions.
+
+Syllabus-specific rules:
+${syllabus.toLowerCase().includes('kssr') || syllabus.toLowerCase().includes('malaysian') ? `- Follow Malaysian DSKP standards exactly.
+- Use correct Malaysian terminology.
+- SPM Paper 1 is all MCQ.` : ''}
+${syllabus.toLowerCase().includes('uec') ? `- Follow Dong Zong (UEC) standards and terminology for ${grade}.
+- Use official UEC subject naming conventions.` : ''}
+${syllabus.toLowerCase().includes('igcse') || syllabus.toLowerCase().includes('cambridge') ? `- Use the official Cambridge ${subject} syllabus code.
+- Match Cambridge command words exactly (state, describe, explain).` : ''}
+
+`;
+        }
+        else {
+            // General Generation Language: follow selected UI language (with
+            // language-subject exception) when provided; else legacy derivation.
+            const targetLanguage = resolveTargetLanguage(language, subject, syllabus);
+            prompt = `Generate a set of high-quality multiple-choice questions for:
+            - Subject: ${subject}
+            - Grade: ${grade}
+            - Topic: ${topic}
+            - Syllabus: ${syllabus}
+            - Target Language: ${targetLanguage}
+            
+            CRITICAL INSTRUCTIONS:
+            1. Language: Write the entire output (questions, options, explanations) in ${targetLanguage}.
+            2. Format: ${grade} level, ${syllabus} standards
+            3. Content: 4 options (A-D), correct index (0-3)
+            ${musicPromptRules(syllabus, subject, grade, focus)}`;
+        }
+        prompt += `
+        GENERAL QUALITY RULES:
+        1. QUANTITY: Generate 22-25 questions. No fewer than 22.
+        2. RANDOMIZED ANSWERS: Ensure the correct answer (correctAnswerIndex) is evenly distributed among 0, 1, 2, and 3 across the entire set of questions. For example, in a set of 20 questions, roughly 5 should have index 0 (A), 5 should have index 1 (B), 5 should have index 2 (C), and 5 should have index 3 (D). Do NOT put the correct answer in the same position for every question.
+        3. Simplicity: Use ONLY basic alphanumeric characters and standard punctuation. AVOID complex nesting or unusual symbols.
+        4. Explanation Quality: Each explanation MUST be specific to the question. It must:
+           - Directly state WHY the correct answer is right (cite the specific law, formula, fact, or rule)
+           - Briefly explain why a common wrong choice is misleading
+           - Be 2-3 sentences maximum. Do NOT write generic study notes.
+           - GOOD example: "The correct answer is chlorophyll because it is the pigment that absorbs light energy for photosynthesis. Option B (glucose) is wrong because glucose is the product of photosynthesis, not the absorber."
+           - BAD example: "This is an important topic in biology." — This is not acceptable.
+
+        JSON SPECIFICATION:
+        Return ONLY a valid JSON object with this exact structure:
+        {"questions": [{"question": "...", "options": ["...", "...", "...", "..."], "correctAnswerIndex": 0, "explanation": "..."}]}
+        `;
+        try {
+            // A quest must have at least MIN_QUESTIONS. A truncated or thin AI
+            // response is retried (and topped up) rather than served as-is —
+            // students were sometimes getting 2-3 question quests.
+            const MIN_QUESTIONS = 20;
+            const MAX_ATTEMPTS = 3;
+            // Questions this student has already been served on this subject/grade —
+            // excluded from the result and listed in the prompt as off-limits.
+            const seen = userId ? await loadSeenQuestions(userId, subject, grade) : { hashes: new Set(), texts: [] };
+            const avoidList = (extra) => {
+                const all = [...seen.texts, ...extra].slice(-80);
+                return all.length ? `\n\nALREADY ASKED TO THIS STUDENT — do NOT repeat or lightly reword any of these:\n${all.map(t => `- ${t}`).join('\n')}` : '';
+            };
+            // Vercel functions are capped at 60s — don't start another attempt if
+            // there is unlikely to be time for it to finish.
+            const TIME_BUDGET_MS = 40_000;
+            const startedAt = Date.now();
+            const collected = [];
+            const seenText = new Set();
+            for (let attempt = 1; attempt <= MAX_ATTEMPTS && collected.length < MIN_QUESTIONS; attempt++) {
+                if (attempt > 1 && Date.now() - startedAt > TIME_BUDGET_MS) {
+                    console.warn(`⚠️ [GEN] Time budget exhausted before attempt ${attempt}; serving ${collected.length} questions`);
+                    break;
+                }
+                console.log(`🤖 [GEN] Requesting Gemini (attempt ${attempt}/${MAX_ATTEMPTS}, have ${collected.length})...`);
+                const attemptPrompt = attempt === 1
+                    ? `${prompt}${avoidList([])}`
+                    : `${prompt}\n\nIMPORTANT: Generate a FRESH set of 22-25 DIFFERENT questions.${avoidList(collected.map(q => q.text))}`;
+                let responseText = null;
+                try {
+                    responseText = await generateAIContent(attemptPrompt, PRIMARY_MODEL, "application/json");
+                }
+                catch (apiErr) {
+                    if (attempt === MAX_ATTEMPTS && collected.length === 0)
+                        throw apiErr;
+                    console.warn(`⚠️ [GEN] Attempt ${attempt} API error: ${apiErr.message}`);
+                    continue;
+                }
+                if (!responseText) {
+                    console.warn(`⚠️ [GEN] Attempt ${attempt}: empty response`);
+                    continue;
+                }
+                console.log(`✅ [GEN] Received response (${responseText.length} chars). Parsing...`);
+                let aiQuestions = null;
+                try {
+                    const parsed = superRepairJSON(responseText);
+                    aiQuestions = parsed.questions || (Array.isArray(parsed) ? parsed : null);
+                }
+                catch (parseError) {
+                    console.warn(`⚠️ [GEN] Attempt ${attempt} JSON failure: ${parseError.message}`);
+                    continue;
+                }
+                if (!Array.isArray(aiQuestions))
+                    continue;
+                // Keep only well-formed, not-yet-seen questions.
+                for (const q of aiQuestions) {
+                    const text = String(q?.question || q?.text || '').trim();
+                    const options = Array.isArray(q?.options) ? q.options.map((o) => String(o)) : [];
+                    const idx = Number(q?.correctAnswerIndex ?? q?.correctAnswer);
+                    if (!text || options.length < 2 || !Number.isInteger(idx) || idx < 0 || idx >= options.length)
+                        continue;
+                    const key = text.toLowerCase();
+                    if (seenText.has(key))
+                        continue;
+                    if (seen.hashes.has(questionHash(text)))
+                        continue; // served to this student before
+                    seenText.add(key);
+                    collected.push({
+                        id: `ai-${Date.now()}-${collected.length}`,
+                        text,
+                        options,
+                        correctAnswerIndex: idx,
+                        explanation: q?.explanation || "No explanation provided"
+                    });
+                }
+                console.log(`[GEN] Attempt ${attempt}: ${aiQuestions.length} returned, ${collected.length} valid so far`);
+            }
+            if (collected.length === 0) {
+                console.error("❌ [GEN] No valid questions after all attempts, using mock");
+                return res.json(generateMockQuestions(subject, grade, topic, syllabus));
+            }
+            if (collected.length < MIN_QUESTIONS) {
+                console.warn(`⚠️ [GEN] Only ${collected.length} valid questions after ${MAX_ATTEMPTS} attempts — serving what we have`);
+            }
+            const formattedQuestions = collected.slice(0, 20);
+            if (userId)
+                await recordServedQuestions(userId, subject, grade, syllabus, formattedQuestions.map(q => q.text));
+            console.log(`✅ [GEN] Generated ${formattedQuestions.length} questions with Gemini`);
+            // ─── ROBUST OPTION SHUFFLING ───────────────────────────────────
+            // Ensure the correct answer is randomized (A, B, C, or D) for every question
+            const randomizedQuestions = formattedQuestions.map((q) => {
+                const options = [...q.options];
+                const correctOptionText = options[q.correctAnswerIndex];
+                // Fisher-Yates Shuffle
+                for (let i = options.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [options[i], options[j]] = [options[j], options[i]];
+                }
+                // Find new index of the correct answer
+                const newCorrectIndex = options.indexOf(correctOptionText);
+                return {
+                    ...q,
+                    options,
+                    correctAnswerIndex: newCorrectIndex !== -1 ? newCorrectIndex : q.correctAnswerIndex
+                };
+            });
+            return res.json(randomizedQuestions);
+        }
+        catch (error) {
+            console.error("❌ [GEN] Error:", error.message);
+            return res.status(500).json({
+                error: `AI Generation failed: ${error.message}`,
+                details: "Check your GEMINI_API_KEY in .env. If it's expired, you must renew it at Google AI Studio."
+            });
+        }
+    }
+    catch (error) {
+        console.error("❌ [GEN] Outer Error:", error.message);
+        console.error(error.stack);
+        res.status(500).json({ error: "Generation Failed", details: error.message });
+    }
+});
+router.post('/syllabus', async (req, res) => {
+    const { subject, grade, syllabus, forceRefresh, language } = req.body;
+    // Resolve target language (same rule as quests — language-subject exception
+    // applies) and the 4-letter code used for language-aware cache keying.
+    const targetLanguage = resolveTargetLanguage(language, subject, syllabus);
+    const langCode = resolveLangCode(language, subject);
+    console.log(`[SYLLABUS] Request: ${subject} / ${grade} / ${syllabus} [lang=${langCode}]${forceRefresh ? ' (FORCE REFRESH)' : ''}`);
+    // Curated music topic trees — deterministic, instant, no AI or DB needed.
+    // Served in English for every UI language (Carnatic/ABRSM terms don't translate).
+    if (typeof syllabus === 'string' && isMusicSyllabus(syllabus)) {
+        const curated = getCuratedTopics(syllabus, subject, grade);
+        if (curated) {
+            console.log(`✅ [SYLLABUS] Serving curated music topics for ${subject} / ${grade}`);
+            return res.json(curated);
+        }
+        // No hand-authored tree — derive topics from the official grade-exam syllabus.
+        const exam = getGradeSyllabus(subject, grade);
+        if (exam) {
+            console.log(`✅ [SYLLABUS] Serving grade-exam syllabus topics for ${subject} / ${grade}`);
+            return res.json(syllabusToTopics(exam));
+        }
+    }
+    if (isMockMode()) {
+        console.log(`✅ [SYLLABUS] Using mock mode, returning mock data`);
+        return res.json(generateMockSyllabus());
+    }
+    try {
+        // 1. Check DB Cache (Skip if forceRefresh is true)
+        if (!forceRefresh) {
+            const cached = await prisma.courseSyllabus.findUnique({
+                where: {
+                    subject_grade_syllabus_language: { subject, grade, syllabus, language: langCode }
+                }
+            });
+            if (cached) {
+                console.log(`✅ [SYLLABUS] Found cached syllabus`);
+                return res.json(JSON.parse(cached.topics));
+            }
+        }
+        else {
+            console.log(`[SYLLABUS] Bypassing cache due to forceRefresh`);
+        }
+        // AI SYLLABUS GENERATION with Gemini
+        console.log(`🤖 [SYLLABUS] Generating syllabus with Gemini for: ${subject} ${grade} (JSON Mode)`);
+        const prompt = `Generate a comprehensive list of syllabus topics for:
+        - Subject: ${subject}
+        - Grade Level: ${grade}
+        - Syllabus/Curriculum: ${syllabus}
+
+        INSTRUCTIONS:
+        1. Base this on the OFFICIAL current curriculum.
+        2. For KSSR/KSSM (Malaysian), align with latest DSKP standards.
+        3. For IGCSE, align with Cambridge curriculum.
+        4. For UEC, align with Dong Zong standards.
+        5. Include 10-20 key topics to ensure full coverage. 
+        6. STRICT FORMATTING: Each topic MUST start with "Topic X: " (e.g., Topic 1, Topic 2).
+        7. DETAILED STRUCTURE: Include the main sub-topics in parentheses.
+           Example: "Topic 1: Quadratic Functions (Graphs, Roots, Completing the Square)"
+        8. UNIVERSAL APPLICABILITY: This must work for ANY subject (Mathematics, Computer Science, Biology, Languages, etc.).
+        9. LANGUAGE: The topic names MUST be written in ${targetLanguage}.
+        ${typeof syllabus === 'string' && isMusicSyllabus(syllabus) ? ((syllabus === 'Carnatic Music' || syllabus === 'Indian Music')
+            ? `10. CARNATIC MUSIC: This is the Akshara Fine Arts Carnatic curriculum for ${subject}. Use authentic Carnatic terminology (swara, shruti, tala, raga, sarali/janta/dhatu varisai, alankaram, geetham, varnam, kriti, sollukattu). Topics must fit ${grade} only — never include higher-grade concepts.`
+            : syllabus === 'Hindustani Music'
+                ? `10. HINDUSTANI MUSIC: This is the Akshara Fine Arts Hindustani (North Indian) curriculum for ${subject}. Use authentic Hindustani terminology (sargam, saptak, taal, theka, bol, alankar, raag, aaroh/avroh, bandish, alap). Do NOT use Carnatic terms. Topics must fit ${grade} only — never include higher-grade concepts.`
+                : `10. WESTERN MUSIC: Follow ABRSM/Trinity graded standards for ${subject} at ${grade}. Cover notation, scales, intervals, chords, musical terms, composers and instrument technique appropriate to this grade only.`) : ''}
+
+        JSON SPECIFICATION:
+        Return ONLY a JSON object with a "topics" key containing a flat array of strings.
+        Example:
+        {"topics": ["Topic 1: Topic Name (Subtopic A, Subtopic B)", "Topic 2: Topic Name (Subtopic C)"]}
+        `;
+        let responseText;
+        try {
+            responseText = await generateAIContent(prompt, PRIMARY_MODEL, "application/json");
+        }
+        catch (apiError) {
+            console.error(`❌ [SYLLABUS] Gemini API Error: ${apiError.message}`);
+            return res.status(500).json({
+                error: `Syllabus generation failed: ${apiError.message}`,
+                instruction: "Please check your GEMINI_API_KEY in .env."
+            });
+        }
+        if (!responseText) {
+            console.error("❌ [SYLLABUS] Empty AI response");
+            return res.json(generateMockSyllabus());
+        }
+        console.log(`✅ [SYLLABUS] Received response (${responseText.length} chars). Parsing...`);
+        let topics = [];
+        try {
+            const parsed = superRepairJSON(responseText);
+            topics = parsed.topics || (Array.isArray(parsed) ? parsed : []);
+        }
+        catch (e) {
+            console.error(`❌ [SYLLABUS] JSON Critical Failure: ${e.message}`);
+            console.log(`[SYLLABUS] Full Response for Debug: ${responseText}`);
+            return res.status(500).json({ error: "AI returned invalid JSON. Please try again." });
+        }
+        if (topics.length === 0) {
+            console.warn("⚠️ [SYLLABUS] No topics parsed");
+            return res.status(500).json({ error: "AI failed to generate topics." });
+        }
+        console.log(`✅ [SYLLABUS] Generated ${topics.length} topics with Gemini`);
+        // Cache it for future use
+        await prisma.courseSyllabus.upsert({
+            where: {
+                subject_grade_syllabus_language: { subject, grade, syllabus, language: langCode }
+            },
+            update: { topics: JSON.stringify(topics) },
+            create: { subject, grade, syllabus, topics: JSON.stringify(topics), language: langCode }
+        });
+        return res.json(topics);
+    }
+    catch (error) {
+        console.error("❌ [SYLLABUS] Unexpected Error:", error.message);
+        return res.status(500).json({ error: "Unexpected error during syllabus generation." });
+    }
+});
+router.post('/study-plan', authenticateToken, checkExpiredSubscriptions, async (req, res) => {
+    const { subject, subjects: subjectsRaw, grade, syllabus, timeframe, hoursPerDay, goals, language } = req.body;
+    const userId = req.user?.id;
+    // Study plans span multiple subjects, so we apply the selected UI language
+    // directly WITHOUT the language-subject exception (there is no single
+    // subject to key the exception on). Falls back to English for old clients.
+    const targetLanguage = (language && LANG_NAME_MAP[language]) ? LANG_NAME_MAP[language] : 'English';
+    // Accept a `subjects` array; coerce a legacy single `subject` string for backward-compat.
+    const subjects = Array.isArray(subjectsRaw) && subjectsRaw.length > 0
+        ? subjectsRaw.filter((s) => typeof s === 'string' && s.trim().length > 0)
+        : (typeof subject === 'string' && subject.trim().length > 0 ? [subject] : []);
+    const subjectsLabel = subjects.join(', ');
+    console.log(`[STUDY-PLAN] Request: ${subjectsLabel} / ${grade} / ${syllabus} - ${timeframe} - ${hoursPerDay}h/day`);
+    if (userId) {
+        try {
+            const user = await effectiveSubscription(userId);
+            // Check Limit reusing questsPlayed as a general AI generation count for now,
+            // or we could let subscribers have unlimited. Let's apply the same check.
+            if (user && !user.isSubscribed && user.questsPlayed >= 5) { // Give a bit more leeway for study plans or use same limit
+                console.log(`[STUDY-PLAN] ❌ Limit reached for user ${userId}`);
+                return res.status(403).json({
+                    error: "Free AI generation limit reached. Upgrade to Pro for unlimited features!",
+                    code: "USER_LIMIT_REACHED"
+                });
+            }
+            // Increment Usage
+            if (user && !user.isSubscribed) {
+                await countFreeQuest(userId);
+            }
+        }
+        catch (error) {
+            console.error("[STUDY-PLAN] Error checking/updating user limit:", error);
+            return res.status(500).json({ error: "Internal Server Error" });
+        }
+    }
+    if (!process.env.GEMINI_API_KEY) {
+        return res.status(500).json({ error: "Gemini API Key is missing." });
+    }
+    if (isMockMode()) {
+        console.log(`✅ [STUDY-PLAN] Using mock mode`);
+        return res.json({
+            title: `Study Plan: ${subjectsLabel} (${grade})`,
+            overview: "A mock study plan for testing.",
+            weeks: [
+                {
+                    weekNumber: 1,
+                    focus: "Foundational Concepts",
+                    days: [
+                        {
+                            day: "Day 1",
+                            tasks: [
+                                { title: "Review Chapter 1: Real Numbers", topicSearch: "Real Numbers" },
+                                { title: "Complete 10 MCQs on Fractions", topicSearch: "Fractions" }
+                            ]
+                        },
+                        {
+                            day: "Day 2",
+                            tasks: [
+                                { title: "Practice Algebra basics", topicSearch: "Algebra" }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            tips: ["Stay hydrated", "Take short breaks"]
+        });
+    }
+    try {
+        console.log(`🤖 [STUDY-PLAN] Generating with Gemini...`);
+        const prompt = `Act as an expert academic tutor and create a highly effective, personalized study plan.
+
+        STUDENT PROFILE:
+        - Subjects: ${subjectsLabel}
+        - Grade Level: ${grade}
+        - Syllabus/Curriculum: ${syllabus}
+        - Timeframe: ${timeframe}
+        - Daily Study Commitment: ${hoursPerDay} hours per day
+        - Additional Goals/Focus: ${goals || 'General mastery and exam preparation'}
+
+        - Commitment: ${hoursPerDay} hours per day
+        ${goals ? `- Specific Goals: ${goals}` : ""}
+
+        MULTI-SUBJECT: Build ONE combined weekly plan that covers ALL of these subjects: ${subjectsLabel}.
+        Distribute the subjects across the days and weeks and balance study time between them — do NOT
+        produce a separate plan per subject. Each task's "topicSearch" must be a topic within one of these subjects.
+
+        LANGUAGE: The plan's title, overview, weekly focus, task titles and tips MUST be written in ${targetLanguage}. However, every "topicSearch" value MUST remain in English so the topic deep-links into quest generation still work.
+
+        IMPORTANT: Keep it simple and clean. Use MINIMAL words.
+        - Title should be very short (max 5 words).
+        - Overview should be max 2 sentences.
+        - Task titles should be extremely concise (max 4-5 words).
+        - Provide max 3 high-impact tips.
+
+        Return ONLY a JSON object with this structure:
+        {
+          "title": "Short Course Title",
+          "overview": "Brief 1-2 sentence strategy.",
+          "weeks": [
+            {
+              "weekNumber": 1,
+              "focus": "Short Weekly Focus",
+              "days": [
+                {
+                  "day": "Day 1",
+                  "tasks": [
+                    { "title": "Concise task description", "topicSearch": "Exact topic name for practice" }
+                  ]
+                }
+              ]
+            }
+          ],
+        }
+        
+        CRITICAL: 
+        1. Each task MUST be an object with "title" and "topicSearch".
+        2. "topicSearch" should be a 1-3 word keyword that represents the mathematical or academic topic (e.g., "Algebra", "Calculus", "Probability", "Human Rights", "Volcanoes"). topicSearch values must be in English. This will be used to deep-link the student to specific practice questions.
+        3. Give tasks like "Complete 10 MCQ questions on [Topic]", "Review [Topic] theory", etc.
+        `;
+        let responseText;
+        try {
+            responseText = await generateAIContent(prompt, PRIMARY_MODEL, "application/json");
+        }
+        catch (apiError) {
+            console.error(`❌ [STUDY-PLAN] Gemini API Error: ${apiError.message}`);
+            return res.status(500).json({ error: `AI generation failed: ${apiError.message}` });
+        }
+        if (!responseText) {
+            return res.status(500).json({ error: "Empty response from AI" });
+        }
+        let planData;
+        try {
+            planData = superRepairJSON(responseText);
+        }
+        catch (e) {
+            console.error(`❌ [STUDY-PLAN] JSON parse failed: ${e.message}`);
+            return res.status(500).json({ error: "AI returned invalid JSON." });
+        }
+        // --- NEW: Persist the Study Plan ---
+        if (userId && planData.weeks) {
+            try {
+                // We'll replace the existing plan for this subject/grade if it exists, 
+                // or just keep one active plan overall. The prompt suggests a simpler clean tracking.
+                // Let's replace any existing plan for the SAME user to keep it clean.
+                await prisma.studyPlan.deleteMany({
+                    where: { userId }
+                });
+                const createdPlan = await prisma.studyPlan.create({
+                    data: {
+                        userId,
+                        title: planData.title,
+                        overview: planData.overview,
+                        subject: subjectsLabel, // free-text column stores the comma-joined subjects
+                        grade,
+                        syllabus,
+                        timeframe,
+                        tasks: {
+                            create: planData.weeks.flatMap((week) => week.days.flatMap((day) => day.tasks.map((task) => ({
+                                weekNumber: parseInt(String(week.weekNumber)),
+                                day: day.day,
+                                title: task.title,
+                                topicSearch: task.topicSearch
+                            }))))
+                        }
+                    }
+                });
+                console.log(`✅ [STUDY-PLAN] Saved to DB (ID: ${createdPlan.id})`);
+                planData.id = createdPlan.id; // Return the ID to the client
+            }
+            catch (dbErr) {
+                console.error("❌ [STUDY-PLAN] DB Save Error:", dbErr);
+                // We don't fail the request if saving fails, but alert in logs
+            }
+        }
+        console.log(`✅ [STUDY-PLAN] Generated successfully`);
+        return res.json(planData);
+    }
+    catch (error) {
+        console.error("❌ [STUDY-PLAN] Error:", error.message);
+        return res.status(500).json({ error: "Failed to generate study plan." });
+    }
+});
+export default router;
